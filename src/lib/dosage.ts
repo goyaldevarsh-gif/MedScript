@@ -1,22 +1,22 @@
 import type { Freq, Lang, RxItem, Timing } from './types';
 
 export const FREQS: { v: Freq; label: string; perDay: number; en: string; hi: string }[] = [
-  { v: 'OD', label: 'OD', perDay: 1, en: 'once daily', hi: 'din mein ek baar' },
-  { v: 'BD', label: 'BD', perDay: 2, en: 'twice daily', hi: 'din mein do baar' },
-  { v: 'TDS', label: 'TDS', perDay: 3, en: 'three times daily', hi: 'din mein teen baar' },
-  { v: 'QID', label: 'QID', perDay: 4, en: 'four times daily', hi: 'din mein chaar baar' },
-  { v: 'HS', label: 'HS', perDay: 1, en: 'at bedtime', hi: 'raat ko sone se pehle' },
-  { v: 'SOS', label: 'SOS', perDay: 0, en: 'only if needed', hi: 'zarurat padne par hi' },
-  { v: 'WEEKLY', label: 'Weekly', perDay: 1 / 7, en: 'once a week', hi: 'hafte mein ek baar' },
+  { v: 'OD', label: 'OD', perDay: 1, en: 'once daily', hi: 'दिन में एक बार' },
+  { v: 'BD', label: 'BD', perDay: 2, en: 'twice daily', hi: 'दिन में दो बार' },
+  { v: 'TDS', label: 'TDS', perDay: 3, en: 'three times daily', hi: 'दिन में तीन बार' },
+  { v: 'QID', label: 'QID', perDay: 4, en: 'four times daily', hi: 'दिन में चार बार' },
+  { v: 'HS', label: 'HS', perDay: 1, en: 'at bedtime', hi: 'रात को सोने से पहले' },
+  { v: 'SOS', label: 'SOS', perDay: 0, en: 'only if needed', hi: 'ज़रूरत पड़ने पर ही' },
+  { v: 'WEEKLY', label: 'Weekly', perDay: 1 / 7, en: 'once a week', hi: 'हफ़्ते में एक बार' },
   { v: 'CUSTOM', label: 'Custom', perDay: 1, en: '', hi: '' },
 ];
 export const TIMINGS: { v: Timing; label: string; en: string; hi: string }[] = [
-  { v: 'before', label: 'Before food', en: 'before meals', hi: 'khane se pehle' },
-  { v: 'after', label: 'After food', en: 'after meals', hi: 'khane ke baad' },
-  { v: 'with', label: 'With food', en: 'with food', hi: 'khane ke saath' },
-  { v: 'empty', label: 'Empty stomach', en: 'on an empty stomach', hi: 'khali pet' },
-  { v: 'bedtime', label: 'At bedtime', en: 'at bedtime', hi: 'sone se pehle' },
-  { v: 'asreq', label: 'As required', en: 'as required', hi: 'zarurat anusaar' },
+  { v: 'before', label: 'Before food', en: 'before meals', hi: 'खाने से पहले' },
+  { v: 'after', label: 'After food', en: 'after meals', hi: 'खाने के बाद' },
+  { v: 'with', label: 'With food', en: 'with food', hi: 'खाने के साथ' },
+  { v: 'empty', label: 'Empty stomach', en: 'on an empty stomach', hi: 'खाली पेट' },
+  { v: 'bedtime', label: 'At bedtime', en: 'at bedtime', hi: 'सोने से पहले' },
+  { v: 'asreq', label: 'As required', en: 'as required', hi: 'ज़रूरत अनुसार' },
 ];
 export const DURATIONS = [3, 5, 7, 10, 14, 30];
 export const freqMeta = (f: Freq) => FREQS.find((x) => x.v === f)!;
@@ -143,7 +143,7 @@ function sentenceFor(it: RxItem, steps: { dose: number; per: number; days: numbe
   return s + '.';
 }
 
-const HI_SLOT = { morning: 'Subah', afternoon: 'Dopahar', evening: 'Shaam', night: 'Raat' } as const;
+const HI_SLOT = { morning: 'सुबह', afternoon: 'दोपहर', evening: 'शाम', night: 'रात' } as const;
 function slotsFor(it: RxItem): ('morning' | 'afternoon' | 'evening' | 'night')[] {
   switch (it.freq) {
     case 'OD': return [it.odSlot];
@@ -154,45 +154,54 @@ function slotsFor(it: RxItem): ('morning' | 'afternoon' | 'evening' | 'night')[]
     default: return [];
   }
 }
-function hiTimingForSlot(it: RxItem, slot: string): string {
+/** Classic "1-0-1" pattern (morning-afternoon-night; 4 slots for QID). Empty when it does not apply. */
+export function dosePattern(it: RxItem): string {
+  if (it.useTaper || it.doseQty == null || it.doseUnit === 'application') return '';
+  const slots = slotsFor(it);
+  if (!slots.length) return '';
+  const q = it.doseQty === 0.5 ? '½' : it.doseQty === 1.5 ? '1½' : String(it.doseQty);
+  const order = it.freq === 'QID' ? ['morning', 'afternoon', 'evening', 'night'] : ['morning', 'afternoon', 'night'];
+  return order.map((s) => (slots.includes(s as any) ? q : '0')).join('-');
+}
+function hiTiming(it: RxItem): string {
   const t = it.timing;
-  const meal = slot === 'morning' ? 'Nashte' : slot === 'night' ? 'Dinner' : slot === 'afternoon' ? 'Lunch' : 'Snacks';
-  if (t === 'after') return `${meal} ke baad`;
-  if (t === 'before') return `${meal} se pehle`;
-  if (t === 'with') return `${meal} ke saath`;
-  if (t === 'empty') return 'Khali pet';
-  if (t === 'bedtime' || it.freq === 'HS') return 'Sone se pehle';
-  return 'Doctor ke batane anusaar';
+  if (t === 'after') return 'खाने के बाद';
+  if (t === 'before') return 'खाने से पहले';
+  if (t === 'with') return 'खाने के साथ';
+  if (t === 'empty') return 'खाली पेट';
+  if (t === 'bedtime' || it.freq === 'HS') return 'सोने से पहले';
+  return '';
 }
 function amountHi(it: RxItem, q: number | null): string {
   if (q == null) return it.doseText || '';
   const u = it.doseUnit;
   if (u === 'mL') return `${q} mL`;
-  if (u === 'tablet') return q === 0.5 ? 'aadhi goli' : `${q} goli`;
-  if (u === 'capsule') return `${q} capsule`;
-  if (u === 'drop') return `${q} boond`;
+  if (u === 'tablet') return q === 0.5 ? 'आधी गोली' : `${q} गोली`;
+  if (u === 'capsule') return `${q} कैप्सूल`;
+  if (u === 'drop') return `${q} बूँद`;
   if (u === 'application') return '';
   return `${q} ${u}`;
 }
 export function instructionHi(it: RxItem): { sentence: string; schedule: string } {
   const unit = it.doseUnit;
   const isInj = it.form === 'Injection' || ['IM', 'IV', 'SC', 'Intra-articular', 'Local infiltration'].includes(it.route);
-  const dur = it.duration ? `${it.duration} ${it.durationUnit === 'days' ? 'din' : it.durationUnit === 'weeks' ? 'hafte' : 'mahine'} tak` : '';
+  const dur = it.duration ? `${it.duration} ${it.durationUnit === 'days' ? 'दिन' : it.durationUnit === 'weeks' ? 'हफ़्ते' : 'महीने'} तक` : '';
   const tm = timingMeta(it.timing);
   const timeHi = it.freq === 'HS' && (!it.timing || it.timing === 'bedtime') ? '' : tm && it.timing !== 'asreq' ? tm.hi : '';
-  const verb = isInj ? 'doctor/nurse se lagwayein' : unit === 'application' || it.route === 'Topical' ? 'prabhavit jagah par lagayein' : 'lein';
+  const verb = isInj ? 'डॉक्टर/नर्स से लगवाएँ' : unit === 'application' || it.route === 'Topical' ? 'प्रभावित जगह पर लगाएँ' : 'लें';
   let sentence: string;
   if (it.useTaper && it.taper.length) {
-    const parts = it.taper.map((s) => `${amountHi(it, s.dose)} din mein ${s.timesPerDay} baar ${s.days} din`);
-    sentence = `${parts.join(', phir ')} ${timeHi} ${verb}.`;
+    const parts = it.taper.map((s) => `${amountHi(it, s.dose)} दिन में ${s.timesPerDay} बार ${s.days} दिन`);
+    sentence = `${parts.join(', फिर ')} ${timeHi} ${verb}।`;
   } else {
-    const fh = it.freq === 'CUSTOM' ? it.freqCustom || `din mein ${it.timesPerDay} baar` : freqMeta(it.freq).hi;
-    const sosMax = it.freq === 'SOS' && it.sosMax ? ` (din mein zyada se zyada ${it.sosMax} baar)` : '';
-    sentence = [amountHi(it, it.doseQty), fh + sosMax, timeHi, it.freq === 'SOS' ? '' : dur, verb].filter(Boolean).join(' ') + '.';
+    const fh = it.freq === 'CUSTOM' ? it.freqCustom || `दिन में ${it.timesPerDay} बार` : freqMeta(it.freq).hi;
+    const sosMax = it.freq === 'SOS' && it.sosMax ? ` (दिन में ज़्यादा से ज़्यादा ${it.sosMax} बार)` : '';
+    sentence = [amountHi(it, it.doseQty), fh + sosMax, timeHi, it.freq === 'SOS' ? '' : dur, verb].filter(Boolean).join(' ') + '।';
   }
   const slots = slotsFor(it);
-  const schedule = it.useTaper ? '' : slots.map((s) => `${HI_SLOT[s]} - ${hiTimingForSlot(it, s)}`).join(' | ');
-  return { sentence: sentence.replace(/\s+/g, ' ').replace(/^./, (c) => c.toUpperCase()), schedule };
+  const t2 = hiTiming(it);
+  const schedule = it.useTaper ? '' : slots.map((s) => `${HI_SLOT[s]}${t2 ? ' - ' + t2 : ''}`).join('  |  ');
+  return { sentence: sentence.replace(/\s+/g, ' '), schedule };
 }
 
 export function instructionEn(it: RxItem): string {

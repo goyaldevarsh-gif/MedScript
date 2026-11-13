@@ -22,7 +22,7 @@ function sampleSignature(): string {
 function sampleSnapshot(): DoctorSnapshot {
   const d = defaultSettings();
   const doctor = { fullName: 'Dr. Arjun Mehta', qualifications: 'MBBS, MS (Orthopaedics)', specialty: 'Orthopaedic & Joint Replacement Surgeon', regNo: 'RMC/12345', regCouncil: 'Rajasthan Medical Council', phone: '98765 43210', email: 'dr.arjun@example.com' };
-  const clinic = { ...d.clinics[0], name: 'Sample Ortho & Fracture Clinic', address: '12, Sample Road, Near City Hospital, Jaipur - 302001', phone: '0141-2345678', email: 'clinic@example.com', timings: 'Mon-Sat: 5:00 PM - 8:00 PM', logo: '' };
+  const clinic = { ...d.clinics[0], name: 'Sample Ortho & Fracture Clinic', address: '12, Sample Road, Near City Hospital, Jaipur - 302001', phone: '0141-2345678', email: 'clinic@example.com', timings: 'Mon-Sat: 5:00 PM - 8:00 PM', logo: '', whatsapp: '98765 43210', appointmentNote: 'अपॉइंटमेंट के लिए दी हुई तारीख से सात दिन पहले कॉल करके अपना अपॉइंटमेंट सुनिश्चित कर लें। समय: शाम 5 से 8 बजे।' };
   const seal = { ...d.seal, mode: 'generated' as const, showClinic: true };
   return {
     doctor, clinic, seal, layout: { ...d.layout, footerNote: 'SAMPLE prescription with dummy details. Not for patient use.' },
@@ -42,7 +42,7 @@ const SCENARIOS: { key: string; title: string; sub: string; patient: { name: str
   {
     key: 'knee', title: 'Knee osteoarthritis', sub: 'Painkiller + gastro cover + gel + calcium',
     patient: { name: 'Ramesh Sharma', age: '58', sex: 'Male', weight: '72' },
-    clinical: { complaint: 'Pain right knee x 6 months, worse on stairs', diagnosis: 'Osteoarthritis knee', side: 'Right', examination: 'Joint line tenderness; crepitus; ROM 0-110', investigations: 'X-ray knee standing AP / lateral', advice: ['Quadriceps strengthening exercises', 'Avoid squatting and stairs', 'Weight reduction'] },
+    clinical: { complaint: 'Pain right knee x 6 months, worse on stairs', diagnosis: 'Osteoarthritis knee', side: 'Right', examination: 'Joint line tenderness; crepitus; ROM 0-110', investigations: 'X-ray knee standing AP / lateral', advice: ['Quadriceps strengthening and knee range-of-motion exercises daily', 'Hot fomentation to the knee for 15 minutes, twice daily', 'Reduce body weight if overweight'], comorbidities: 'Hypertension', nextTests: 'ESR, CRP' },
     items: [
       { g: ['Etoricoxib'], st: '60 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'after', ...D(5) } },
       { g: ['Pantoprazole'], st: '40 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'before', ...D(5) } },
@@ -54,7 +54,7 @@ const SCENARIOS: { key: string; title: string; sub: string; patient: { name: str
   {
     key: 'sciatica', title: 'Sciatica / low back pain', sub: 'Neuropathic + muscle relaxant + NSAID',
     patient: { name: 'Sunita Verma', age: '42', sex: 'Female', weight: '64' },
-    clinical: { complaint: 'Low back pain radiating to left leg x 2 weeks', diagnosis: 'Lumbar radiculopathy (L5-S1)', side: 'Left', examination: 'SLR positive at 50°; no motor deficit', investigations: 'MRI lumbosacral spine', advice: ['Avoid forward bending and heavy lifting', 'Hot fomentation', 'Gentle walking'] },
+    clinical: { complaint: 'Low back pain radiating to left leg x 2 weeks', diagnosis: 'Lumbar radiculopathy (L5-S1)', side: 'Left', examination: 'SLR positive at 50°; no motor deficit', investigations: 'MRI lumbosacral spine', advice: ['Avoid heavy lifting and forward bending; lift with knees bent', 'Hot fomentation to the back, twice daily', 'Stay active; avoid prolonged bed rest'], nextTests: 'MRI report' },
     items: [
       { g: ['Pregabalin', 'Methylcobalamin'], st: '75 mg + 750 mcg', patch: { freq: 'HS', timesPerDay: 1, timing: '', ...D(14) } },
       { g: ['Aceclofenac', 'Paracetamol'], st: '100 mg + 325 mg', patch: { freq: 'BD', timesPerDay: 2, timing: 'after', ...D(5) } },
@@ -65,7 +65,7 @@ const SCENARIOS: { key: string; title: string; sub: string; patient: { name: str
   {
     key: 'fracture', title: 'Post-op fracture follow-up', sub: 'Pain control + calcium + vitamin D',
     patient: { name: 'Mohan Lal', age: '67', sex: 'Male', weight: '65' },
-    clinical: { complaint: 'Follow-up 2 weeks after right femur IMNail', diagnosis: 'Fracture shaft femur, post fixation', side: 'Right', examination: 'Wound healthy; stitches in situ; knee flexion 70°', investigations: 'X-ray femur AP / lateral', advice: ['Non-weight-bearing walking with walker', 'Knee bending exercises', 'Keep wound dry'] },
+    clinical: { complaint: 'Follow-up 2 weeks after right femur IMNail', diagnosis: 'Fracture shaft femur, post fixation', side: 'Right', examination: 'Wound healthy; stitches in situ; knee flexion 70°', investigations: 'X-ray femur AP / lateral', advice: ['Keep the wound clean and dry; suture removal as advised', 'Walk with a walker / support as advised; follow the physiotherapy protocol', 'Take bone-health medicines regularly as prescribed'], comorbidities: 'Type 2 diabetes', nextTests: 'X-ray femur AP / lateral' },
     items: [
       { g: ['Aceclofenac', 'Paracetamol'], st: '100 mg + 325 mg', patch: { freq: 'BD', timesPerDay: 2, timing: 'after', ...D(5) } },
       { g: ['Pantoprazole'], st: '40 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'before', ...D(5) } },

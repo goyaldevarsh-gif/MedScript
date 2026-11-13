@@ -1,3 +1,4 @@
+import { ADVICE_CHIPS } from '../data/advice';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Check, Eye, FilePlus2, Layers, Save, ShieldCheck, Copy, FileEdit, Lock, Search, X, UserPlus, Loader2 } from 'lucide-react';
@@ -177,6 +178,7 @@ function Builder() {
               <div className="text-sm font-extrabold uppercase tracking-wide text-slate-500">Clinical details</div>
               <Field label="Chief complaint"><input className="field" value={rx.clinical.complaint} onChange={(e) => setClin({ complaint: e.target.value })} placeholder="e.g. Pain in right knee for 3 months" /></Field>
               <Field label="Diagnosis"><input list="dx-list" className="field" value={rx.clinical.diagnosis} onChange={(e) => setClin({ diagnosis: e.target.value })} placeholder="Start typing…" /></Field>
+              <Field label="Comorbidities (optional)"><input className="field" value={rx.clinical.comorbidities || ''} onChange={(e) => setClin({ comorbidities: e.target.value })} placeholder="e.g. Diabetes, Hypertension, Anaemia" /></Field>
               <datalist id="dx-list">{STARTERS.map((s) => <option key={s.key} value={s.clinical.diagnosis} />)}</datalist>
               <div>
                 <span className="lbl">Side</span>
@@ -216,7 +218,9 @@ function Builder() {
             <fieldset disabled={readOnly} className="space-y-3">
               <Field label="Advice (one point per line)">
                 <textarea className="field min-h-[110px]" value={rx.clinical.advice.join('\n')} onChange={(e) => setClin({ advice: e.target.value.split('\n') })} placeholder={'Rest\nPhysiotherapy as advised\nHot fomentation'} />
+                {!readOnly && <div className="mt-2 flex flex-wrap gap-1.5">{ADVICE_CHIPS.filter((x) => !rx.clinical.advice.includes(x)).map((x) => <Chip key={x} onClick={() => setClin({ advice: [...rx.clinical.advice.filter((l) => l.trim()), x] })}>+ {x}</Chip>)}</div>}
               </Field>
+              <Field label="Tests to bring on next visit (optional)"><input className="field" value={rx.clinical.nextTests || ''} onChange={(e) => setClin({ nextTests: e.target.value })} placeholder="e.g. CBC, ESR" /></Field>
               <div>
                 <span className="lbl">Follow-up</span>
                 <div className="flex flex-wrap items-center gap-2">

@@ -1,6 +1,6 @@
 import type { DoctorSnapshot, Prescription, RxItem } from './types';
 import { brandMarkPng, imageSize, renderSeal } from './imaging';
-import { computeQty, doseLabel, durationLabel, freqLabel, freqMeta, itemInstructions, timingMeta } from './dosage';
+import { dosePattern, computeQty, doseLabel, durationLabel, freqLabel, freqMeta, itemInstructions, timingMeta } from './dosage';
 import { addDays, fmtDate, fmtDateTime } from './util';
 
 const NAVY: [number, number, number] = [16, 36, 58];
@@ -11,6 +11,8 @@ const RED: [number, number, number] = [198, 40, 40];
 const SURFACE: [number, number, number] = [243, 246, 250];
 
 const clean = (s: string) => (s || '').replace(/[^\x09\x0A\x20-\x7E\xA0-\xFF–—‘’“”•…]/g, '').replace(/→/g, '->');
+import { adviceHi } from '../data/advice';
+const DEV = /[\u0900-\u097F]/;
 const FORM_PREFIX: Record<string, string> = { Tablet: 'TAB.', Capsule: 'CAP.', Syrup: 'SYP.', Suspension: 'SUSP.', Injection: 'INJ.', Gel: 'GEL', Cream: 'CREAM', Ointment: 'OINT.', Drops: 'DROPS', Sachet: 'SACHET', Powder: 'POWDER', Lotion: 'LOTION', Spray: 'SPRAY', Patch: 'PATCH', Inhaler: 'INHALER' };
 const drName = (n: string) => (!n.trim() ? '' : /^dr\.?\s/i.test(n) ? n.trim() : 'Dr. ' + n.trim());
 
@@ -39,14 +41,42 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
     doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(color[0], color[1], color[2]);
   };
   const wrap = (t: string, w: number) => doc.splitTextToSize(clean(t), w) as string[];
+  /* Devanagari text is drawn as an image (the PDF base fonts have no Devanagari), shaped by the browser. */
+  const PXMM = 11;
+  const hiCache = new Map<string, { url: string; w: number; h: number }>();
+  const hiBlock = (text: string, wMm: number, pt: number, color: [number, number, number], bold = false) => {
+    const key = [text, wMm, pt, color.join(), bold].join('|');
+    const hit = hiCache.get(key); if (hit) return hit;
+    const px = pt * 0.3528 * PXMM, lineH = px * 1.6, maxW = wMm * PXMM;
+    const f = `${bold ? 700 : 400} ${px}px "Noto Sans Devanagari", "Inter Variable", sans-serif`;
+    const c = document.createElement('canvas'); const ctx = c.getContext('2d')!;
+    ctx.font = f;
+    const lines: string[] = []; let cur = '';
+    for (const wd of text.split(/\s+/)) { const t = cur ? cur + ' ' + wd : wd; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = wd; } else cur = t; }
+    if (cur) lines.push(cur);
+    c.width = Math.ceil(maxW); c.height = Math.ceil(lineH * lines.length);
+    ctx.font = f; ctx.fillStyle = `rgb(${color.join(',')})`; ctx.textBaseline = 'top';
+    lines.forEach((l, i) => ctx.fillText(l, 0, i * lineH + px * 0.2));
+    const out = { url: c.toDataURL('image/png'), w: c.width / PXMM, h: c.height / PXMM };
+    hiCache.set(key, out); return out;
+  };
+  const hiPara = (t: string, x: number, w: number, size: number, color: [number, number, number], bold: boolean, gap = 0) => {
+    const b = hiBlock(t, w, size, color, bold); ensure(b.h);
+    doc.addImage(b.url, 'PNG', x, y, b.w, b.h, undefined, 'FAST'); y += b.h + gap;
+  };
   /** draw wrapped paragraph, advance y */
   const para = (t: string, x: number, w: number, style: Parameters<typeof font>[0], size: number, color?: [number, number, number], gap = 0) => {
+    if (DEV.test(t)) { hiPara(t, x, w, size, color || NAVY, style === 'bold' || style === 'bolditalic', gap); return; }
     font(style, size, color);
     const lines = wrap(t, w);
     for (const ln of lines) { ensure(lh(size)); doc.text(ln, x, y + size * 0.3528 * 0.85); y += lh(size); }
     y += gap;
   };
-  const heightOf = (t: string, w: number, size: number, style: Parameters<typeof font>[0] = 'normal') => { font(style, size); return wrap(t, w).length * lh(size); };
+  const heightOf = (t: string, w: number, size: number, style: Parameters<typeof font>[0] = 'normal') => {
+    if (DEV.test(t)) return hiBlock(t, w, size, NAVY, style === 'bold').h;
+    font(style, size); return wrap(t, w).length * lh(size);
+  };
+  try { await Promise.all([document.fonts.load('400 16px "Noto Sans Devanagari"', 'अ'), document.fonts.load('700 16px "Noto Sans Devanagari"', 'अ')]); } catch { /* falls back to system font */ }
 
   const logoMark = await brandMarkPng();
   const sigSize = snap.signature.dataUrl ? await imageSize(snap.signature.dataUrl) : null;
@@ -128,7 +158,7 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
     const h = 7 + (row2.length ? 5 : 0) + (allergy ? heightOf(allergy, CW - 6, 8.5 * sc, 'bold') + 0.5 : 0) + 3;
     doc.setFillColor(...SURFACE); doc.roundedRect(M, y, CW, h, 1.6, 1.6, 'F');
     let yy = y + 5.2;
-    font('bold', 10 * sc, NAVY); doc.text(clean(p.name || 'Patient name not entered'), M + 3, yy);
+    if (DEV.test(p.name)) { const b = hiBlock(p.name, 78, 10 * sc, NAVY, true); doc.addImage(b.url, 'PNG', M + 3, yy - 4.4, b.w, b.h, undefined, 'FAST'); } else { font('bold', 10 * sc, NAVY); doc.text(clean(p.name || 'Patient name not entered'), M + 3, yy); }
     font('normal', 9 * sc, NAVY);
     doc.text(clean(`Age/Sex: ${ageSex}`), M + 84, yy);
     doc.text(clean(`ID: ${p.pid || '-'}`), M + 122, yy);
@@ -149,6 +179,7 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
   };
   if (rx.print.complaint) block('Chief complaint', c.complaint);
   if (c.diagnosis.trim()) block('Diagnosis', c.diagnosis + (c.side && c.side !== 'N/A' ? ` (${c.side})` : ''));
+  if ((c.comorbidities || '').trim()) block('Comorbidities', c.comorbidities!);
   if (rx.print.examination) block('Examination', c.examination.split(/[;\n]/).map((x) => x.trim()).filter((x) => x && !/:\s*$/.test(x)).join('; '));
   if (rx.print.investigations) block('Investigations', c.investigations);
   if (rx.print.notes) block('Clinical notes', c.notes);
@@ -170,19 +201,19 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
       if (it.useTaper && it.taper.length) parts.push('Dose: tapering schedule');
       else parts.push(`Dose: ${doseLabel(it) || '-'}`);
       parts.push(`Route: ${it.route}`);
-      parts.push(`Freq: ${it.useTaper ? 'as below' : freqLabel(it) + (it.freq !== 'CUSTOM' && it.freq !== 'OD' && it.freq !== 'HS' ? '' : '')}`);
+      parts.push(`Freq: ${it.useTaper ? 'as below' : freqLabel(it) + (dosePattern(it) ? ` (${dosePattern(it)})` : '')}`);
       const tm = timingMeta(it.timing); if (tm) parts.push(tm.label);
       if (!it.useTaper && durationLabel(it)) parts.push(`Duration: ${durationLabel(it)}`);
       if (it.freq === 'SOS' && it.sosMax) parts.push(`Max ${it.sosMax}/day`);
       if (qty.text) parts.push(`Qty: ${qty.text}`);
       const ins = itemInstructions(it, rx.lang);
-      const insLines: { t: string; style: 'italic' | 'normal' }[] = [];
+      const insLines: { t: string; style: 'italic' | 'normal'; hi?: boolean }[] = [];
       if (ins.en) insLines.push({ t: ins.en, style: 'italic' });
-      if (ins.hi) insLines.push({ t: ins.hi, style: 'italic' });
-      if (ins.schedule) insLines.push({ t: ins.schedule, style: 'normal' });
+      if (ins.hi) insLines.push({ t: ins.hi, style: 'italic', hi: true });
+      if (ins.schedule) insLines.push({ t: ins.schedule, style: 'normal', hi: true });
       const nameFull = t.main + (t.sub ? '  ' + t.sub : '');
       let need = heightOf(`${idx + 1}. ` + nameFull, w, 10.5 * sc, 'bold') + (compLine ? heightOf(compLine, w, 8 * sc) : 0) + heightOf(parts.join('     '), w, 8.8 * sc, 'bold');
-      insLines.forEach((l) => (need += heightOf(l.t, w - 2, 8.8 * sc, l.style)));
+      insLines.forEach((l) => (need += l.hi ? hiBlock(l.t, w - 2, 9 * sc, NAVY, l.style === 'normal').h : heightOf(l.t, w - 2, 8.8 * sc, l.style)));
       ensure(Math.min(need + 3, 40));
       // number + name
       font('bold', 10.5 * sc, NAVY);
@@ -195,7 +226,7 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
         const steps = it.taper.map((s, i) => `Step ${i + 1}: ${s.dose} ${it.doseUnit}${s.dose > 1 ? 's' : ''} x ${s.timesPerDay}/day for ${s.days} day${s.days > 1 ? 's' : ''}`).join('   ');
         para(steps, indent, w, 'normal', 8.5 * sc, NAVY);
       }
-      insLines.forEach((l) => para(l.t, indent + 2, w - 2, l.style, 8.8 * sc, l.style === 'italic' ? [60, 72, 90] : TEAL));
+      insLines.forEach((l) => (l.hi ? hiPara(l.t, indent + 2, w - 2, 9 * sc, l.style === 'italic' ? [60, 72, 90] : TEAL, l.style === 'normal') : para(l.t, indent + 2, w - 2, l.style, 8.8 * sc, [60, 72, 90])));
       y += 1.6;
       doc.setDrawColor(228, 233, 240); doc.setLineWidth(0.2);
       if (idx < rx.items.length - 1) { doc.line(indent, y, PW - M, y); y += 2.6; }
@@ -209,23 +240,41 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
     ensure(14);
     font('bold', 7.5 * sc, TEAL); doc.text('ADVICE', M, y + 2.6); y += 3.8;
     advice.forEach((a) => {
-      font('normal', 9.2 * sc, NAVY);
-      const lines = wrap(a, CW - 5);
-      ensure(lines.length * lh(9.2 * sc));
-      doc.text('•', M + 1, y + 3);
-      lines.forEach((ln) => { doc.text(ln, M + 5, y + 3); y += lh(9.2 * sc); });
+      const hi = rx.lang !== 'en' ? adviceHi(a) : '';
+      const showEn = !(rx.lang === 'hi' && hi);
+      if (DEV.test(a)) { ensure(8); doc.setFillColor(...NAVY); doc.circle(M + 1.6, y + 2.2, 0.55, 'F'); hiPara(a, M + 5, CW - 5, 9.2 * sc, NAVY, false, 0.4); return; }
+      ensure((showEn ? wrap(a, CW - 5).length * lh(9.2 * sc) : 0) + (hi ? hiBlock(hi, CW - 5, 9, NAVY).h + 0.6 : 0));
+      if (showEn) {
+        font('normal', 9.2 * sc, NAVY);
+        const lines = wrap(a, CW - 5);
+        ensure(lines.length * lh(9.2 * sc));
+        doc.text('•', M + 1, y + 3);
+        lines.forEach((ln) => { doc.text(ln, M + 5, y + 3); y += lh(9.2 * sc); });
+      }
+      if (hi) { ensure(6); if (!showEn) { doc.setFillColor(...NAVY); doc.circle(M + 1.6, y + 2.2, 0.55, 'F'); } hiPara(hi, M + 5, CW - 5, 9, showEn ? TEAL : NAVY, false, 0.6); }
     });
     y += 1.5;
   }
   const refDate = new Date(rx.authorizedAt || rx.createdAt);
   const fuDate = rx.followUpDays > 0 ? addDays(refDate, rx.followUpDays) : null;
-  if (fuDate) {
-    ensure(9);
-    const label = rx.followUpDays % 7 === 0 ? `${rx.followUpDays / 7} week${rx.followUpDays / 7 > 1 ? 's' : ''}` : `${rx.followUpDays} days`;
-    doc.setFillColor(234, 245, 243); doc.roundedRect(M, y, CW, 7.5, 1.2, 1.2, 'F');
-    font('bold', 9.5 * sc, TEAL); doc.text(`Follow-up: after ${label}  (on or about ${fmtDate(fuDate)})`, M + 3, y + 5);
-    y += 10;
+  const nt = (c.nextTests || '').trim();
+  if (fuDate || nt) {
+    const ntLines = nt ? wrap('Tests before next visit: ' + nt, CW - 6) : [];
+    const hbox = 3 + (fuDate ? 5 : 0) + ntLines.length * 4.4;
+    ensure(hbox + 2);
+    doc.setFillColor(234, 245, 243); doc.roundedRect(M, y, CW, hbox, 1.2, 1.2, 'F');
+    let yy = y + 5;
+    if (fuDate) {
+      const label = rx.followUpDays % 7 === 0 ? `${rx.followUpDays / 7} week${rx.followUpDays / 7 > 1 ? 's' : ''}` : `${rx.followUpDays} days`;
+      const wd = fuDate.toLocaleDateString('en-GB', { weekday: 'long' });
+      font('bold', 9.5 * sc, TEAL); doc.text(`Next visit: ${fmtDate(fuDate)} (${wd})  -  follow-up after ${label}`, M + 3, yy); yy += 5;
+    }
+    ntLines.forEach((l) => { font('bold', 9 * sc, NAVY); doc.text(l, M + 3, yy); yy += 4.4; });
+    y += hbox + 3;
   }
+  const wa = (clinic.whatsapp || '').trim(), an = (clinic.appointmentNote || '').trim();
+  if (wa) para(`For any problem, WhatsApp: ${wa}`, M, CW, 'bold', 9 * sc, NAVY, 1);
+  if (an) para(an, M, CW, 'normal', 8.6 * sc, GREY, 1);
 
   /* ---------- signature block (last page) ---------- */
   if (y > PH - 16 - SIG_H - 2) { doc.addPage(); drawContHeader(); }

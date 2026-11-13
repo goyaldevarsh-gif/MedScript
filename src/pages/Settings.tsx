@@ -119,6 +119,8 @@ function ClinicEditor({ c, isDefault, canDelete }: { c: Clinic; isDefault: boole
         <Field label="Address" className="sm:col-span-2"><textarea className="field" rows={2} value={d.address} onChange={(e) => set({ address: e.target.value })} /></Field>
         <Field label="Email"><input className="field" type="email" value={d.email} onChange={(e) => set({ email: e.target.value })} /></Field>
         <Field label="Timings (optional)"><input className="field" value={d.timings} onChange={(e) => set({ timings: e.target.value })} placeholder="e.g. Mon-Sat 4-7 PM" /></Field>
+        <Field label="WhatsApp for patient queries (optional)"><input className="field" type="tel" value={d.whatsapp || ''} onChange={(e) => set({ whatsapp: e.target.value })} placeholder="Printed as: For any problem, WhatsApp …" /></Field>
+        <Field label="Appointment note (optional)" className="sm:col-span-2"><textarea className="field" rows={2} value={d.appointmentNote || ''} onChange={(e) => set({ appointmentNote: e.target.value })} placeholder="e.g. Call 7 days before the follow-up date to confirm your appointment. Booking time 11 AM - 4 PM." /></Field>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex h-20 w-28 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50">{d.logo ? <img src={d.logo} alt="Clinic logo" className="max-h-16 max-w-24 object-contain" /> : <span className="text-xs font-semibold text-slate-400">No logo</span>}</div>

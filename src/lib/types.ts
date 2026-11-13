@@ -29,6 +29,7 @@ export interface RxItem {
 export interface Clinical {
   complaint: string; diagnosis: string; side: Side; notes: string;
   examination: string; investigations: string; advice: string[];
+  comorbidities?: string; nextTests?: string;
 }
 export interface PrintOpts { complaint: boolean; examination: boolean; investigations: boolean; notes: boolean }
 export interface PdfToggles { signature: boolean; stamp: boolean; logo: boolean }
@@ -36,7 +37,7 @@ export interface Doctor {
   fullName: string; qualifications: string; specialty: string; regNo: string; regCouncil: string;
   phone: string; email: string;
 }
-export interface Clinic { id: string; name: string; address: string; phone: string; email: string; timings: string; logo: string }
+export interface Clinic { id: string; name: string; address: string; phone: string; email: string; timings: string; logo: string; whatsapp?: string; appointmentNote?: string }
 export interface SignatureCfg { dataUrl: string; source: 'upload' | 'draw' | ''; widthMm: number; offsetX: number; offsetY: number }
 export interface SealCfg {
   mode: 'none' | 'generated' | 'uploaded'; style: 'circle' | 'rect'; ink: 'blue' | 'black' | 'red';

@@ -1,4 +1,6 @@
 @import '@fontsource-variable/inter';
+@import '@fontsource/noto-sans-devanagari/devanagari-400.css';
+@import '@fontsource/noto-sans-devanagari/devanagari-700.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
