@@ -1,12 +1,35 @@
 import { useState } from 'react';
 import { Eye } from 'lucide-react';
-import type { Lang, Prescription, RxItem } from '../lib/types';
+import type { DoctorSnapshot, Lang, Prescription, RxItem } from '../lib/types';
 import { useSettings } from '../lib/db';
-import { blankRx, itemFromMedicine } from '../lib/defaults';
+import { blankRx, defaultSettings, itemFromMedicine } from '../lib/defaults';
+import { renderSeal, trimCanvas } from '../lib/imaging';
 import { CATALOGUE } from '../data/catalogue';
 import { Btn, Modal } from './ui';
 import PreviewModal from './PreviewModal';
 import { cx } from '../lib/util';
+
+/* Fully dummy doctor, clinic, signature and seal so the sample always looks complete. */
+function sampleSignature(): string {
+  const c = document.createElement('canvas'); c.width = 600; c.height = 240;
+  const x = c.getContext('2d')!;
+  x.strokeStyle = '#1e3a8a'; x.lineWidth = 5; x.lineCap = 'round'; x.lineJoin = 'round';
+  x.beginPath(); x.moveTo(40, 170); x.bezierCurveTo(70, 40, 120, 40, 130, 150); x.bezierCurveTo(140, 60, 190, 50, 215, 150);
+  x.bezierCurveTo(235, 210, 270, 90, 300, 130); x.bezierCurveTo(330, 170, 350, 100, 390, 120); x.bezierCurveTo(430, 140, 460, 110, 560, 95); x.stroke();
+  x.lineWidth = 3.5; x.beginPath(); x.moveTo(80, 195); x.bezierCurveTo(200, 175, 360, 210, 540, 170); x.stroke();
+  return trimCanvas(c).toDataURL('image/png');
+}
+function sampleSnapshot(): DoctorSnapshot {
+  const d = defaultSettings();
+  const doctor = { fullName: 'Dr. Arjun Mehta', qualifications: 'MBBS, MS (Orthopaedics)', specialty: 'Orthopaedic & Joint Replacement Surgeon', regNo: 'RMC/12345', regCouncil: 'Rajasthan Medical Council', phone: '98765 43210', email: 'dr.arjun@example.com' };
+  const clinic = { ...d.clinics[0], name: 'Sample Ortho & Fracture Clinic', address: '12, Sample Road, Near City Hospital, Jaipur - 302001', phone: '0141-2345678', email: 'clinic@example.com', timings: 'Mon-Sat: 5:00 PM - 8:00 PM', logo: '' };
+  const seal = { ...d.seal, mode: 'generated' as const, showClinic: true };
+  return {
+    doctor, clinic, seal, layout: { ...d.layout, footerNote: 'SAMPLE prescription with dummy details. Not for patient use.' },
+    signature: { dataUrl: sampleSignature(), source: 'draw', widthMm: 42, offsetX: 0, offsetY: 0 },
+    sealDataUrl: renderSeal(seal, doctor, clinic),
+  };
+}
 
 type Spec = { g: string[]; st: string; form?: string; patch: Partial<RxItem> };
 const find = (s: Spec): RxItem | null => {
@@ -56,6 +79,7 @@ export default function SampleRx({ label = 'See a sample prescription', classNam
   const s = useSettings();
   const [open, setOpen] = useState(false);
   const [lang, setLang] = useState<Lang>('both');
+  const [own, setOwn] = useState(false);
   const [rx, setRx] = useState<Prescription | null>(null);
   if (!s) return null;
 
@@ -66,6 +90,7 @@ export default function SampleRx({ label = 'See a sample prescription', classNam
     r.patient = { ...r.patient, ...sc.patient, pid: 'P-00000', phone: '9876543210', allergies: '' };
     r.clinical = { ...r.clinical, ...sc.clinical };
     r.items = sc.items.map(find).filter(Boolean) as RxItem[];
+    if (own) r.doctorSnapshot = undefined; else r.doctorSnapshot = sampleSnapshot();
     setOpen(false); setRx(r);
   }
 
@@ -76,11 +101,17 @@ export default function SampleRx({ label = 'See a sample prescription', classNam
       </button>
       {open && (
         <Modal title="Sample prescription" onClose={() => setOpen(false)}>
-          <p className="mb-3 text-sm font-medium text-slate-600">Pick a case to see how a finished prescription looks, with your own profile, signature and stamp. Dummy patient, nothing is saved.</p>
+          <p className="mb-3 text-sm font-medium text-slate-600">Pick a case to see how a finished prescription looks, with a dummy doctor, clinic, signature, stamp and registration number (or switch to your own profile). Dummy patient, nothing is saved.</p>
           <div className="mb-4 flex items-center gap-2">
             <span className="text-xs font-extrabold uppercase tracking-wide text-slate-500">Patient instructions</span>
             {([['en', 'English'], ['both', 'English + Hindi'], ['hi', 'Hindi']] as [Lang, string][]).map(([v, l]) => (
               <button key={v} onClick={() => setLang(v)} className={cx('rounded-full border px-3 py-1 text-xs font-bold', lang === v ? 'border-brand bg-brand text-white' : 'border-slate-300 bg-white text-slate-700')}>{l}</button>
+            ))}
+          </div>
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-xs font-extrabold uppercase tracking-wide text-slate-500">Doctor details</span>
+            {([[false, 'Dummy doctor (full sample)'], [true, 'My own profile']] as [boolean, string][]).map(([v, l]) => (
+              <button key={l} onClick={() => setOwn(v)} className={cx('rounded-full border px-3 py-1 text-xs font-bold', own === v ? 'border-brand bg-brand text-white' : 'border-slate-300 bg-white text-slate-700')}>{l}</button>
             ))}
           </div>
           <div className="space-y-2">

@@ -32,7 +32,7 @@ export default function PreviewModal({ rx, onClose, onFinalize, sample }: { rx: 
     <Modal full title={<span>{final ? 'Prescription' : 'Draft preview'} <span className="ml-1 text-sm font-semibold text-slate-500">· {pages} page{pages > 1 ? 's' : ''}</span></span>} onClose={onClose}
       footer={
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="text-xs font-semibold text-slate-600">{sample ? 'Sample with your real profile, signature and stamp. Nothing is saved.' : final ? <span className="flex items-center gap-1 text-teal-700"><CheckCircle2 size={14} /> Authorised · {rx.rxNo}</span> : 'Draft: no signature or stamp is applied until you authorise it.'}</div>
+          <div className="text-xs font-semibold text-slate-600">{sample ? (rx.doctorSnapshot ? 'Sample with dummy doctor, clinic, signature and stamp. Nothing is saved.' : 'Sample with your own profile, signature and stamp. Nothing is saved.') : final ? <span className="flex items-center gap-1 text-teal-700"><CheckCircle2 size={14} /> Authorised · {rx.rxNo}</span> : 'Draft: no signature or stamp is applied until you authorise it.'}</div>
           <div className="flex flex-wrap gap-2">
             <Btn variant="secondary" disabled={!blob} onClick={() => blob && download(blob, name)}><Download size={16} /> {sample ? 'Download sample' : final ? 'Download PDF' : 'Download draft'}</Btn>
             {final && !sample ? (
