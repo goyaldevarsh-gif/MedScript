@@ -6,12 +6,12 @@ import { db, exportAll, importAll, toggleFavourite, updateSettings, useMedicineI
 import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../components/ui';
 import SignaturePad from '../components/SignaturePad';
 import { DrugLibrary, MedRow } from '../components/MedicineLibrary';
-import PreviewModal from '../components/PreviewModal';
+import SampleRx from '../components/SampleRx';
 import { cleanSignature, fileToDataUrl, renderSeal, resizeImage, sealPossible, sealAspect } from '../lib/imaging';
 import { blankRx, itemFromMedicine, newClinic } from '../lib/defaults';
 import { CATALOGUE } from '../data/catalogue';
 import { cx, download, fmtDateTime } from '../lib/util';
-import { useInstall } from '../lib/pwa';
+import { useInstall, useUpdate } from '../lib/pwa';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 const TABS = [
@@ -235,19 +235,7 @@ function SealCard({ s }: { s: AppSettings }) {
   );
 }
 function SamplePreview() {
-  const s = useSettings();
-  const [rx, setRx] = useState<Prescription | null>(null);
-  if (!s) return null;
-  function open() {
-    const r = blankRx(s!.defaultClinicId, 'both', 14);
-    const pick = (g: string, st: string) => CATALOGUE.find((m) => m.generic === g && m.strength === st && m.source === 'catalogue')!;
-    r.status = 'final'; r.rxNo = 'SAMPLE'; r.authorizedAt = Date.now();
-    r.patient = { ...r.patient, name: 'Sample Patient', pid: 'P-00000', age: '45', sex: 'Male', phone: '9876543210', allergies: '' };
-    r.clinical = { ...r.clinical, complaint: 'Pain in right knee', diagnosis: 'Osteoarthritis knee', side: 'Right', examination: 'Joint line tenderness; ROM 0-110', investigations: 'X-ray knee standing AP / lateral', notes: '', advice: ['Quadriceps strengthening exercises', 'Avoid squatting and stairs'] };
-    r.items = [itemFromMedicine(pick('Paracetamol', '650 mg')), { ...itemFromMedicine(pick('Pantoprazole', '40 mg')), freq: 'OD', timesPerDay: 1, timing: 'before', duration: 7 }];
-    setRx(r);
-  }
-  return (<><div className="flex justify-end"><Btn variant="success" onClick={open}><Eye size={16} /> Preview sample prescription</Btn></div>{rx && <PreviewModal sample rx={rx} onClose={() => setRx(null)} />}</>);
+  return <div className="flex justify-end"><SampleRx label="Preview sample prescription" className="inline-flex items-center gap-2 rounded-xl bg-teal px-4 py-2.5 text-sm font-bold text-white" /></div>;
 }
 
 /* ---------------- Layout ---------------- */
@@ -360,6 +348,8 @@ function BackupCard({ s }: { s: AppSettings }) {
 
 function AppCard() {
   const inst = useInstall();
+  const upd = useUpdate();
+  const toast = useToast();
   const [persist, setPersist] = useState<boolean | null>(null);
   useEffect(() => { navigator.storage?.persisted?.().then(setPersist).catch(() => setPersist(null)); }, []);
   return (
@@ -369,6 +359,10 @@ function AppCard() {
         <div className="font-bold">Install MedScript</div>
         {inst.standalone ? <p className="text-sm text-teal-700">Installed: running as an app.</p> : inst.canInstall ? <Btn className="mt-2" onClick={inst.install}><Smartphone size={16} /> Install app</Btn>
           : <p className="mt-1 text-sm text-slate-600">{inst.ios ? 'On iPhone/iPad: tap Share, then “Add to Home Screen”.' : 'Use your browser menu → “Install app” / “Add to Home screen”.'}</p>}
+      </div>
+      <div className="rounded-xl bg-slate-50 p-4">
+        <div className="font-bold">App updates</div>
+        {upd.available ? <Btn className="mt-2" onClick={upd.apply}>Update now</Btn> : <><p className="mt-1 text-sm text-slate-600">New versions appear automatically as an “Update now” banner.</p><Btn variant="secondary" className="mt-2" onClick={async () => { await upd.check(); toast('Checked. You will see a banner if an update is found.'); }}>Check for updates</Btn></>}
       </div>
       <ul className="space-y-1.5 text-sm font-medium text-slate-700">
         <li>• Works offline after the first load. Your data is stored on this device (IndexedDB).</li>

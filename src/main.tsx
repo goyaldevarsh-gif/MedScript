@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HashRouter, Route, Routes } from 'react-router-dom';
-import { registerSW } from 'virtual:pwa-register';
 import './index.css';
 import Layout from './components/Layout';
 import { ToastProvider } from './components/ui';
@@ -12,8 +11,9 @@ import PatientDetail from './pages/PatientDetail';
 import Templates from './pages/Templates';
 import SettingsPage from './pages/Settings';
 import { seedIfNeeded } from './lib/db';
+import { initUpdates } from './lib/pwa';
 
-registerSW({ immediate: true });
+initUpdates();
 try { navigator.storage?.persist?.(); } catch { /* ignore */ }
 
 function Boot() {

@@ -1,0 +1,99 @@
+import { useState } from 'react';
+import { Eye } from 'lucide-react';
+import type { Lang, Prescription, RxItem } from '../lib/types';
+import { useSettings } from '../lib/db';
+import { blankRx, itemFromMedicine } from '../lib/defaults';
+import { CATALOGUE } from '../data/catalogue';
+import { Btn, Modal } from './ui';
+import PreviewModal from './PreviewModal';
+import { cx } from '../lib/util';
+
+type Spec = { g: string[]; st: string; form?: string; patch: Partial<RxItem> };
+const find = (s: Spec): RxItem | null => {
+  const m = CATALOGUE.find((x) => x.source === 'catalogue' && s.g.length === x.ingredients.length && s.g.every((n) => x.ingredients.some((i) => i.name === n)) && x.strength === s.st && (!s.form || x.form === s.form));
+  return m ? { ...itemFromMedicine(m), ...s.patch } : null;
+};
+const D = (n: number) => ({ duration: n, durationUnit: 'days' as const });
+
+const SCENARIOS: { key: string; title: string; sub: string; patient: { name: string; age: string; sex: 'Male' | 'Female'; weight: string }; clinical: any; items: Spec[] }[] = [
+  {
+    key: 'knee', title: 'Knee osteoarthritis', sub: 'Painkiller + gastro cover + gel + calcium',
+    patient: { name: 'Ramesh Sharma', age: '58', sex: 'Male', weight: '72' },
+    clinical: { complaint: 'Pain right knee x 6 months, worse on stairs', diagnosis: 'Osteoarthritis knee', side: 'Right', examination: 'Joint line tenderness; crepitus; ROM 0-110', investigations: 'X-ray knee standing AP / lateral', advice: ['Quadriceps strengthening exercises', 'Avoid squatting and stairs', 'Weight reduction'] },
+    items: [
+      { g: ['Etoricoxib'], st: '60 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'after', ...D(5) } },
+      { g: ['Pantoprazole'], st: '40 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'before', ...D(5) } },
+      { g: ['Diclofenac'], st: '1% w/w', form: 'Gel', patch: { freq: 'BD', timesPerDay: 2, timing: '', ...D(14) } },
+      { g: ['Calcium carbonate', 'Cholecalciferol (Vitamin D3)'], st: '1250 mg + 250 IU', patch: { freq: 'OD', timesPerDay: 1, timing: 'after', ...D(30) } },
+      { g: ['Paracetamol'], st: '650 mg', patch: { freq: 'SOS', timesPerDay: 0, sosMax: 3, ...D(7) } },
+    ],
+  },
+  {
+    key: 'sciatica', title: 'Sciatica / low back pain', sub: 'Neuropathic + muscle relaxant + NSAID',
+    patient: { name: 'Sunita Verma', age: '42', sex: 'Female', weight: '64' },
+    clinical: { complaint: 'Low back pain radiating to left leg x 2 weeks', diagnosis: 'Lumbar radiculopathy (L5-S1)', side: 'Left', examination: 'SLR positive at 50°; no motor deficit', investigations: 'MRI lumbosacral spine', advice: ['Avoid forward bending and heavy lifting', 'Hot fomentation', 'Gentle walking'] },
+    items: [
+      { g: ['Pregabalin', 'Methylcobalamin'], st: '75 mg + 750 mcg', patch: { freq: 'HS', timesPerDay: 1, timing: '', ...D(14) } },
+      { g: ['Aceclofenac', 'Paracetamol'], st: '100 mg + 325 mg', patch: { freq: 'BD', timesPerDay: 2, timing: 'after', ...D(5) } },
+      { g: ['Thiocolchicoside'], st: '4 mg', patch: { freq: 'BD', timesPerDay: 2, timing: 'after', ...D(5) } },
+      { g: ['Pantoprazole'], st: '40 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'before', ...D(5) } },
+    ],
+  },
+  {
+    key: 'fracture', title: 'Post-op fracture follow-up', sub: 'Pain control + calcium + vitamin D',
+    patient: { name: 'Mohan Lal', age: '67', sex: 'Male', weight: '65' },
+    clinical: { complaint: 'Follow-up 2 weeks after right femur IMNail', diagnosis: 'Fracture shaft femur, post fixation', side: 'Right', examination: 'Wound healthy; stitches in situ; knee flexion 70°', investigations: 'X-ray femur AP / lateral', advice: ['Non-weight-bearing walking with walker', 'Knee bending exercises', 'Keep wound dry'] },
+    items: [
+      { g: ['Aceclofenac', 'Paracetamol'], st: '100 mg + 325 mg', patch: { freq: 'BD', timesPerDay: 2, timing: 'after', ...D(5) } },
+      { g: ['Pantoprazole'], st: '40 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'before', ...D(5) } },
+      { g: ['Calcium carbonate', 'Cholecalciferol (Vitamin D3)'], st: '1250 mg + 250 IU', patch: { freq: 'OD', timesPerDay: 1, timing: 'after', ...D(60) } },
+      { g: ['Cholecalciferol (Vitamin D3)'], st: '60000 IU', form: 'Sachet', patch: { freq: 'WEEKLY', timesPerDay: 1, timing: 'after', duration: 8, durationUnit: 'weeks' } },
+    ],
+  },
+];
+
+export default function SampleRx({ label = 'See a sample prescription', className }: { label?: string; className?: string }) {
+  const s = useSettings();
+  const [open, setOpen] = useState(false);
+  const [lang, setLang] = useState<Lang>('both');
+  const [rx, setRx] = useState<Prescription | null>(null);
+  if (!s) return null;
+
+  function build(key: string) {
+    const sc = SCENARIOS.find((x) => x.key === key)!;
+    const r = blankRx(s!.defaultClinicId, lang, 14);
+    r.status = 'final'; r.rxNo = 'SAMPLE'; r.authorizedAt = Date.now();
+    r.patient = { ...r.patient, ...sc.patient, pid: 'P-00000', phone: '9876543210', allergies: '' };
+    r.clinical = { ...r.clinical, ...sc.clinical };
+    r.items = sc.items.map(find).filter(Boolean) as RxItem[];
+    setOpen(false); setRx(r);
+  }
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)} className={className || 'inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 hover:border-brand hover:text-brand'}>
+        <Eye size={16} /> {label}
+      </button>
+      {open && (
+        <Modal title="Sample prescription" onClose={() => setOpen(false)}>
+          <p className="mb-3 text-sm font-medium text-slate-600">Pick a case to see how a finished prescription looks, with your own profile, signature and stamp. Dummy patient, nothing is saved.</p>
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-xs font-extrabold uppercase tracking-wide text-slate-500">Patient instructions</span>
+            {([['en', 'English'], ['both', 'English + Hindi'], ['hi', 'Hindi']] as [Lang, string][]).map(([v, l]) => (
+              <button key={v} onClick={() => setLang(v)} className={cx('rounded-full border px-3 py-1 text-xs font-bold', lang === v ? 'border-brand bg-brand text-white' : 'border-slate-300 bg-white text-slate-700')}>{l}</button>
+            ))}
+          </div>
+          <div className="space-y-2">
+            {SCENARIOS.map((sc) => (
+              <button key={sc.key} onClick={() => build(sc.key)} className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-left hover:border-brand hover:bg-brand-50">
+                <div className="text-[15px] font-extrabold">{sc.title}</div>
+                <div className="text-xs text-slate-500">{sc.sub}</div>
+              </button>
+            ))}
+          </div>
+        </Modal>
+      )}
+      {rx && <PreviewModal sample rx={rx} onClose={() => setRx(null)} />}
+    </>
+  );
+}

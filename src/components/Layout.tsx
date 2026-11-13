@@ -2,7 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, FilePlus2, Users, Layers, Settings as Cog, Plus, WifiOff } from 'lucide-react';
 import { Logo, Mark } from './Logo';
 import { cx } from '../lib/util';
-import { useOnline } from '../lib/pwa';
+import { useOnline, useUpdate } from '../lib/pwa';
 import { useSettings } from '../lib/db';
 
 const NAV = [
@@ -16,10 +16,17 @@ const NAV = [
 export default function Layout() {
   const nav = useNavigate();
   const online = useOnline();
+  const upd = useUpdate();
   const s = useSettings();
   const doc = s?.doctor.fullName;
   return (
     <div className="flex h-full">
+      {upd.available && (
+        <div className="fixed inset-x-3 top-3 z-[100] mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-navy px-4 py-3 text-white shadow-2xl">
+          <div className="flex-1 text-sm"><div className="font-extrabold">New version available</div><div className="text-xs text-slate-300">Your data and drafts stay safe.</div></div>
+          <button onClick={upd.apply} className="rounded-xl bg-brand px-4 py-2 text-sm font-extrabold hover:bg-brand-600">Update now</button>
+        </div>
+      )}
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col bg-navy p-4 text-white md:flex">
         <Logo light className="px-2 py-3" tagline />
