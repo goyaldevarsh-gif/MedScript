@@ -14,8 +14,8 @@ export function defaultSettings(): AppSettings {
     clinics: [c], defaultClinicId: c.id,
     signature: { dataUrl: '', source: '', widthMm: 42, offsetX: 0, offsetY: 0 },
     seal: {
-      mode: 'none', style: 'circle', ink: 'blue', showName: true, showQuals: true, showSpecialty: true,
-      showReg: true, showClinic: false, uploaded: '', widthMm: 34, offsetX: 0, offsetY: 0,
+      mode: 'none', style: 'classic', ink: 'blue', showName: true, showQuals: true, showSpecialty: true,
+      showReg: true, showClinic: false, showSymbol: true, uploaded: '', widthMm: 52, offsetX: 0, offsetY: 0,
     },
     layout: {
       nameDisplay: 'generic', genericCaps: true, fontScale: 'normal', showPhone: true, showComposition: true,

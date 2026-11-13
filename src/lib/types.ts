@@ -40,8 +40,8 @@ export interface Doctor {
 export interface Clinic { id: string; name: string; address: string; phone: string; email: string; timings: string; logo: string; whatsapp?: string; appointmentNote?: string }
 export interface SignatureCfg { dataUrl: string; source: 'upload' | 'draw' | ''; widthMm: number; offsetX: number; offsetY: number }
 export interface SealCfg {
-  mode: 'none' | 'generated' | 'uploaded'; style: 'circle' | 'rect'; ink: 'blue' | 'black' | 'red';
-  showName: boolean; showQuals: boolean; showSpecialty: boolean; showReg: boolean; showClinic: boolean;
+  mode: 'none' | 'generated' | 'uploaded'; style: 'circle' | 'rect' | 'classic'; ink: 'blue' | 'black' | 'red';
+  showName: boolean; showQuals: boolean; showSpecialty: boolean; showReg: boolean; showClinic: boolean; showSymbol?: boolean;
   uploaded: string; widthMm: number; offsetX: number; offsetY: number;
 }
 export interface LayoutCfg {

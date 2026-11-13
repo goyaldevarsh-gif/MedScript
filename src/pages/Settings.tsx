@@ -7,7 +7,7 @@ import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../comp
 import SignaturePad from '../components/SignaturePad';
 import { DrugLibrary, MedRow } from '../components/MedicineLibrary';
 import SampleRx from '../components/SampleRx';
-import { cleanSignature, fileToDataUrl, renderSeal, resizeImage, sealPossible, sealAspect } from '../lib/imaging';
+import { cleanStamp, rotateDataUrl, cleanSignature, fileToDataUrl, renderSeal, resizeImage, sealPossible, sealAspect } from '../lib/imaging';
 import { blankRx, itemFromMedicine, newClinic } from '../lib/defaults';
 import { CATALOGUE } from '../data/catalogue';
 import { cx, download, fmtDateTime } from '../lib/util';
@@ -197,7 +197,7 @@ function SealCard({ s }: { s: AppSettings }) {
   const [url, setUrl] = useState('');
   const file = useRef<HTMLInputElement>(null);
   useEffect(() => { setUrl(sl.mode === 'generated' && ok ? renderSeal(sl, s.doctor, clinic) : sl.mode === 'uploaded' ? sl.uploaded : ''); }, [s]); // eslint-disable-line
-  const toggles: [keyof AppSettings['seal'], string][] = [['showName', "Doctor's name"], ['showQuals', 'Qualifications'], ['showSpecialty', 'Specialty'], ['showReg', 'Registration number'], ['showClinic', 'Clinic name']];
+  const toggles: [keyof AppSettings['seal'], string][] = [...(sl.style === 'classic' ? [['showSymbol', 'Symbol']] as [keyof AppSettings['seal'], string][] : []), ['showName', "Doctor's name"], ['showQuals', 'Qualifications'], ['showSpecialty', 'Specialty'], ['showReg', 'Registration number'], ['showClinic', 'Clinic name']];
   return (
     <Card className="space-y-4 p-5">
       <div><h2 className="flex items-center gap-2 text-lg font-extrabold"><Stamp size={19} /> Clinic stamp / seal</h2><p className="text-sm text-slate-600">Generate a stamp from your verified profile, or upload your existing stamp.</p></div>
@@ -212,21 +212,22 @@ function SealCard({ s }: { s: AppSettings }) {
         <div className="space-y-3">
           {sl.mode === 'generated' && (
             <>
-              <div><span className="lbl">Format</span><div className="flex gap-2">{(['circle', 'rect'] as const).map((f) => <Chip key={f} active={sl.style === f} onClick={() => patch({ style: f })}>{f === 'circle' ? 'Circular' : 'Rectangular'}</Chip>)}</div></div>
+              <div><span className="lbl">Format</span><div className="flex gap-2">{(['classic', 'circle', 'rect'] as const).map((f) => <Chip key={f} active={sl.style === f} onClick={() => patch({ style: f, ...(f === 'classic' && sl.widthMm < 45 ? { widthMm: 52 } : f === 'circle' ? { widthMm: 34 } : {}) })}>{f === 'classic' ? 'Classic' : f === 'circle' ? 'Circular' : 'Boxed'}</Chip>)}</div></div>
               <div><span className="lbl">Ink</span><div className="flex gap-2">{(['blue', 'black', 'red'] as const).map((f) => <Chip key={f} active={sl.ink === f} onClick={() => patch({ ink: f })}>{f[0].toUpperCase() + f.slice(1)}</Chip>)}</div></div>
-              <div><span className="lbl">Include</span><div className="flex flex-wrap gap-x-4 gap-y-1.5">{toggles.map(([k, l]) => <label key={k} className="flex items-center gap-1.5 text-sm font-semibold"><input type="checkbox" checked={sl[k] as boolean} onChange={(e) => patch({ [k]: e.target.checked } as any)} /> {l}</label>)}</div></div>
+              <div><span className="lbl">Include</span><div className="flex flex-wrap gap-x-4 gap-y-1.5">{toggles.map(([k, l]) => <label key={k} className="flex items-center gap-1.5 text-sm font-semibold"><input type="checkbox" checked={k === 'showSymbol' ? sl.showSymbol !== false : (sl[k] as boolean)} onChange={(e) => patch({ [k]: e.target.checked } as any)} /> {l}</label>)}</div></div>
             </>
           )}
           {sl.mode === 'uploaded' && (
             <div>
-              <input ref={file} hidden type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) { await patch({ uploaded: await cleanSignature(await fileToDataUrl(f), true, 700) }); toast('Stamp saved'); } e.target.value = ''; }} />
+              <input ref={file} hidden type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) { await patch({ uploaded: await cleanStamp(await fileToDataUrl(f)), widthMm: Math.max(sl.widthMm, 48) }); toast('Stamp cleaned and saved. Rotate if it is upside down.'); } e.target.value = ''; }} />
               <Btn variant="secondary" size="sm" onClick={() => file.current?.click()}><Upload size={15} /> {sl.uploaded ? 'Replace stamp image' : 'Upload stamp image'}</Btn>
-              <p className="mt-1 text-xs text-slate-500">White background is removed automatically.</p>
+              {sl.uploaded && <div className="mt-2 flex gap-2"><Btn variant="secondary" size="sm" onClick={async () => patch({ uploaded: await rotateDataUrl(sl.uploaded, 90) })}>Rotate 90°</Btn><Btn variant="secondary" size="sm" onClick={async () => patch({ uploaded: await rotateDataUrl(sl.uploaded, 180) })}>Flip upside down</Btn></div>}
+              <p className="mt-1 text-xs text-slate-500">Photo of your stamp is fine: paper background is removed automatically. Best: stamp on plain white paper, good light, straight from above.</p>
             </div>
           )}
           {sl.mode !== 'none' && (
             <>
-              <Slider label="Stamp size" unit="mm" min={22} max={50} v={sl.widthMm} on={(v) => patch({ widthMm: v })} />
+              <Slider label="Stamp size" unit="mm" min={22} max={70} v={sl.widthMm} on={(v) => patch({ widthMm: v })} />
               <Slider label="Nudge left / right" unit="mm" min={-20} max={20} v={sl.offsetX} on={(v) => patch({ offsetX: v })} />
               <Slider label="Nudge up / down" unit="mm" min={-10} max={10} v={sl.offsetY} on={(v) => patch({ offsetY: v })} />
             </>

@@ -23,7 +23,7 @@ function sampleSnapshot(): DoctorSnapshot {
   const d = defaultSettings();
   const doctor = { fullName: 'Dr. Arjun Mehta', qualifications: 'MBBS, MS (Orthopaedics)', specialty: 'Orthopaedic & Joint Replacement Surgeon', regNo: 'RMC/12345', regCouncil: 'Rajasthan Medical Council', phone: '98765 43210', email: 'dr.arjun@example.com' };
   const clinic = { ...d.clinics[0], name: 'Sample Ortho & Fracture Clinic', address: '12, Sample Road, Near City Hospital, Jaipur - 302001', phone: '0141-2345678', email: 'clinic@example.com', timings: 'Mon-Sat: 5:00 PM - 8:00 PM', logo: '', whatsapp: '98765 43210', appointmentNote: 'अपॉइंटमेंट के लिए दी हुई तारीख से सात दिन पहले कॉल करके अपना अपॉइंटमेंट सुनिश्चित कर लें। समय: शाम 5 से 8 बजे।' };
-  const seal = { ...d.seal, mode: 'generated' as const, showClinic: true };
+  const seal = { ...d.seal, mode: 'generated' as const, style: 'classic' as const, widthMm: 52 };
   return {
     doctor, clinic, seal, layout: { ...d.layout, footerNote: 'SAMPLE prescription with dummy details. Not for patient use.' },
     signature: { dataUrl: sampleSignature(), source: 'draw', widthMm: 42, offsetX: 0, offsetY: 0 },
