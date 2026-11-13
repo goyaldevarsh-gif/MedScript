@@ -1,0 +1,208 @@
+import type { Clinical, Side } from '../lib/types';
+
+export interface StarterTemplate { key: string; name: string; icon: string; followUpDays: number; clinical: Clinical }
+const t = (key: string, name: string, icon: string, followUpDays: number, c: Partial<Clinical> & { diagnosis: string; advice: string[] }, side: Side = 'N/A'): StarterTemplate => ({
+  key, name, icon, followUpDays,
+  clinical: { complaint: '', side, notes: '', examination: '', investigations: '', ...c },
+});
+
+const RED_FLAG_BACK = 'Come back immediately if you develop weakness in legs, numbness around groin/buttocks, difficulty passing urine or stool, or fever.';
+
+export const STARTERS: StarterTemplate[] = [
+  t('knee-oa', 'Knee osteoarthritis', 'knee', 28, {
+    complaint: 'Pain in knee on walking / climbing stairs, morning stiffness',
+    diagnosis: 'Osteoarthritis knee',
+    examination: 'Gait: \nDeformity (varus/valgus): \nEffusion: \nJoint line tenderness: \nCrepitus: \nROM: \nLigament stability: ',
+    investigations: 'X-ray knee standing AP and lateral (Kellgren-Lawrence grading)',
+    advice: [
+      'Quadriceps strengthening and knee range-of-motion exercises daily',
+      'Reduce body weight if overweight',
+      'Avoid squatting, sitting cross-legged and Indian-style toilet; use a commode',
+      'Avoid long stairs and prolonged standing; use a walking stick if needed',
+      'Hot fomentation to the knee for 15 minutes, twice daily',
+    ],
+  }, 'Bilateral'),
+  t('lbp', 'Low back pain', 'spine', 14, {
+    complaint: 'Low back pain',
+    diagnosis: 'Mechanical low back pain',
+    examination: 'Posture: \nParaspinal spasm/tenderness: \nROM: \nSLRT: \nNeurology (power, sensation, reflexes): ',
+    investigations: 'X-ray LS spine AP and lateral (MRI only if red flags / persistent radiculopathy)',
+    advice: [
+      'Stay active; avoid prolonged bed rest',
+      'Avoid heavy lifting and forward bending; lift with knees bent',
+      'Core and back-extension exercises as shown',
+      'Sit with back supported; avoid soft sofas and prolonged sitting',
+      'Hot fomentation to the back, twice daily',
+      RED_FLAG_BACK,
+    ],
+  }),
+  t('cervical', 'Cervical spondylosis', 'spine', 14, {
+    complaint: 'Neck pain / stiffness, pain radiating to arm',
+    diagnosis: 'Cervical spondylosis',
+    examination: 'Neck ROM: \nSpurling test: \nNeurology of upper limb: \nReflexes: ',
+    investigations: 'X-ray cervical spine AP and lateral (MRI if neurological deficit)',
+    advice: [
+      'Neck isometric and chin-tuck exercises as shown',
+      'Maintain good posture; keep mobile / laptop at eye level',
+      'Use a thin, firm pillow; avoid thick pillows',
+      'Avoid carrying heavy weight on the head or shoulders',
+      'Hot fomentation to the neck, twice daily',
+      'Come back immediately if you develop weakness of hands or difficulty walking.',
+    ],
+  }),
+  t('ankle-sprain', 'Ankle sprain', 'ankle', 7, {
+    complaint: 'Pain and swelling of ankle after twisting injury',
+    diagnosis: 'Ankle sprain',
+    examination: 'Swelling: \nBruising: \nTenderness (ATFL / malleoli / base of 5th metatarsal): \nAnterior drawer: \nDistal neurovascular status: ',
+    investigations: 'X-ray ankle AP / lateral / mortise if Ottawa criteria positive',
+    advice: [
+      'Rest, Ice (15-20 minutes, 3-4 times a day), Compression bandage, Elevation (RICE)',
+      'Use ankle brace / crepe bandage as advised',
+      'Weight-bearing as tolerated with support',
+      'Begin ankle range-of-motion and balance exercises once pain settles',
+      'Avoid walking on uneven surfaces and high heels until recovered',
+    ],
+  }),
+  t('plantar-fasciitis', 'Plantar fasciitis', 'ankle', 28, {
+    complaint: 'Heel pain, worst with first steps in the morning',
+    diagnosis: 'Plantar fasciitis',
+    examination: 'Tenderness at medial calcaneal tubercle: \nWindlass test: \nAnkle dorsiflexion / calf tightness: ',
+    investigations: 'X-ray foot lateral view (only if atypical)',
+    advice: [
+      'Plantar fascia and calf stretching exercises, several times a day',
+      'Use a silicone heel cup / cushioned footwear; avoid walking barefoot',
+      'Reduce body weight if overweight',
+      'Avoid prolonged standing and hard surfaces',
+      'Roll the foot over a frozen water bottle for 10 minutes daily',
+    ],
+  }),
+  t('frozen-shoulder', 'Frozen shoulder', 'shoulder', 21, {
+    complaint: 'Shoulder pain with progressive stiffness, difficulty combing hair / reaching back',
+    diagnosis: 'Adhesive capsulitis (frozen shoulder)',
+    examination: 'Active and passive ROM (flexion / abduction / external rotation / internal rotation): \nPainful arc: \nCuff strength: ',
+    investigations: 'X-ray shoulder AP and axillary view',
+    advice: [
+      'Codman pendulum exercises, wall-climbing and stick exercises daily',
+      'Hot fomentation before exercises',
+      'Do not immobilise the shoulder; keep it moving within pain limits',
+      'Recovery is gradual and can take several months; regular exercise is essential',
+    ],
+  }),
+  t('tennis-elbow', 'Tennis elbow', 'hand', 21, {
+    complaint: 'Pain on outer side of elbow on gripping / lifting',
+    diagnosis: 'Lateral epicondylitis (tennis elbow)',
+    examination: 'Tenderness at lateral epicondyle: \nCozen test: \nMill test: \nGrip strength: ',
+    investigations: 'X-ray elbow (only if atypical)',
+    advice: [
+      'Avoid repetitive gripping, wrist extension and heavy lifting',
+      'Use a counterforce elbow strap during activity',
+      'Wrist extensor stretching and gradual strengthening exercises as shown',
+      'Ice application for 10-15 minutes after activity',
+    ],
+  }),
+  t('shoulder-pain', 'Shoulder pain', 'shoulder', 14, {
+    complaint: 'Shoulder pain, worse with overhead activity',
+    diagnosis: 'Shoulder pain (rotator cuff / subacromial pathology to be confirmed)',
+    examination: 'ROM: \nPainful arc: \nNeer / Hawkins: \nEmpty can / Jobe: \nCuff strength: \nCervical spine screen: ',
+    investigations: 'X-ray shoulder AP / Grashey / axillary; USG or MRI shoulder if cuff tear suspected',
+    advice: [
+      'Avoid overhead activity and lifting heavy weights',
+      'Do not sleep on the affected side',
+      'Pendulum and gentle range-of-motion exercises as shown',
+      'Ice or heat application, whichever gives relief',
+    ],
+  }),
+  t('osteoporosis', 'Osteoporosis', 'bone', 90, {
+    complaint: 'Generalised bone pain / low-trauma fracture / screening',
+    diagnosis: 'Osteoporosis',
+    examination: 'Height / weight: \nSpinal tenderness / kyphosis: \nGait and balance: ',
+    investigations: 'DEXA scan; serum calcium, phosphorus, 25-OH vitamin D, ALP, creatinine, TSH',
+    advice: [
+      'Adequate sun exposure daily and calcium-rich diet (milk, curd, ragi, green leafy vegetables)',
+      'Regular weight-bearing exercise such as walking',
+      'Fall prevention: remove loose mats, good lighting at home, non-slip footwear',
+      'Avoid smoking and alcohol',
+      'Take bone-health medicines regularly as prescribed',
+    ],
+  }),
+  t('acl-postop', 'ACL reconstruction - post-operative', 'knee', 14, {
+    complaint: 'Post-operative review after ACL reconstruction',
+    diagnosis: 'Status post ACL reconstruction',
+    examination: 'Wound: \nEffusion: \nROM: \nQuadriceps control / SLR: \nCalf tenderness / swelling: \nDistal neurovascular status: ',
+    investigations: 'X-ray knee AP and lateral at follow-up if advised',
+    advice: [
+      'Keep the wound clean and dry; suture removal as advised',
+      'Use knee brace and crutches as advised',
+      'Ice and elevation for 15-20 minutes, several times a day',
+      'Follow the physiotherapy protocol given; quadriceps and range-of-motion exercises daily',
+      'Do not twist or pivot the knee; no running or sports until cleared',
+      'Come back immediately if you develop fever, wound discharge, calf pain or swelling.',
+    ],
+  }, 'N/A'),
+  t('tkr-postop', 'TKR - post-operative', 'knee', 14, {
+    complaint: 'Post-operative review after total knee replacement',
+    diagnosis: 'Status post total knee replacement',
+    examination: 'Wound: \nEffusion: \nROM (flexion / extension lag): \nQuadriceps control: \nCalf tenderness / swelling: \nDistal neurovascular status: ',
+    investigations: 'X-ray knee AP and lateral at follow-up',
+    advice: [
+      'Keep the wound clean and dry; suture removal as advised',
+      'Walk with a walker / support as advised; follow the physiotherapy protocol',
+      'Do ankle pumps and leg movements frequently to prevent clots',
+      'Daily knee bending and straightening exercises; ice and elevation after exercise',
+      'Avoid kneeling, squatting and Indian-style toilet; use a commode',
+      'Inform your doctor / dentist about the implant before any future dental or surgical procedure.',
+      'Come back immediately if you develop fever, wound redness / discharge, or calf pain / swelling.',
+    ],
+  }),
+  t('thr-postop', 'THR - post-operative', 'hip', 14, {
+    complaint: 'Post-operative review after total hip replacement',
+    diagnosis: 'Status post total hip replacement',
+    examination: 'Wound: \nLimb length: \nAbductor function / Trendelenburg: \nCalf tenderness / swelling: \nDistal neurovascular status: ',
+    investigations: 'X-ray pelvis with both hips AP at follow-up',
+    advice: [
+      'Follow the hip precautions explained to you (as per surgical approach)',
+      'Do not cross your legs; sleep on your back with a pillow between the legs if advised',
+      'Use a raised toilet seat and a high chair; avoid low seating',
+      'Walk with a walker / support as advised; follow the physiotherapy protocol',
+      'Keep the wound clean and dry; suture removal as advised',
+      'Come back immediately if you develop fever, wound discharge, sudden hip pain or leg shortening.',
+    ],
+  }),
+  t('fracture-fu', 'Fracture follow-up', 'fracture', 14, {
+    complaint: 'Follow-up of fracture',
+    diagnosis: 'Fracture - follow-up',
+    examination: 'Cast / splint condition: \nSwelling: \nSkin: \nTenderness at fracture site: \nDistal neurovascular status: \nJoint ROM above and below: ',
+    investigations: 'X-ray of the part (AP and lateral) at follow-up',
+    advice: [
+      'Keep the cast / splint dry and intact; do not insert objects inside it',
+      'Keep the limb elevated; move fingers / toes frequently',
+      'Do not bear weight / use the limb for lifting unless advised',
+      'Come back immediately if you develop severe pain, increasing swelling, numbness, colour change of fingers / toes, or a foul smell from the cast.',
+    ],
+  }),
+  t('postop-fracture', 'Post-operative fracture fixation', 'fracture', 14, {
+    complaint: 'Post-operative review after fracture fixation',
+    diagnosis: 'Status post fracture fixation',
+    examination: 'Wound: \nSwelling / collection: \nImplant site tenderness: \nROM of adjacent joints: \nDistal neurovascular status: ',
+    investigations: 'X-ray of the part (AP and lateral) at follow-up',
+    advice: [
+      'Keep the wound clean and dry; suture removal as advised',
+      'Keep the limb elevated; active movement of adjacent joints as shown',
+      'Weight-bearing only as advised by the surgeon',
+      'Follow the physiotherapy plan given to you',
+      'Come back immediately if you develop fever, wound discharge / redness, or severe increasing pain.',
+    ],
+  }),
+  t('ctev-fu', 'CTEV follow-up', 'ankle', 7, {
+    complaint: 'Follow-up of congenital talipes equinovarus (clubfoot)',
+    diagnosis: 'Congenital talipes equinovarus (CTEV) - follow-up',
+    examination: 'Cast / brace fit: \nFoot abduction: \nDorsiflexion: \nSkin condition: \nPirani score: ',
+    investigations: '',
+    advice: [
+      'Bring the child on the scheduled dates; treatment works only with regular follow-up',
+      'Keep the cast dry; do not remove it at home',
+      'Use the foot abduction brace for the duration advised, without breaks',
+      'Come back immediately if the cast slips, toes become swollen, blue or cold, or the child cries inconsolably.',
+    ],
+  }, 'N/A'),
+];
