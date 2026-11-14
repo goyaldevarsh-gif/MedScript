@@ -34,7 +34,9 @@ function sampleSnapshot(): DoctorSnapshot {
 type Spec = { g: string[]; st: string; form?: string; patch: Partial<RxItem> };
 const find = (s: Spec): RxItem | null => {
   const m = CATALOGUE.find((x) => x.source === 'catalogue' && s.g.length === x.ingredients.length && s.g.every((n) => x.ingredients.some((i) => i.name === n)) && x.strength === s.st && (!s.form || x.form === s.form));
-  return m ? { ...itemFromMedicine(m), ...s.patch } : null;
+  if (!m) return null;
+  const SB: Record<string, string> = { 'Etoricoxib|60 mg': 'Nucoxia 60', 'Pantoprazole|40 mg': 'Pantocid 40', 'Aceclofenac + Paracetamol|100 mg + 325 mg': 'Zerodol-P', 'Calcium carbonate + Cholecalciferol (Vitamin D3)|1250 mg + 250 IU': 'Shelcal 500', 'Thiocolchicoside|4 mg': 'Muscoril 4' };
+  return { ...itemFromMedicine(m), brand: SB[`${m.generic}|${m.strength}`] || '', ...s.patch };
 };
 const D = (n: number) => ({ duration: n, durationUnit: 'days' as const });
 
