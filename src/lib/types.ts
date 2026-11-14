@@ -15,7 +15,7 @@ export interface Medicine {
   strength: string; form: string; route: string; manufacturer: string;
   verified: boolean; source: 'catalogue' | 'brand' | 'custom' | 'import'; category?: string;
 }
-export interface MedMeta { id: string; favourite: boolean; lastUsedAt: number; useCount: number }
+export interface MedMeta { id: string; favourite: boolean; lastUsedAt: number; useCount: number; reg?: Partial<RxItem> }
 export interface TaperStep { id: string; dose: number; timesPerDay: number; days: number }
 export interface RxItem {
   id: string; medId?: string; brand: string; generic: string; ingredients: Ingredient[];

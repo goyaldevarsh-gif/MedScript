@@ -109,8 +109,9 @@ function Builder() {
   const setClin = (c: Partial<Clinical>) => update((r) => ({ ...r, clinical: { ...r.clinical, ...c } }));
   const warnings = useMemo(() => (rx ? checkRx(rx) : []), [rx]);
 
-  function addMedicine(m: Medicine) {
+  async function addMedicine(m: Medicine) {
     const it = itemFromMedicine(m);
+    try { const mm = m.id ? await db.meta.get(m.id) : undefined; if (mm?.reg) Object.assign(it, mm.reg); } catch { /* ignore */ }
     update((r) => ({ ...r, items: [...r.items, it] }));
     setOpenItem(it.id);
     if (m.source === 'catalogue' || m.source === 'brand') touchMedicines([{ ...it, medId: m.id }]).catch(() => {});

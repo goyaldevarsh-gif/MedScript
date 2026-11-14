@@ -128,7 +128,7 @@ export async function finalizeRx(rx: Prescription, snapshot: DoctorSnapshot, war
     await db.prescriptions.put(out);
     await db.settings.put({ key: 'main', value: { ...s, rxCounter: n } });
     await db.audit.add({ id: uid(), ts: authorizedAt, event: 'FINALIZED', rxId: out.id, rxNo, hash, details: `Authorised by ${snapshot.doctor.fullName} (Reg. ${snapshot.doctor.regNo}). Patient ${patient.name} (${patient.pid}). Signature:${rx.toggles.signature ? 'on' : 'off'} Stamp:${rx.toggles.stamp ? 'on' : 'off'}.${warnings.length ? ' Warnings acknowledged: ' + warnings.length : ''}` });
-    await touchMedicines(out.items);
+    await touchMedicines(out.items, true);
     return out;
   });
 }
@@ -148,12 +148,15 @@ export async function duplicateRx(id: string, amend = false): Promise<Prescripti
 }
 
 /* ---------- Medicines ---------- */
-export async function touchMedicines(items: RxItem[]) {
+const REG_KEYS = ['doseQty', 'doseText', 'doseUnit', 'freq', 'freqCustom', 'timesPerDay', 'odSlot', 'timing', 'duration', 'durationUnit', 'sosMax'] as const;
+export async function touchMedicines(items: RxItem[], saveReg = false) {
   const now = Date.now();
   for (const it of items) {
     const id = it.medId || 'custom-' + (it.brand || it.generic).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + it.strength.toLowerCase().replace(/[^a-z0-9]+/g, '');
     const cur = await db.meta.get(id);
-    await db.meta.put({ id, favourite: cur?.favourite || false, lastUsedAt: now, useCount: (cur?.useCount || 0) + 1 });
+    let reg = cur?.reg;
+    if (saveReg && !it.useTaper) { reg = {}; for (const k of REG_KEYS) (reg as any)[k] = (it as any)[k]; }
+    await db.meta.put({ id, favourite: cur?.favourite || false, lastUsedAt: now, useCount: (cur?.useCount || 0) + 1, reg });
     if (!it.medId && it.generic.trim()) {
       await db.medicines.put({ id, brand: it.brand, generic: it.generic, ingredients: it.ingredients, strength: it.strength, form: it.form, route: it.route, manufacturer: it.manufacturer, verified: false, source: 'custom' });
     }
@@ -161,7 +164,7 @@ export async function touchMedicines(items: RxItem[]) {
 }
 export async function toggleFavourite(id: string) {
   const cur = await db.meta.get(id);
-  await db.meta.put({ id, favourite: !cur?.favourite, lastUsedAt: cur?.lastUsedAt || 0, useCount: cur?.useCount || 0 });
+  await db.meta.put({ id, favourite: !cur?.favourite, lastUsedAt: cur?.lastUsedAt || 0, useCount: cur?.useCount || 0, reg: cur?.reg });
 }
 export async function saveCustomMedicine(m: Omit<Medicine, 'id' | 'verified' | 'source'> & { id?: string }): Promise<Medicine> {
   const med: Medicine = { ...m, id: m.id || 'cust-' + uid(), verified: false, source: 'custom' };
