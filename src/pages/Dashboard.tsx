@@ -16,7 +16,7 @@ export default function Dashboard() {
   const patients = useLiveQuery(() => db.patients.orderBy('updatedAt').reverse().limit(5).toArray(), []) || [];
   const tpls = useLiveQuery(() => db.templates.toArray(), []) || [];
   const idx = useMedicineIndex();
-  const today = rxs.filter((r) => isToday(r.authorizedAt || r.updatedAt));
+  const today = rxs.filter((r) => r.status === 'final' && isToday(r.authorizedAt || r.updatedAt));
   const recentMeds = idx ? [...idx.meta.values()].filter((m) => m.lastUsedAt).sort((a, b) => b.lastUsedAt - a.lastUsedAt).slice(0, 10).map((m) => idx.all.find((x) => x.id === m.id)).filter(Boolean) : [];
   const favTpls = tpls.filter((t) => t.favourite);
   const name = s?.doctor.fullName.trim();
@@ -24,6 +24,10 @@ export default function Dashboard() {
   const incomplete = s && (!s.doctor.fullName.trim() || !s.doctor.regNo.trim());
   const daysSinceBackup = s?.lastBackupAt ? Math.floor((Date.now() - s.lastBackupAt) / 86400000) : null;
   const finals = rxs.filter((r) => r.status === 'final').length;
+  const finalRx = rxs.filter((r) => r.status === 'final');
+  const seen = new Set<string>();
+  // one unfinished draft per patient (the latest); empty drafts are hidden
+  const drafts = rxs.filter((r) => r.status === 'draft' && (r.patient.name.trim() || r.items.length)).filter((r) => { const k = r.patientId || r.patient.name.trim().toLowerCase() || r.id; if (seen.has(k)) return false; seen.add(k); return true; });
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 p-4 sm:p-6">
@@ -72,9 +76,15 @@ export default function Dashboard() {
       </div>
       <Card className="p-4">
         <SectionTitle title="Recent prescriptions" />
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">{rxs.slice(0, 8).map((r) => <RxRow key={r.id} rx={r} />)}</div>
-        {!rxs.length && <Empty title="No prescriptions yet" text="Tap “Create New Prescription” to make your first one in under a minute." />}
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">{finalRx.slice(0, 8).map((r) => <RxRow key={r.id} rx={r} />)}</div>
+        {!finalRx.length && <Empty title="No prescriptions yet" text="Tap “Create New Prescription” to make your first one in under a minute." />}
       </Card>
+      {drafts.length > 0 && (
+        <Card className="p-4">
+          <SectionTitle title={`Unfinished (${drafts.length})`} />
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">{drafts.slice(0, 4).map((r) => <RxRow key={r.id} rx={r} />)}</div>
+        </Card>
+      )}
       {(finals > 0 && (daysSinceBackup === null || daysSinceBackup > 7)) && (
         <Link to="/settings?tab=backup" className="block rounded-xl bg-slate-100 px-4 py-2.5 text-center text-xs font-bold text-slate-700">Your data lives on this device. {daysSinceBackup === null ? 'You have never taken a backup.' : `Last backup ${daysSinceBackup} days ago.`} Back up now →</Link>
       )}
