@@ -77,7 +77,7 @@ function DoctorCard({ s }: { s: AppSettings }) {
         <Field label="Specialty"><input className="field" value={d.specialty} onChange={(e) => set({ specialty: e.target.value })} placeholder="e.g. Orthopaedic Surgeon" /></Field>
         <Field label="Medical registration number *" hint="Mandatory on every prescription under NMC regulations"><input className="field" value={d.regNo} onChange={(e) => set({ regNo: e.target.value })} /></Field>
         <Field label="Registering council" hint="e.g. State Medical Council name"><input className="field" value={d.regCouncil} onChange={(e) => set({ regCouncil: e.target.value })} /></Field>
-        <Field label="Phone"><input type="tel" className="field" value={d.phone} onChange={(e) => set({ phone: e.target.value })} /><E k="phone" /></Field>
+        <PhonesField label="Your mobile number(s)" primary={d.phone} more={d.morePhones} onChange={(p, m) => set({ phone: p, morePhones: m })} /><E k="phone" />
         <Field label="Email (optional)"><input type="email" className="field" value={d.email} onChange={(e) => set({ email: e.target.value })} /><E k="email" /></Field>
       </div>
       <div className="flex items-center justify-between">
@@ -85,6 +85,28 @@ function DoctorCard({ s }: { s: AppSettings }) {
         <Btn onClick={save} disabled={!dirty}>Save profile</Btn>
       </div>
     </Card>
+  );
+}
+
+/* ---------------- shared: several mobile numbers ---------------- */
+function PhonesField({ label, primary, more, onChange }: { label: string; primary: string; more?: string[]; onChange: (primary: string, more: string[]) => void }) {
+  const list = [primary, ...(more || [])];
+  const set = (i: number, v: string) => { const n = [...list]; n[i] = v; onChange(n[0], n.slice(1)); };
+  return (
+    <div className="sm:col-span-2">
+      <span className="lbl">{label}</span>
+      <div className="space-y-2">
+        {list.map((v, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="rounded-lg bg-slate-100 px-2.5 py-2 text-sm font-bold text-slate-500">+91</span>
+            <input type="tel" inputMode="tel" className="field" value={v} onChange={(e) => set(i, e.target.value)} placeholder="10-digit mobile number" />
+            {i > 0 && <button className="text-sm font-bold text-danger" onClick={() => { const n = list.filter((_, k) => k !== i); onChange(n[0], n.slice(1)); }} aria-label="Remove number">Remove</button>}
+          </div>
+        ))}
+        <button className="text-sm font-bold text-brand underline" onClick={() => onChange(list[0], [...list.slice(1), ''])}>+ Add another number</button>
+      </div>
+      <p className="mt-1 text-xs text-slate-500">Prints as +91-XXXXXXXXXX. Landline numbers print as you type them (with STD code).</p>
+    </div>
   );
 }
 
@@ -115,11 +137,12 @@ function ClinicEditor({ c, isDefault, canDelete }: { c: Clinic; isDefault: boole
       <div className="flex items-center gap-2"><span className="font-extrabold">{c.name || 'New clinic'}</span>{isDefault && <Badge tone="blue">Default</Badge>}</div>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Clinic / hospital name"><input className="field" value={d.name} onChange={(e) => set({ name: e.target.value })} /></Field>
-        <Field label="Phone"><input className="field" type="tel" value={d.phone} onChange={(e) => set({ phone: e.target.value })} /></Field>
+        <PhonesField label="Clinic phone / mobile number(s)" primary={d.phone} more={d.morePhones} onChange={(p, m) => set({ phone: p, morePhones: m })} />
         <Field label="Address" className="sm:col-span-2"><textarea className="field" rows={2} value={d.address} onChange={(e) => set({ address: e.target.value })} /></Field>
         <Field label="Email"><input className="field" type="email" value={d.email} onChange={(e) => set({ email: e.target.value })} /></Field>
         <Field label="Timings (optional)"><input className="field" value={d.timings} onChange={(e) => set({ timings: e.target.value })} placeholder="e.g. Mon-Sat 4-7 PM" /></Field>
         <Field label="WhatsApp for patient queries (optional)"><input className="field" type="tel" value={d.whatsapp || ''} onChange={(e) => set({ whatsapp: e.target.value })} placeholder="Printed as: For any problem, WhatsApp …" /></Field>
+        <Field label="Patient education link for QR (optional)" className="sm:col-span-2"><input className="field" value={d.qrUrl || ''} onChange={(e) => set({ qrUrl: e.target.value })} placeholder="https://… (printed as a small QR: scan to learn about your condition)" /></Field>
         <Field label="Appointment note (optional)" className="sm:col-span-2"><textarea className="field" rows={2} value={d.appointmentNote || ''} onChange={(e) => set({ appointmentNote: e.target.value })} placeholder="e.g. Call 7 days before the follow-up date to confirm your appointment. Booking time 11 AM - 4 PM." /></Field>
       </div>
       <div className="flex flex-wrap items-center gap-3">
@@ -265,8 +288,6 @@ function LayoutCard({ s }: { s: AppSettings }) {
           <Sw k="genericCaps" label="Generic names in CAPITAL LETTERS" hint="NMC: legibly and preferably in capitals" />
           <Sw k="showComposition" label="Print composition under each medicine" />
           <Sw k="showPhone" label="Print patient phone number" />
-          <Sw k="headerBrand" label="Show MedScript logo when no clinic logo" />
-          <Sw k="footerBranding" label="“Generated with MedScript” in footer" />
           <Sw k="sealLeft" label="Stamp on the left of signature" hint="Turn off to place the stamp at the far right" />
         </div>
         <Field label="Custom footer line (optional)"><input className="field" value={note} onChange={(e) => setNote(e.target.value)} onBlur={() => patch({ footerNote: note })} placeholder="e.g. Not valid for medico-legal purposes" /></Field>
@@ -285,8 +306,8 @@ function LangCard({ s }: { s: AppSettings }) {
   return (
     <Card className="space-y-4 p-5">
       <h2 className="text-lg font-extrabold">Default language</h2>
-      <p className="text-sm text-slate-600">Patient instructions are generated in simple English and/or Hindi (Roman script, e.g. “khane ke baad”). Medical terms on the prescription stay professional. You can change it per prescription.</p>
-      <div className="flex gap-2">{([['en', 'English'], ['hi', 'Hindi'], ['both', 'English + Hindi']] as [Lang, string][]).map(([v, l]) => <Chip key={v} active={s.defaultLang === v} onClick={() => updateSettings((x) => { x.defaultLang = v; })}>{l}</Chip>)}</div>
+      <p className="text-sm text-slate-600">Patient instruction line and advice print in one language only: English or Hindi (Devanagari). You can switch it, or turn the instruction line off, on each prescription.</p>
+      <div className="flex gap-2">{([['en', 'English'], ['hi', 'हिंदी']] as [Lang, string][]).map(([v, l]) => <Chip key={v} active={s.defaultLang === v || (v === 'hi' && s.defaultLang === 'both')} onClick={() => updateSettings((x) => { x.defaultLang = v; })}>{l}</Chip>)}</div>
       <Field label="Default follow-up (days)"><input type="number" min="0" className="field w-32" defaultValue={s.defaultFollowUpDays} onBlur={(e) => { updateSettings((x) => { x.defaultFollowUpDays = Math.max(0, Number(e.target.value) || 0); }); toast('Saved'); }} /></Field>
     </Card>
   );

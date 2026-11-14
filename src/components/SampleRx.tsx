@@ -21,8 +21,8 @@ function sampleSignature(): string {
 }
 function sampleSnapshot(): DoctorSnapshot {
   const d = defaultSettings();
-  const doctor = { fullName: 'Dr. Arjun Mehta', qualifications: 'MBBS, MS (Orthopaedics)', specialty: 'Orthopaedic & Joint Replacement Surgeon', regNo: 'RMC/12345', regCouncil: 'Rajasthan Medical Council', phone: '98765 43210', email: 'dr.arjun@example.com' };
-  const clinic = { ...d.clinics[0], name: 'Sample Ortho & Fracture Clinic', address: '12, Sample Road, Near City Hospital, Jaipur - 302001', phone: '0141-2345678', email: 'clinic@example.com', timings: 'Mon-Sat: 5:00 PM - 8:00 PM', logo: '', whatsapp: '98765 43210', appointmentNote: 'अपॉइंटमेंट के लिए दी हुई तारीख से सात दिन पहले कॉल करके अपना अपॉइंटमेंट सुनिश्चित कर लें। समय: शाम 5 से 8 बजे।' };
+  const doctor = { fullName: 'Dr. Arjun Mehta', qualifications: 'MBBS, MS (Orthopaedics)', specialty: 'Orthopaedic & Joint Replacement Surgeon', regNo: 'RMC/12345', regCouncil: 'Rajasthan Medical Council', phone: '9876543210', morePhones: ['9123456780'], email: 'dr.arjun@example.com' };
+  const clinic = { ...d.clinics[0], name: 'Sample Ortho & Fracture Clinic', address: '12, Sample Road, Near City Hospital, Jaipur - 302001', phone: '0141-2345678', morePhones: ['9988776655'], email: 'clinic@example.com', timings: 'Mon-Sat: 5:00 PM - 8:00 PM', logo: '', whatsapp: '9876543210', qrUrl: 'https://example.com/know-your-condition', appointmentNote: 'अपॉइंटमेंट के लिए दी हुई तारीख से सात दिन पहले कॉल करके अपना अपॉइंटमेंट सुनिश्चित कर लें। समय: शाम 5 से 8 बजे।' };
   const seal = { ...d.seal, mode: 'generated' as const, style: 'classic' as const, widthMm: 52 };
   return {
     doctor, clinic, seal, layout: { ...d.layout, footerNote: 'SAMPLE prescription with dummy details. Not for patient use.' },
@@ -42,7 +42,7 @@ const SCENARIOS: { key: string; title: string; sub: string; patient: { name: str
   {
     key: 'knee', title: 'Knee osteoarthritis', sub: 'Painkiller + gastro cover + gel + calcium',
     patient: { name: 'Ramesh Sharma', age: '58', sex: 'Male', weight: '72' },
-    clinical: { complaint: 'Pain right knee x 6 months, worse on stairs', diagnosis: 'Osteoarthritis knee', side: 'Right', examination: 'Joint line tenderness; crepitus; ROM 0-110', investigations: 'X-ray knee standing AP / lateral', advice: ['Quadriceps strengthening and knee range-of-motion exercises daily', 'Hot fomentation to the knee for 15 minutes, twice daily', 'Reduce body weight if overweight'], comorbidities: 'Hypertension', nextTests: 'ESR, CRP' },
+    clinical: { complaint: 'Pain right knee x 6 months, worse on stairs', diagnosis: 'Osteoarthritis knee', side: 'Right', injury: 'nontrauma', bodyParts: ['knee-R'], examination: 'Joint line tenderness; crepitus; ROM 0-110', investigations: 'X-ray knee standing AP / lateral', advice: ['Quadriceps strengthening and knee range-of-motion exercises daily', 'Hot fomentation to the knee for 15 minutes, twice daily', 'Reduce body weight if overweight'], comorbidities: 'Hypertension', nextTests: 'ESR, CRP' },
     items: [
       { g: ['Etoricoxib'], st: '60 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'after', ...D(5) } },
       { g: ['Pantoprazole'], st: '40 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'before', ...D(5) } },
@@ -54,7 +54,7 @@ const SCENARIOS: { key: string; title: string; sub: string; patient: { name: str
   {
     key: 'sciatica', title: 'Sciatica / low back pain', sub: 'Neuropathic + muscle relaxant + NSAID',
     patient: { name: 'Sunita Verma', age: '42', sex: 'Female', weight: '64' },
-    clinical: { complaint: 'Low back pain radiating to left leg x 2 weeks', diagnosis: 'Lumbar radiculopathy (L5-S1)', side: 'Left', examination: 'SLR positive at 50°; no motor deficit', investigations: 'MRI lumbosacral spine', advice: ['Avoid heavy lifting and forward bending; lift with knees bent', 'Hot fomentation to the back, twice daily', 'Stay active; avoid prolonged bed rest'], nextTests: 'MRI report' },
+    clinical: { complaint: 'Low back pain radiating to left leg x 2 weeks', diagnosis: 'Lumbar radiculopathy (L5-S1)', side: 'Left', injury: 'nontrauma', bodyParts: ['lumbar', 'hip-L'], examination: 'SLR positive at 50°; no motor deficit', investigations: 'MRI lumbosacral spine', advice: ['Avoid heavy lifting and forward bending; lift with knees bent', 'Hot fomentation to the back, twice daily', 'Stay active; avoid prolonged bed rest'], nextTests: 'MRI report' },
     items: [
       { g: ['Pregabalin', 'Methylcobalamin'], st: '75 mg + 750 mcg', patch: { freq: 'HS', timesPerDay: 1, timing: '', ...D(14) } },
       { g: ['Aceclofenac', 'Paracetamol'], st: '100 mg + 325 mg', patch: { freq: 'BD', timesPerDay: 2, timing: 'after', ...D(5) } },
@@ -65,7 +65,7 @@ const SCENARIOS: { key: string; title: string; sub: string; patient: { name: str
   {
     key: 'fracture', title: 'Post-op fracture follow-up', sub: 'Pain control + calcium + vitamin D',
     patient: { name: 'Mohan Lal', age: '67', sex: 'Male', weight: '65' },
-    clinical: { complaint: 'Follow-up 2 weeks after right femur IMNail', diagnosis: 'Fracture shaft femur, post fixation', side: 'Right', examination: 'Wound healthy; stitches in situ; knee flexion 70°', investigations: 'X-ray femur AP / lateral', advice: ['Keep the wound clean and dry; suture removal as advised', 'Walk with a walker / support as advised; follow the physiotherapy protocol', 'Take bone-health medicines regularly as prescribed'], comorbidities: 'Type 2 diabetes', nextTests: 'X-ray femur AP / lateral' },
+    clinical: { complaint: 'Follow-up 2 weeks after right femur IMNail', diagnosis: 'Fracture shaft femur, post fixation', side: 'Right', injury: 'trauma', bodyParts: ['thigh-R', 'knee-R'], examination: 'Wound healthy; stitches in situ; knee flexion 70°', investigations: 'X-ray femur AP / lateral', advice: ['Keep the wound clean and dry; suture removal as advised', 'Walk with a walker / support as advised; follow the physiotherapy protocol', 'Take bone-health medicines regularly as prescribed'], comorbidities: 'Type 2 diabetes', nextTests: 'X-ray femur AP / lateral' },
     items: [
       { g: ['Aceclofenac', 'Paracetamol'], st: '100 mg + 325 mg', patch: { freq: 'BD', timesPerDay: 2, timing: 'after', ...D(5) } },
       { g: ['Pantoprazole'], st: '40 mg', patch: { freq: 'OD', timesPerDay: 1, timing: 'before', ...D(5) } },
@@ -78,7 +78,7 @@ const SCENARIOS: { key: string; title: string; sub: string; patient: { name: str
 export default function SampleRx({ label = 'See a sample prescription', className }: { label?: string; className?: string }) {
   const s = useSettings();
   const [open, setOpen] = useState(false);
-  const [lang, setLang] = useState<Lang>('both');
+  const [lang, setLang] = useState<Lang>('hi');
   const [own, setOwn] = useState(false);
   const [rx, setRx] = useState<Prescription | null>(null);
   if (!s) return null;
@@ -86,7 +86,7 @@ export default function SampleRx({ label = 'See a sample prescription', classNam
   function build(key: string) {
     const sc = SCENARIOS.find((x) => x.key === key)!;
     const r = blankRx(s!.defaultClinicId, lang, 14);
-    r.status = 'final'; r.rxNo = 'SAMPLE'; r.authorizedAt = Date.now();
+    r.status = 'final'; r.showInstr = true; r.rxNo = 'SAMPLE'; r.authorizedAt = Date.now();
     r.patient = { ...r.patient, ...sc.patient, pid: 'P-00000', phone: '9876543210', allergies: '' };
     r.clinical = { ...r.clinical, ...sc.clinical };
     r.items = sc.items.map(find).filter(Boolean) as RxItem[];
@@ -104,7 +104,7 @@ export default function SampleRx({ label = 'See a sample prescription', classNam
           <p className="mb-3 text-sm font-medium text-slate-600">Pick a case to see how a finished prescription looks, with a dummy doctor, clinic, signature, stamp and registration number (or switch to your own profile). Dummy patient, nothing is saved.</p>
           <div className="mb-4 flex items-center gap-2">
             <span className="text-xs font-extrabold uppercase tracking-wide text-slate-500">Patient instructions</span>
-            {([['en', 'English'], ['both', 'English + Hindi'], ['hi', 'Hindi']] as [Lang, string][]).map(([v, l]) => (
+            {([['en', 'English'], ['hi', 'हिंदी']] as [Lang, string][]).map(([v, l]) => (
               <button key={v} onClick={() => setLang(v)} className={cx('rounded-full border px-3 py-1 text-xs font-bold', lang === v ? 'border-brand bg-brand text-white' : 'border-slate-300 bg-white text-slate-700')}>{l}</button>
             ))}
           </div>

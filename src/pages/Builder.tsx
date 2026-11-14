@@ -1,4 +1,5 @@
-import { ADVICE_CHIPS } from '../data/advice';
+import { ADVICE_CHIPS, shortAdvice } from '../data/advice';
+import BodyPicker from '../components/BodyPicker';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Check, Eye, FilePlus2, Layers, Save, ShieldCheck, Copy, FileEdit, Lock, Search, X, UserPlus, Loader2 } from 'lucide-react';
@@ -91,9 +92,16 @@ function Builder() {
     return () => { document.removeEventListener('visibilitychange', vis); window.removeEventListener('pagehide', flush); flush(); };
   }, []);
 
+  /* follow-up date follows the longest medicine duration unless the doctor sets it by hand */
+  useEffect(() => {
+    if (!rx || readOnly || rx.followUpManual) return;
+    const days = Math.max(0, ...rx.items.filter((i) => i.freq !== 'SOS' || i.duration).map((i) => (i.useTaper ? i.taper.reduce((a, t) => a + t.days, 0) : (i.duration || 0) * (i.durationUnit === 'weeks' ? 7 : i.durationUnit === 'months' ? 30 : 1))));
+    if (days > 0 && days !== rx.followUpDays) update((r) => ({ ...r, followUpDays: Math.min(days, 90) }));
+  }, [rx?.items]); // eslint-disable-line
+
   /* ---------- helpers ---------- */
   function applyTpl(r: Prescription, t: Template) {
-    r.clinical = { ...r.clinical, complaint: t.clinical.complaint, diagnosis: t.clinical.diagnosis, side: t.clinical.side, examination: t.clinical.examination, investigations: t.clinical.investigations, advice: [...t.clinical.advice] };
+    r.clinical = { ...r.clinical, complaint: t.clinical.complaint, diagnosis: t.clinical.diagnosis, side: t.clinical.side, examination: t.clinical.examination, investigations: t.clinical.investigations, advice: shortAdvice(t.clinical.advice) };
     r.followUpDays = t.followUpDays;
     if (t.items.length) r.items = [...r.items, ...t.items.map((i) => ({ ...i, id: uid() }))];
   }
@@ -146,10 +154,13 @@ function Builder() {
         )}
         {!readOnly && (
           <div className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white p-0.5" role="group" aria-label="Patient instruction language">
-            {([['en', 'English'], ['hi', 'Hindi'], ['both', 'Both']] as [Lang, string][]).map(([v, l]) => (
-              <button key={v} onClick={() => update((r) => ({ ...r, lang: v }))} className={cx('rounded-md px-2.5 py-1 text-xs font-bold', rx.lang === v ? 'bg-navy text-white' : 'text-slate-600')}>{l}</button>
+            {([['en', 'English'], ['hi', 'हिंदी']] as [Lang, string][]).map(([v, l]) => (
+              <button key={v} onClick={() => update((r) => ({ ...r, lang: v }))} className={cx('rounded-md px-2.5 py-1 text-xs font-bold', (rx.lang === v || (v === 'hi' && rx.lang === 'both')) ? 'bg-navy text-white' : 'text-slate-600')}>{l}</button>
             ))}
           </div>
+        )}
+        {!readOnly && (
+          <label className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-600"><input type="checkbox" checked={rx.showInstr !== false} onChange={(e) => update((r) => ({ ...r, showInstr: e.target.checked }))} /> Instruction line</label>
         )}
         {!readOnly && <Btn variant="secondary" size="sm" onClick={() => setTplPicker(true)}><Layers size={16} /> Template</Btn>}
       </div>
@@ -173,6 +184,10 @@ function Builder() {
       <div className="grid gap-4 lg:grid-cols-12">
         <div className="space-y-4 lg:col-span-5">
           <PatientCard p={p} nextPid={nextPid} readOnly={!!readOnly} setPatient={setPatient} onPick={(pt) => update((r) => ({ ...r, patient: { ...pt }, patientId: pt.id }))} onClear={() => update((r) => ({ ...r, patient: { ...blankRxPatient(), id: uid() }, patientId: '' }))} />
+          <Card className="p-4">
+            <div className="mb-2 text-sm font-extrabold uppercase tracking-wide text-slate-500">Site of complaint</div>
+            <BodyPicker clin={rx.clinical} set={setClin} readOnly={!!readOnly} />
+          </Card>
           <Card className="p-4">
             <fieldset disabled={readOnly} className="space-y-3">
               <div className="text-sm font-extrabold uppercase tracking-wide text-slate-500">Clinical details</div>
@@ -216,18 +231,19 @@ function Builder() {
 
           <Card className="p-4">
             <fieldset disabled={readOnly} className="space-y-3">
-              <Field label="Advice (one point per line)">
+              <Field label="Advice (one point per line, 2-3 short points are enough)">
                 <textarea className="field min-h-[110px]" value={rx.clinical.advice.join('\n')} onChange={(e) => setClin({ advice: e.target.value.split('\n') })} placeholder={'Rest\nPhysiotherapy as advised\nHot fomentation'} />
                 {!readOnly && <div className="mt-2 flex flex-wrap gap-1.5">{ADVICE_CHIPS.filter((x) => !rx.clinical.advice.includes(x)).map((x) => <Chip key={x} onClick={() => setClin({ advice: [...rx.clinical.advice.filter((l) => l.trim()), x] })}>+ {x}</Chip>)}</div>}
               </Field>
               <Field label="Tests to bring on next visit (optional)"><input className="field" value={rx.clinical.nextTests || ''} onChange={(e) => setClin({ nextTests: e.target.value })} placeholder="e.g. CBC, ESR" /></Field>
               <div>
-                <span className="lbl">Follow-up</span>
+                <span className="lbl">Next visit {rx.followUpManual ? <button className="ml-1 text-xs font-bold text-brand underline" onClick={() => update((r) => ({ ...r, followUpManual: false }))}>use medicine duration</button> : <span className="text-xs font-semibold normal-case text-slate-400">(auto from medicine duration)</span>}</span>
                 <div className="flex flex-wrap items-center gap-2">
-                  {FU.map((d) => <Chip key={d} tone="teal" active={rx.followUpDays === d} onClick={() => update((r) => ({ ...r, followUpDays: d }))}>{fuLabel(d)}</Chip>)}
-                  <input type="number" min="0" className="field w-24" value={rx.followUpDays || ''} placeholder="days" onChange={(e) => update((r) => ({ ...r, followUpDays: Number(e.target.value) || 0 }))} aria-label="Custom follow-up days" />
+                  {FU.map((d) => <Chip key={d} tone="teal" active={rx.followUpDays === d} onClick={() => update((r) => ({ ...r, followUpDays: d, followUpManual: true }))}>{fuLabel(d)}</Chip>)}
+                  <input type="number" min="0" className="field w-24" value={rx.followUpDays || ''} placeholder="days" onChange={(e) => update((r) => ({ ...r, followUpDays: Number(e.target.value) || 0, followUpManual: true }))} aria-label="Custom follow-up days" />
                 </div>
               </div>
+              <Field label="QR on prescription: patient education link (optional)"><input className="field" value={rx.qrUrl ?? settings?.clinics.find((c) => c.id === rx.clinicId)?.qrUrl ?? ''} onChange={(e) => update((r) => ({ ...r, qrUrl: e.target.value }))} placeholder="Paste a condition-guide link, leave empty for no QR" /></Field>
             </fieldset>
           </Card>
         </div>

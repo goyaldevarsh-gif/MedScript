@@ -1,5 +1,8 @@
 import type { DoctorSnapshot, Prescription, RxItem } from './types';
-import { brandMarkPng, imageSize, renderSeal } from './imaging';
+import { imageSize, renderSeal } from './imaging';
+import { fmtMobile, phoneList } from './phone';
+import { bodyPng } from './body';
+import QRCode from 'qrcode';
 import { dosePattern, computeQty, doseLabel, durationLabel, freqLabel, freqMeta, itemInstructions, timingMeta } from './dosage';
 import { addDays, fmtDate, fmtDateTime } from './util';
 
@@ -27,13 +30,13 @@ export function itemTitle(it: RxItem, mode: 'generic' | 'brand', caps: boolean):
   return { main: `${pre ? pre + ' ' : ''}${gen}${st}`, sub: it.brand ? `(Brand: ${it.brand})` : '' };
 }
 
-export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts): Promise<{ blob: Blob; pages: number }> {
+async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, fit: number): Promise<{ blob: Blob; pages: number }> {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
   doc.setProperties({ title: `Prescription - ${rx.patient.name || 'Patient'}`, author: drName(snap.doctor.fullName) || 'MedScript', creator: 'MedScript' });
   const PW = 210, PH = 297, M = 14, CW = PW - 2 * M;
   const L = snap.layout;
-  const sc = L.fontScale === 'large' ? 1.1 : 1;
+  const sc = (L.fontScale === 'large' ? 1.1 : 1) * fit;
   const clinic = snap.clinic;
   let y = 0;
   const lh = (pt: number) => pt * 0.3528 * 1.28;
@@ -78,55 +81,63 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
   };
   try { await Promise.all([document.fonts.load('400 16px "Noto Sans Devanagari"', 'अ'), document.fonts.load('700 16px "Noto Sans Devanagari"', 'अ')]); } catch { /* falls back to system font */ }
 
-  const logoMark = await brandMarkPng();
+
   const sigSize = snap.signature.dataUrl ? await imageSize(snap.signature.dataUrl) : null;
   const sealUrl = snap.seal.mode === 'uploaded' ? snap.seal.uploaded : snap.seal.mode === 'generated' ? snap.sealDataUrl : '';
   const sealSize = sealUrl ? await imageSize(sealUrl) : null;
   const logoSize = clinic.logo ? await imageSize(clinic.logo) : null;
+  const c = rx.clinical;
+  const body = await bodyPng(c.bodyParts || []).catch(() => null);
+  const qrText = (rx.qrUrl ?? clinic.qrUrl ?? '').trim();
+  const qrUrl = qrText ? await QRCode.toDataURL(qrText, { margin: 0, width: 240, errorCorrectionLevel: 'M', color: { dark: '#3b4a5e', light: '#ffffff' } }).catch(() => '') : '';
+  const lang: 'en' | 'hi' = rx.lang === 'en' ? 'en' : 'hi';
+  const T = (en: string, hi: string) => (lang === 'hi' ? hi : en);
 
-  /* ---------- header ---------- */
+  /* ---------- header: clinic on the left, doctor on the right ---------- */
+  const dPhones = phoneList(snap.doctor.phone, snap.doctor.morePhones);
+  const cPhones = phoneList(clinic.phone, clinic.morePhones);
+  const hasClinic = !!(clinic.name || clinic.address || cPhones.length || clinic.email || clinic.timings || clinic.logo);
   const drawHeader = () => {
     const top = 11;
-    let leftX = M;
-    let hLogo = 0;
-    if (opts.showLogo) {
-      const box = { w: 26, h: 22 };
-      if (clinic.logo && logoSize) {
-        const k = Math.min(box.w / logoSize.w, box.h / logoSize.h);
+    const rule = (yy: number) => { doc.setDrawColor(...BLUE); doc.setLineWidth(0.7); doc.line(M, yy, PW - M, yy); doc.setDrawColor(...TEAL); doc.setLineWidth(0.3); doc.line(M, yy + 0.9, PW - M, yy + 0.9); };
+    // doctor lines
+    const docLines: { t: string; st: 'bold' | 'normal'; sz: number; col: [number, number, number] }[] = [];
+    const nm = clean(drName(snap.doctor.fullName)) || 'Doctor name not set';
+    docLines.push({ t: nm, st: 'bold', sz: 15 * sc, col: NAVY });
+    if (snap.doctor.qualifications) docLines.push({ t: snap.doctor.qualifications, st: 'normal', sz: 9.3 * sc, col: NAVY });
+    if (snap.doctor.specialty) docLines.push({ t: snap.doctor.specialty, st: 'bold', sz: 9.3 * sc, col: TEAL });
+    if (snap.doctor.regNo) docLines.push({ t: `Reg. No.: ${snap.doctor.regNo}${snap.doctor.regCouncil ? ' (' + snap.doctor.regCouncil + ')' : ''}`, st: 'bold', sz: 8.8 * sc, col: NAVY });
+    if (dPhones.length) docLines.push({ t: 'Mob: ' + dPhones.join('  |  '), st: 'normal', sz: 8.6 * sc, col: GREY });
+    if (snap.doctor.email && !hasClinic) docLines.push({ t: snap.doctor.email, st: 'normal', sz: 8.6 * sc, col: GREY });
+    const dw = hasClinic ? 92 : CW - 4;
+    let leftX = M, hLogo = 0;
+    let ly = top;
+    if (hasClinic) {
+      if (opts.showLogo && clinic.logo && logoSize) {
+        const box = { w: 24, h: 20 }; const k = Math.min(box.w / logoSize.w, box.h / logoSize.h);
         const w = logoSize.w * k, h = logoSize.h * k;
         doc.addImage(clinic.logo, 'PNG', M, top + (box.h - h) / 2, w, h, undefined, 'FAST');
-        leftX = M + box.w + 5; hLogo = box.h;
-      } else if (L.headerBrand) {
-        doc.addImage(logoMark, 'PNG', M, top + 2, 20, 15.4, undefined, 'FAST');
-        font('bold', 10, NAVY); doc.text('MedScript', M, top + 21.5);
-        leftX = M + 28; hLogo = 24;
+        leftX = M + box.w + 4; hLogo = box.h;
       }
-    }
-    // doctor block
-    y = top + 1;
-    const dw = 100 - (leftX - M);
-    font('bold', 16 * sc, NAVY);
-    const nm = clean(drName(snap.doctor.fullName)) || 'Doctor name not set';
-    doc.text(nm, leftX, y + 5); y += 7.2 * sc;
-    if (snap.doctor.qualifications) { font('normal', 9.5 * sc, NAVY); wrap(snap.doctor.qualifications, dw).forEach((l) => { doc.text(l, leftX, y + 3); y += 4.2; }); }
-    if (snap.doctor.specialty) { font('bold', 9.5 * sc, TEAL); wrap(snap.doctor.specialty, dw).forEach((l) => { doc.text(l, leftX, y + 3); y += 4.2; }); }
-    const reg = snap.doctor.regNo ? `Reg. No.: ${snap.doctor.regNo}${snap.doctor.regCouncil ? ' (' + snap.doctor.regCouncil + ')' : ''}` : '';
-    if (reg) { font('bold', 9 * sc, NAVY); wrap(reg, dw).forEach((l) => { doc.text(l, leftX, y + 3); y += 4; }); }
-    const leftEnd = y;
-    // clinic block
-    let ry = top + 1; const rx0 = 118, rw = PW - M - rx0;
-    if (clinic.name) { font('bold', 10.5 * sc, NAVY); wrap(clinic.name, rw).forEach((l) => { doc.text(l, rx0, ry + 4); ry += 4.6; }); }
-    font('normal', 8.5 * sc, GREY);
-    if (clinic.address) wrap(clinic.address, rw).forEach((l) => { doc.text(l, rx0, ry + 3.5); ry += 3.9; });
-    const phone = clinic.phone || snap.doctor.phone;
-    if (phone) { doc.text('Ph: ' + clean(phone), rx0, ry + 3.5); ry += 3.9; }
-    const email = clinic.email || snap.doctor.email;
-    if (email) { doc.text(clean(email), rx0, ry + 3.5); ry += 3.9; }
-    if (clinic.timings) wrap('Timings: ' + clinic.timings, rw).forEach((l) => { doc.text(l, rx0, ry + 3.5); ry += 3.9; });
-    y = Math.max(leftEnd, ry, top + hLogo) + 2.5;
-    doc.setDrawColor(...BLUE); doc.setLineWidth(0.7); doc.line(M, y, PW - M, y);
-    doc.setDrawColor(...TEAL); doc.setLineWidth(0.3); doc.line(M, y + 0.9, PW - M, y + 0.9);
-    y += 4;
+      const cw = 92 - (leftX - M);
+      if (clinic.name) { font('bold', 12 * sc, NAVY); wrap(clinic.name, cw).forEach((l) => { doc.text(l, leftX, ly + 4.6); ly += 5; }); }
+      font('normal', 8.4 * sc, GREY);
+      if (clinic.address) wrap(clinic.address, cw).forEach((l) => { doc.text(l, leftX, ly + 3.6); ly += 3.9; });
+      if (cPhones.length) wrap('Ph: ' + cPhones.join('  |  '), cw).forEach((l) => { doc.text(l, leftX, ly + 3.6); ly += 3.9; });
+      if (clinic.email) { doc.text(clean(clinic.email), leftX, ly + 3.6); ly += 3.9; }
+      if (clinic.timings) wrap('Timings: ' + clinic.timings, cw).forEach((l) => { doc.text(l, leftX, ly + 3.6); ly += 3.9; });
+    } else if (opts.showLogo && clinic.logo && logoSize) { /* logo without details: keep left */ }
+    // doctor block (right when a clinic is shown, otherwise left)
+    let ry = top;
+    const align = hasClinic ? 'right' : 'left';
+    const rxPos = hasClinic ? PW - M : M;
+    docLines.forEach((l) => {
+      font(l.st, l.sz, l.col);
+      wrap(l.t, dw).forEach((ln) => { doc.text(ln, rxPos, ry + l.sz * 0.3528 * 0.9, { align }); ry += lh(l.sz) * 0.95; });
+      if (l === docLines[0]) ry += 0.6;
+    });
+    y = Math.max(ly, ry, top + hLogo) + 2.2;
+    rule(y); y += 4.2;
   };
   const drawContHeader = () => {
     y = 10;
@@ -136,7 +147,13 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
     y += 10;
   };
 
-  const SIG_H = 40;
+  const sigH = sigSize ? 0 : 0;
+  void sigH;
+  const showSig = !opts.draft && opts.showSignature && snap.signature.dataUrl && sigSize;
+  const showSeal = !opts.draft && opts.showStamp && sealUrl && sealSize;
+  const sealW = showSeal ? snap.seal.widthMm : 0;
+  const sealH = showSeal && sealSize ? sealW * (sealSize.h / sealSize.w) : 0;
+  const BLOCK_H = Math.max(36, sealH + 6, qrUrl ? 30 : 0);
   const limitNormal = () => PH - 16;
   function ensure(h: number) {
     if (y + h > limitNormal()) { doc.addPage(); drawContHeader(); }
@@ -144,166 +161,177 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
 
   drawHeader();
 
-  /* ---------- patient strip ---------- */
+  /* ---------- patient strip (one ID only) ---------- */
   {
     const p = rx.patient;
     const when = fmtDate(rx.authorizedAt || rx.createdAt);
     const ageSex = `${p.age ? p.age + (p.ageUnit === 'M' ? ' M' : ' Y') : '-'} / ${p.sex || '-'}`;
     const row2: string[] = [];
-    if (L.showPhone && p.phone) row2.push(`Phone: ${p.phone}`);
+    if (L.showPhone && p.phone) row2.push(`Phone: ${fmtMobile(p.phone)}`);
     if (p.weight) row2.push(`Weight: ${p.weight} kg`);
-    if (rx.rxNo) row2.push(`Rx No.: ${rx.rxNo}`);
     const allergy = p.allergies.trim() ? `Allergies: ${p.allergies.trim()}` : '';
     const noAllergy = /^(no known|nkda|nil|none|no allerg)/i.test(p.allergies.trim());
-    const h = 7 + (row2.length ? 5 : 0) + (allergy ? heightOf(allergy, CW - 6, 8.5 * sc, 'bold') + 0.5 : 0) + 3;
+    const h = 6.4 + (row2.length ? 4.6 : 0) + (allergy ? heightOf(allergy, CW - 6, 8.5 * sc, 'bold') + 0.5 : 0) + 2.4;
     doc.setFillColor(...SURFACE); doc.roundedRect(M, y, CW, h, 1.6, 1.6, 'F');
-    let yy = y + 5.2;
+    let yy = y + 5;
     if (DEV.test(p.name)) { const b = hiBlock(p.name, 78, 10 * sc, NAVY, true); doc.addImage(b.url, 'PNG', M + 3, yy - 4.4, b.w, b.h, undefined, 'FAST'); } else { font('bold', 10 * sc, NAVY); doc.text(clean(p.name || 'Patient name not entered'), M + 3, yy); }
     font('normal', 9 * sc, NAVY);
     doc.text(clean(`Age/Sex: ${ageSex}`), M + 84, yy);
     doc.text(clean(`ID: ${p.pid || '-'}`), M + 122, yy);
     doc.text(`Date: ${when}`, PW - M - 3, yy, { align: 'right' });
-    yy += 5;
-    if (row2.length) { font('normal', 8.5 * sc, GREY); doc.text(clean(row2.join('     ')), M + 3, yy); yy += 5; }
+    yy += 4.6;
+    if (row2.length) { font('normal', 8.5 * sc, GREY); doc.text(clean(row2.join('     ')), M + 3, yy); yy += 4.6; }
     if (allergy) { font(noAllergy ? 'normal' : 'bold', 8.5 * sc, noAllergy ? GREY : RED); wrap(allergy, CW - 6).forEach((l) => { doc.text(l, M + 3, yy); yy += lh(8.5 * sc); }); }
-    y += h + 3.5;
+    y += h + 3;
   }
 
-  /* ---------- clinical ---------- */
-  const c = rx.clinical;
-  const block = (label: string, text: string, w = CW) => {
+  /* ---------- clinical: compact label/value rows, trauma ticks, marked body figure ---------- */
+  const figW = body ? body.w + 4 : 0;
+  const textW = CW - figW;
+  const yClin = y; const pageAtClin = doc.getNumberOfPages();
+  const LBL = 26;
+  const row = (label: string, text: string) => {
     if (!text.trim()) return;
-    ensure(lh(9) * 2 + 2);
-    font('bold', 7.5 * sc, TEAL); doc.text(label.toUpperCase(), M, y + 2.6); y += 3.6;
-    para(text, M, w, 'normal', 9.2 * sc, NAVY, 1.6);
+    const w = textW - LBL;
+    ensure(heightOf(text, w, 9.2 * sc) + 1);
+    font('bold', 7.4 * sc, TEAL); doc.text(label.toUpperCase(), M, y + 3.1);
+    const y0 = y; para(text, M + LBL, w, 'normal', 9.2 * sc, NAVY, 0.9);
+    if (y < y0 + 4.2) y = y0 + 4.2;
   };
-  if (rx.print.complaint) block('Chief complaint', c.complaint);
-  if (c.diagnosis.trim()) block('Diagnosis', c.diagnosis + (c.side && c.side !== 'N/A' ? ` (${c.side})` : ''));
-  if ((c.comorbidities || '').trim()) block('Comorbidities', c.comorbidities!);
-  if (rx.print.examination) block('Examination', c.examination.split(/[;\n]/).map((x) => x.trim()).filter((x) => x && !/:\s*$/.test(x)).join('; '));
-  if (rx.print.investigations) block('Investigations', c.investigations);
-  if (rx.print.notes) block('Clinical notes', c.notes);
+  if (c.injury) {
+    ensure(6);
+    font('bold', 7.4 * sc, TEAL); doc.text('TYPE', M, y + 3.1);
+    const box = (x: number, on: boolean, label: string) => {
+      doc.setDrawColor(...NAVY); doc.setLineWidth(0.3); doc.rect(x, y + 0.4, 3.2, 3.2);
+      if (on) { doc.setLineWidth(0.55); doc.line(x + 0.6, y + 2.1, x + 1.4, y + 3); doc.line(x + 1.4, y + 3, x + 2.8, y + 0.8); }
+      font(on ? 'bold' : 'normal', 9 * sc, NAVY); doc.text(label, x + 4.6, y + 3.2);
+    };
+    box(M + LBL, c.injury === 'trauma', 'Trauma'); box(M + LBL + 28, c.injury === 'nontrauma', 'Non-trauma');
+    y += 5.6;
+  }
+  if (rx.print.complaint) row('Complaint', c.complaint);
+  if (c.diagnosis.trim()) row('Diagnosis', c.diagnosis + (c.side && c.side !== 'N/A' ? ` (${c.side})` : ''));
+  row('Comorbidities', c.comorbidities || '');
+  if (rx.print.examination) row('Examination', c.examination.split(/[;\n]/).map((x) => x.trim()).filter((x) => x && !/:\s*$/.test(x)).join('; '));
+  if (rx.print.investigations) row('Investigations', c.investigations);
+  if (rx.print.notes) row('Notes', c.notes);
+  if (body && doc.getNumberOfPages() === pageAtClin) {
+    doc.addImage(body.url, 'PNG', PW - M - body.w, yClin, body.w, body.h, undefined, 'FAST');
+    y = Math.max(y, yClin + body.h + 1);
+  }
+  y += 1;
 
-  /* ---------- medicines ---------- */
+  /* ---------- medicines (compact) ---------- */
   if (rx.items.length) {
-    ensure(26);
-    y += 1;
-    font('bolditalic', 22 * sc, BLUE); doc.text('Rx', M, y + 7);
-    doc.setDrawColor(210, 218, 228); doc.setLineWidth(0.25); doc.line(M + 14, y + 5.5, PW - M, y + 5.5);
-    y += 11;
+    ensure(22);
+    font('bolditalic', 20 * sc, BLUE); doc.text('Rx', M, y + 6.5);
+    doc.setDrawColor(210, 218, 228); doc.setLineWidth(0.25); doc.line(M + 12, y + 5, PW - M, y + 5);
+    y += 9.5;
+    const showIns = rx.showInstr !== false;
     rx.items.forEach((it, idx) => {
       const t = itemTitle(it, L.nameDisplay, L.genericCaps);
       const indent = M + 7, w = CW - 7;
       const comp = it.ingredients.map((g) => `${g.name}${g.strength ? ' ' + g.strength : ''}`).join(' + ');
-      const compLine = L.showComposition && (it.ingredients.length > 1 || it.brand) ? `Composition: ${comp}${it.manufacturer ? '  |  Mfr: ' + it.manufacturer : ''}` : '';
+      const compLine = L.showComposition && it.brand && it.ingredients.length ? `Composition: ${comp}${it.manufacturer ? '  |  Mfr: ' + it.manufacturer : ''}` : '';
       const qty = computeQty(it);
       const parts: string[] = [];
-      if (it.useTaper && it.taper.length) parts.push('Dose: tapering schedule');
-      else parts.push(`Dose: ${doseLabel(it) || '-'}`);
-      parts.push(`Route: ${it.route}`);
-      parts.push(`Freq: ${it.useTaper ? 'as below' : freqLabel(it) + (dosePattern(it) ? ` (${dosePattern(it)})` : '')}`);
+      if (it.useTaper && it.taper.length) parts.push('Tapering schedule');
+      else {
+        parts.push(doseLabel(it) || '-');
+        parts.push(freqLabel(it) + (dosePattern(it) ? ` (${dosePattern(it)})` : ''));
+      }
       const tm = timingMeta(it.timing); if (tm) parts.push(tm.label);
-      if (!it.useTaper && durationLabel(it)) parts.push(`Duration: ${durationLabel(it)}`);
-      if (it.freq === 'SOS' && it.sosMax) parts.push(`Max ${it.sosMax}/day`);
-      if (qty.text) parts.push(`Qty: ${qty.text}`);
-      const ins = itemInstructions(it, rx.lang);
-      const insLines: { t: string; style: 'italic' | 'normal'; hi?: boolean }[] = [];
-      if (ins.en) insLines.push({ t: ins.en, style: 'italic' });
-      if (ins.hi) insLines.push({ t: ins.hi, style: 'italic', hi: true });
-      if (ins.schedule) insLines.push({ t: ins.schedule, style: 'normal', hi: true });
+      if (!it.useTaper && durationLabel(it)) parts.push(durationLabel(it));
+      if (it.freq === 'SOS' && it.sosMax) parts.push(`max ${it.sosMax}/day`);
+      if (it.route && it.route !== 'Oral') parts.push(it.route);
+      if (qty.text) parts.push(`Qty ${qty.text}`);
+      const partsLine = parts.join('  |  ');
+      const ins = showIns ? itemInstructions(it, lang) : { en: '', hi: '', schedule: '' };
+      const insText = lang === 'hi' ? ins.hi : ins.en;
       const nameFull = t.main + (t.sub ? '  ' + t.sub : '');
-      let need = heightOf(`${idx + 1}. ` + nameFull, w, 10.5 * sc, 'bold') + (compLine ? heightOf(compLine, w, 8 * sc) : 0) + heightOf(parts.join('     '), w, 8.8 * sc, 'bold');
-      insLines.forEach((l) => (need += l.hi ? hiBlock(l.t, w - 2, 9 * sc, NAVY, l.style === 'normal').h : heightOf(l.t, w - 2, 8.8 * sc, l.style)));
-      ensure(Math.min(need + 3, 40));
-      // number + name
-      font('bold', 10.5 * sc, NAVY);
-      doc.text(`${idx + 1}.`, M, y + 3.6);
+      let need = heightOf(`${idx + 1}. ` + nameFull, w, 10.2 * sc, 'bold') + (compLine ? heightOf(compLine, w, 7.8 * sc) : 0) + heightOf(partsLine, w, 8.6 * sc, 'bold') + 2;
+      if (insText) need += lang === 'hi' ? hiBlock(insText, w - 2, 8.8 * sc, NAVY).h : heightOf(insText, w - 2, 8.5 * sc, 'italic');
+      ensure(Math.min(need + 1, 40));
+      font('bold', 10.2 * sc, NAVY);
+      doc.text(`${idx + 1}.`, M, y + 3.5);
       const nameLines = wrap(t.main, w);
-      nameLines.forEach((l, i) => { font('bold', 10.5 * sc, NAVY); ensure(lh(10.5 * sc)); doc.text(l, indent, y + 3.6); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 9 * sc, GREY); doc.text(clean(t.sub), indent + tw, y + 3.6); } y += lh(10.5 * sc); });
-      if (compLine) para(compLine, indent, w, 'normal', 8 * sc, GREY);
-      para(parts.join('     '), indent, w, 'bold', 8.8 * sc, [30, 64, 110]);
+      nameLines.forEach((l, i) => { font('bold', 10.2 * sc, NAVY); ensure(lh(10.2 * sc)); doc.text(l, indent, y + 3.5); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc, GREY); doc.text(clean(t.sub), indent + tw, y + 3.5); } y += lh(10.2 * sc); });
+      if (compLine) para(compLine, indent, w, 'normal', 7.8 * sc, GREY);
+      para(partsLine, indent, w, 'bold', 8.6 * sc, [30, 64, 110]);
       if (it.useTaper && it.taper.length) {
         const steps = it.taper.map((s, i) => `Step ${i + 1}: ${s.dose} ${it.doseUnit}${s.dose > 1 ? 's' : ''} x ${s.timesPerDay}/day for ${s.days} day${s.days > 1 ? 's' : ''}`).join('   ');
-        para(steps, indent, w, 'normal', 8.5 * sc, NAVY);
+        para(steps, indent, w, 'normal', 8.4 * sc, NAVY);
       }
-      insLines.forEach((l) => (l.hi ? hiPara(l.t, indent + 2, w - 2, 9 * sc, l.style === 'italic' ? [60, 72, 90] : TEAL, l.style === 'normal') : para(l.t, indent + 2, w - 2, l.style, 8.8 * sc, [60, 72, 90])));
-      y += 1.6;
-      doc.setDrawColor(228, 233, 240); doc.setLineWidth(0.2);
-      if (idx < rx.items.length - 1) { doc.line(indent, y, PW - M, y); y += 2.6; }
+      if (insText) { if (lang === 'hi') hiPara(insText, indent, w - 2, 8.8 * sc, [70, 82, 100], false); else para(insText, indent, w - 2, 'italic', 8.5 * sc, [70, 82, 100]); }
+      y += 1.7;
     });
-    y += 2;
+    y += 0.5;
   }
 
-  /* ---------- advice & follow-up ---------- */
+  /* ---------- advice (short, one language) ---------- */
   const advice = c.advice.map((a) => a.trim()).filter(Boolean);
   if (advice.length) {
-    ensure(14);
-    font('bold', 7.5 * sc, TEAL); doc.text('ADVICE', M, y + 2.6); y += 3.8;
+    ensure(12);
+    font('bold', 7.4 * sc, TEAL); doc.text('ADVICE', M, y + 2.6); y += 3.8;
     advice.forEach((a) => {
-      const hi = rx.lang !== 'en' ? adviceHi(a) : '';
-      const showEn = !(rx.lang === 'hi' && hi);
-      if (DEV.test(a)) { ensure(8); doc.setFillColor(...NAVY); doc.circle(M + 1.6, y + 2.2, 0.55, 'F'); hiPara(a, M + 5, CW - 5, 9.2 * sc, NAVY, false, 0.4); return; }
-      ensure((showEn ? wrap(a, CW - 5).length * lh(9.2 * sc) : 0) + (hi ? hiBlock(hi, CW - 5, 9, NAVY).h + 0.6 : 0));
-      if (showEn) {
-        font('normal', 9.2 * sc, NAVY);
-        const lines = wrap(a, CW - 5);
-        ensure(lines.length * lh(9.2 * sc));
-        doc.text('•', M + 1, y + 3);
-        lines.forEach((ln) => { doc.text(ln, M + 5, y + 3); y += lh(9.2 * sc); });
-      }
-      if (hi) { ensure(6); if (!showEn) { doc.setFillColor(...NAVY); doc.circle(M + 1.6, y + 2.2, 0.55, 'F'); } hiPara(hi, M + 5, CW - 5, 9, showEn ? TEAL : NAVY, false, 0.6); }
+      const hi = lang === 'hi' && !DEV.test(a) ? adviceHi(a) : '';
+      const text = hi || a;
+      doc.setFillColor(...NAVY); doc.circle(M + 1.6, y + 2, 0.5, 'F');
+      if (DEV.test(text)) hiPara(text, M + 5, CW - 5, 9 * sc, NAVY, false, 0.5);
+      else { para(text, M + 5, CW - 5, 'normal', 9 * sc, NAVY, 0.5); }
     });
-    y += 1.5;
+    y += 1;
   }
+
+  /* ---------- next visit: just a date + one light line ---------- */
   const refDate = new Date(rx.authorizedAt || rx.createdAt);
   const fuDate = rx.followUpDays > 0 ? addDays(refDate, rx.followUpDays) : null;
   const nt = (c.nextTests || '').trim();
-  if (fuDate || nt) {
-    const ntLines = nt ? wrap('Tests before next visit: ' + nt, CW - 6) : [];
-    const hbox = 3 + (fuDate ? 5 : 0) + ntLines.length * 4.4;
-    ensure(hbox + 2);
-    doc.setFillColor(234, 245, 243); doc.roundedRect(M, y, CW, hbox, 1.2, 1.2, 'F');
-    let yy = y + 5;
-    if (fuDate) {
-      const label = rx.followUpDays % 7 === 0 ? `${rx.followUpDays / 7} week${rx.followUpDays / 7 > 1 ? 's' : ''}` : `${rx.followUpDays} days`;
-      const wd = fuDate.toLocaleDateString('en-GB', { weekday: 'long' });
-      font('bold', 9.5 * sc, TEAL); doc.text(`Next visit: ${fmtDate(fuDate)} (${wd})  -  follow-up after ${label}`, M + 3, yy); yy += 5;
-    }
-    ntLines.forEach((l) => { font('bold', 9 * sc, NAVY); doc.text(l, M + 3, yy); yy += 4.4; });
-    y += hbox + 3;
-  }
-  const wa = (clinic.whatsapp || '').trim(), an = (clinic.appointmentNote || '').trim();
-  if (wa) para(`For any problem, WhatsApp: ${wa}`, M, CW, 'bold', 9 * sc, NAVY, 1);
-  if (an) para(an, M, CW, 'normal', 8.6 * sc, GREY, 1);
+  if (fuDate) {
+    ensure(14);
+    const wd = fuDate.toLocaleDateString('en-GB', { weekday: 'long' });
+    doc.setFillColor(234, 245, 243); doc.roundedRect(M, y, CW, 5.8, 1.2, 1.2, 'F');
+    font('bold', 9.6 * sc, TEAL);
+    doc.text(`${T('Next visit', 'Next visit')}: ${fmtDate(fuDate)} (${wd})`, M + 3, y + 4);
+    y += 7;
+    const note = T('Please bring this prescription and your previous reports on the next visit.', 'अगली बार यह पर्चा और पुरानी जाँच रिपोर्ट साथ लाएँ।') + (nt ? (lang === 'hi' ? ` जाँच: ${nt}` : ` Tests: ${nt}.`) : '');
+    para(note, M, CW, 'normal', 8.2 * sc, GREY, 0.6);
+  } else if (nt) para(`Tests: ${nt}`, M, CW, 'normal', 8.4 * sc, GREY, 0.6);
+  const wa = fmtMobile((clinic.whatsapp || '').trim()), an = (clinic.appointmentNote || '').trim();
+  if (wa) para(`${T('For any problem, WhatsApp', 'कोई परेशानी हो तो व्हाट्सऐप करें')}: ${wa}`, M, CW, 'bold', 8.6 * sc, NAVY, 0.4);
+  if (an) para(an, M, CW, 'normal', 8 * sc, GREY, 0.4);
 
-  /* ---------- signature block (last page) ---------- */
-  if (y > PH - 16 - SIG_H - 2) { doc.addPage(); drawContHeader(); }
-  const sigBottom = PH - 18;
-  const lineY = sigBottom - 12;
-  const showSig = !opts.draft && opts.showSignature && snap.signature.dataUrl && sigSize;
-  const showSeal = !opts.draft && opts.showStamp && sealUrl && sealSize;
-  const colW = 62;
-  const sealW = showSeal ? snap.seal.widthMm : 0;
-  const sealH = showSeal && sealSize ? sealW * (sealSize.h / sealSize.w) : 0;
-  const sigRight = PW - M - (showSeal && !L.sealLeft ? sealW + 8 : 0);
-  const sigLeft = sigRight - colW;
+  /* ---------- authorisation block: QR (left) | stamp | signature (right) - never overlapping ---------- */
+  if (y > PH - 16 - BLOCK_H) { doc.addPage(); drawContHeader(); }
+  const sigBottom = PH - 16;
+  const lineY = sigBottom - 11;
+  const colW = 60, gap = 6;
+  let sigLeft = PW - M - colW, sealX = 0;
+  if (showSeal) {
+    if (L.sealLeft) sealX = sigLeft - gap - sealW; else { sealX = PW - M - sealW; sigLeft = sealX - gap - colW; }
+  }
+  const sigRight = sigLeft + colW;
   if (showSig && sigSize) {
-    let w = snap.signature.widthMm; let h = w * (sigSize.h / sigSize.w);
-    if (h > 22) { h = 22; w = h * (sigSize.w / sigSize.h); }
-    const x = sigRight - colW / 2 - w / 2 + snap.signature.offsetX;
-    const yy = lineY - h - 0.5 + snap.signature.offsetY;
-    doc.addImage(snap.signature.dataUrl, 'PNG', x, yy, w, h, undefined, 'FAST');
+    let w = Math.min(snap.signature.widthMm, colW); let h = w * (sigSize.h / sigSize.w);
+    if (h > 20) { h = 20; w = h * (sigSize.w / sigSize.h); }
+    doc.addImage(snap.signature.dataUrl, 'PNG', sigRight - colW / 2 - w / 2 + snap.signature.offsetX, lineY - h - 0.5 + snap.signature.offsetY, w, h, undefined, 'FAST');
   }
   doc.setDrawColor(...NAVY); doc.setLineWidth(0.3); doc.line(sigLeft, lineY, sigRight, lineY);
-  font('bold', 9.5 * sc, NAVY); doc.text(clean(drName(snap.doctor.fullName)), sigRight - colW / 2, lineY + 4.2, { align: 'center' });
-  font('normal', 8 * sc, GREY);
-  let ty = lineY + 8;
-  if (snap.doctor.qualifications) { doc.text(clean(snap.doctor.qualifications), sigRight - colW / 2, ty, { align: 'center', maxWidth: colW + 6 }); ty += 3.6; }
+  font('bold', 9.3 * sc, NAVY); doc.text(clean(drName(snap.doctor.fullName)), sigRight - colW / 2, lineY + 4.2, { align: 'center' });
+  font('normal', 7.8 * sc, GREY);
+  let ty = lineY + 7.8;
+  if (snap.doctor.qualifications) { doc.text(clean(snap.doctor.qualifications), sigRight - colW / 2, ty, { align: 'center', maxWidth: colW + 4 }); ty += 3.4; }
   if (snap.doctor.regNo) doc.text(clean('Reg. No. ' + snap.doctor.regNo), sigRight - colW / 2, ty, { align: 'center' });
-  if (showSeal && sealSize) {
-    const sx = (L.sealLeft ? sigLeft - sealW - 6 : PW - M - sealW) + snap.seal.offsetX;
-    const sy = sigBottom - sealH + snap.seal.offsetY + 2;
-    doc.addImage(sealUrl, 'PNG', sx, sy, sealW, sealH, undefined, 'FAST');
+  if (showSeal && sealSize) doc.addImage(sealUrl, 'PNG', sealX + snap.seal.offsetX, sigBottom - sealH + snap.seal.offsetY + 1, sealW, sealH, undefined, 'FAST');
+  if (qrUrl) {
+    const qs = 16, qx = M, qy = sigBottom - qs - 7;
+    doc.addImage(qrUrl, 'PNG', qx, qy, qs, qs, undefined, 'FAST');
+    const avail = Math.max(24, Math.min(showSeal ? sealX : sigLeft, sigLeft) - M - 3);
+    const cap = T('Scan to learn about your condition', 'अपनी बीमारी के बारे में जानने के लिए स्कैन करें');
+    const yy0 = y; y = qy + qs + 1.2;
+    if (lang === 'hi') { const b = hiBlock(cap, avail, 6.6, GREY); doc.addImage(b.url, 'PNG', qx, y, b.w, b.h, undefined, 'FAST'); }
+    else { font('normal', 6.6, GREY); wrap(cap, avail).forEach((l, i) => doc.text(l, qx, y + 2.2 + i * 2.7)); }
+    y = yy0;
   }
 
   /* ---------- footers & watermark ---------- */
@@ -321,11 +349,18 @@ export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: Pdf
     font('normal', 7.5, GREY);
     const left = opts.draft ? 'DRAFT - not authorised by the doctor' : `Rx ${rx.rxNo}  |  Authorised ${fmtDateTime(rx.authorizedAt || Date.now())}`;
     doc.text(clean(left), M, PH - 8);
-    doc.text(`Page ${i} of ${total}`, PW / 2, PH - 8, { align: 'center' });
-    if (L.footerBranding) { font('bold', 7.5, BLUE); doc.text('Generated with MedScript', PW - M, PH - 8, { align: 'right' }); }
+    if (total > 1) doc.text(`Page ${i} of ${total}`, PW - M, PH - 8, { align: 'right' });
     if (L.footerNote.trim()) { font('italic', 7.5, GREY); doc.text(clean(L.footerNote), PW / 2, PH - 4.5, { align: 'center', maxWidth: CW }); }
   }
   return { blob: doc.output('blob'), pages: total };
+}
+
+/** Renders at normal size; if it spills onto a second page, retries slightly smaller so most prescriptions fit one page. */
+export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts): Promise<{ blob: Blob; pages: number }> {
+  const first = await renderPdf(rx, snap, opts, 1);
+  if (first.pages === 1) return first;
+  for (const f of [0.94, 0.88]) { const t = await renderPdf(rx, snap, opts, f); if (t.pages === 1) return t; }
+  return first;
 }
 
 export async function sealFor(snap: DoctorSnapshot) {

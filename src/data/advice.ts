@@ -88,3 +88,9 @@ export const ADVICE_HI: Record<string, string> = {
 };
 export const ADVICE_CHIPS = ['Rest', 'Physiotherapy as advised', 'Hot fomentation', 'Ice application', 'Take medicines regularly', 'Avoid cold exposure', 'Avoid sitting on the floor', 'Sleep on a firm bed', 'Use a western commode', 'Do not take painkillers on an empty stomach', 'Take bath with lukewarm water', 'Bring all old reports on next visit', 'Contact the clinic if pain or swelling increases'];
 export const adviceHi = (en: string) => ADVICE_HI[en.trim()] || '';
+/** Keep advice short: up to 2 normal points plus the "come back if..." warning line (max 3). */
+export function shortAdvice(list: string[]): string[] {
+  const warn = list.find((a) => /^come back/i.test(a));
+  const rest = list.filter((a) => a !== warn).slice(0, warn ? 2 : 3);
+  return warn ? [...rest, warn] : rest;
+}
