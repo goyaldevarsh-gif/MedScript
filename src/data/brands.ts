@@ -194,6 +194,18 @@ Uprise-D3 1K|Cholecalciferol (Vitamin D3) 1000 IU|Softgel capsule|Vitamin D
 Uprise-D3 2K|Cholecalciferol (Vitamin D3) 2000 IU|Softgel capsule|Vitamin D
 Uprise-D3 Sachet|Cholecalciferol (Vitamin D3) 60000 IU|Sachet|Vitamin D
 Uprise-D3 60K Syrup|Cholecalciferol (Vitamin D3) 60000 IU/5 mL|Syrup|Vitamin D
+Cifran 500|Ciprofloxacin 500 mg|Tablet|Antibiotic
+Zifi 200|Cefixime 200 mg|Tablet|Antibiotic
+Oflox 200|Ofloxacin 200 mg|Tablet|Antibiotic
+Mydocalm 150|Tolperisone 150 mg|Tablet|Muscle relaxant
+Evion 400|Vitamin E (Tocopheryl acetate) 400 mg|Capsule|Vitamin
+Orofer-XT|Ferrous ascorbate 100 mg + Folic acid 1.5 mg|Tablet|Iron supplement (haematinic)
+Orofer-S|Iron sucrose 100 mg/5 mL|Injection:IV|Iron supplement (haematinic)
+Injectafer|Ferric carboxymaltose 500 mg/10 mL|Injection:IV|Iron supplement (haematinic)
+Arava 20|Leflunomide 20 mg|Tablet|DMARD
+Xeljanz 5|Tofacitinib 5 mg|Tablet|DMARD
+Voltaren Emulgel|Diclofenac 1.16% w/w|Gel:Topical|NSAID (topical)
+Plavix 75|Clopidogrel 75 mg|Tablet|Antiplatelet
 `.trim().split('\n');
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
