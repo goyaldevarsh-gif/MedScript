@@ -10,7 +10,7 @@ import { DrugLibrary, MedRow } from '../components/MedicineLibrary';
 import SampleRx from '../components/SampleRx';
 import { chooseSpecialty } from '../components/SpecialtyPicker';
 import { SPECIALTIES } from '../lib/defaults';
-import { cleanStamp, rotateDataUrl, cleanSignature, fileToDataUrl, renderSeal, resizeImage, sealPossible, sealAspect } from '../lib/imaging';
+import { cleanStamp, rotateDataUrl, cleanSignature, fileToDataUrl, trimLogo, renderSeal, sealPossible, sealAspect } from '../lib/imaging';
 import { blankRx, itemFromMedicine, newClinic } from '../lib/defaults';
 import { CATALOGUE } from '../data/catalogue';
 import { cx, download, fmtDateTime } from '../lib/util';
@@ -140,7 +140,7 @@ function ClinicEditor({ c, isDefault, canDelete }: { c: Clinic; isDefault: boole
   async function logo(f?: File) {
     if (!f) return;
     if (!f.type.startsWith('image/')) return toast('Please choose an image file', { tone: 'err' });
-    set({ logo: await resizeImage(await fileToDataUrl(f), 500) });
+    set({ logo: await trimLogo(await fileToDataUrl(f)) });
   }
   return (
     <Card className="space-y-3 p-5">
@@ -156,10 +156,15 @@ function ClinicEditor({ c, isDefault, canDelete }: { c: Clinic; isDefault: boole
         <Field label="Appointment note (optional)" className="sm:col-span-2"><textarea className="field" rows={2} value={d.appointmentNote || ''} onChange={(e) => set({ appointmentNote: e.target.value })} placeholder="e.g. Call 7 days before the follow-up date to confirm your appointment. Booking time 11 AM - 4 PM." /></Field>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex h-20 w-28 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50">{d.logo ? <img src={d.logo} alt="Clinic logo" className="max-h-16 max-w-24 object-contain" /> : <span className="text-xs font-semibold text-slate-400">No logo</span>}</div>
+        <div className="flex h-24 w-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 p-1">{d.logo ? <img src={d.logo} alt="Clinic logo" className="max-h-full max-w-full object-contain" /> : <span className="text-xs font-semibold text-slate-400">No logo</span>}</div>
         <input ref={file} hidden type="file" accept="image/*" onChange={(e) => { logo(e.target.files?.[0]); e.target.value = ''; }} />
         <Btn variant="secondary" size="sm" onClick={() => file.current?.click()}><Upload size={15} /> {d.logo ? 'Replace logo' : 'Upload logo'}</Btn>
+        {d.logo && <Btn variant="ghost" size="sm" onClick={async () => { set({ logo: await trimLogo(d.logo) }); toast('Empty space around the logo removed'); }}>Crop empty space</Btn>}
         {d.logo && <Btn variant="ghost" size="sm" onClick={() => set({ logo: '' })}>Remove logo</Btn>}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-extrabold uppercase tracking-wide text-slate-500">Logo size on prescription</span>
+        {([['S', 'Small'], ['M', 'Medium'], ['L', 'Large']] as const).map(([v, l]) => <Chip key={v} active={(d.logoSize || 'M') === v} onClick={() => set({ logoSize: v })}>{l}</Chip>)}
       </div>
       <div className="flex flex-wrap justify-between gap-2 border-t border-slate-100 pt-3">
         <div className="flex gap-2">

@@ -114,12 +114,12 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     let ly = top;
     if (hasClinic) {
       if (opts.showLogo && clinic.logo && logoSize) {
-        const box = { w: 24, h: 20 }; const k = Math.min(box.w / logoSize.w, box.h / logoSize.h);
+        const box = clinic.logoSize === 'S' ? { w: 26, h: 18 } : clinic.logoSize === 'L' ? { w: 46, h: 30 } : { w: 36, h: 24 }; const k = Math.min(box.w / logoSize.w, box.h / logoSize.h);
         const w = logoSize.w * k, h = logoSize.h * k;
         doc.addImage(clinic.logo, 'PNG', M, top + (box.h - h) / 2, w, h, undefined, 'FAST');
         leftX = M + box.w + 4; hLogo = box.h;
       }
-      const cw = 92 - (leftX - M);
+      const cw = Math.max(40, 92 - (leftX - M));
       if (clinic.name) { font('bold', 12 * sc, NAVY); wrap(clinic.name, cw).forEach((l) => { doc.text(l, leftX, ly + 4.6); ly += 5; }); }
       font('normal', 8.4 * sc, GREY);
       if (clinic.address) wrap(clinic.address, cw).forEach((l) => { doc.text(l, leftX, ly + 3.6); ly += 3.9; });
