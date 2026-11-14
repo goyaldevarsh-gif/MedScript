@@ -282,7 +282,7 @@ function LayoutCard({ s }: { s: AppSettings }) {
       <Card className="space-y-4 p-5">
         <div><h2 className="text-lg font-extrabold">Prescription layout</h2><p className="text-sm text-slate-600">A4, selectable text, built for print.</p></div>
         <div><span className="lbl">Medicine names</span>
-          <div className="flex flex-wrap gap-2"><Chip active={L.nameDisplay === 'generic'} onClick={() => patch({ nameDisplay: 'generic' })}>Generic first (NMC recommended)</Chip><Chip active={L.nameDisplay === 'brand'} onClick={() => patch({ nameDisplay: 'brand' })}>Brand first</Chip></div></div>
+          <div className="flex flex-wrap gap-2"><Chip active={L.nameDisplay === 'generic'} onClick={() => patch({ nameDisplay: 'generic' })}>Generic first (NMC recommended)</Chip><Chip active={L.nameDisplay === 'brand'} onClick={() => patch({ nameDisplay: 'brand' })}>Brand in CAPS, salt small below</Chip></div></div>
         <div><span className="lbl">Text size</span><div className="flex gap-2"><Chip active={L.fontScale === 'normal'} onClick={() => patch({ fontScale: 'normal' })}>Normal</Chip><Chip active={L.fontScale === 'large'} onClick={() => patch({ fontScale: 'large' })}>Large</Chip></div></div>
         <div className="grid gap-2 sm:grid-cols-2">
           <Sw k="genericCaps" label="Generic names in CAPITAL LETTERS" hint="NMC: legibly and preferably in capitals" />

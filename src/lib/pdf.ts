@@ -26,7 +26,7 @@ export function itemTitle(it: RxItem, mode: 'generic' | 'brand', caps: boolean):
   const pre = FORM_PREFIX[it.form] || '';
   const gen = caps ? it.generic.toUpperCase() : it.generic;
   const st = it.strength ? ' ' + it.strength : '';
-  if (mode === 'brand' && it.brand) return { main: `${pre ? pre + ' ' : ''}${it.brand}${st}`, sub: `(${gen})` };
+  if (mode === 'brand' && it.brand) return { main: `${pre ? pre + ' ' : ''}${it.brand.toUpperCase()}`, sub: '' };
   return { main: `${pre ? pre + ' ' : ''}${gen}${st}`, sub: it.brand ? `(Brand: ${it.brand})` : '' };
 }
 
@@ -232,7 +232,8 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       const t = itemTitle(it, L.nameDisplay, L.genericCaps);
       const indent = M + 7, w = CW - 7;
       const comp = it.ingredients.map((g) => `${g.name}${g.strength ? ' ' + g.strength : ''}`).join(' + ');
-      const compLine = L.showComposition && it.brand && it.ingredients.length > 1 ? `Composition: ${comp}${it.manufacturer ? '  |  Mfr: ' + it.manufacturer : ''}` : '';
+      const brandFirst = L.nameDisplay === 'brand' && !!it.brand;
+      const compLine = L.showComposition && it.brand ? (brandFirst ? comp.replace(/Cholecalciferol \(Vitamin D3\)/g, 'Vitamin D3').replace(/ calcium (\d)/g, ' Ca $1') : (it.ingredients.length > 1 ? `Composition: ${comp}${it.manufacturer ? '  |  Mfr: ' + it.manufacturer : ''}` : '')) : '';
       const qty = computeQty(it);
       const parts: string[] = [];
       if (it.useTaper && it.taper.length) parts.push('Tapering schedule');
@@ -249,14 +250,14 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       const ins = showIns ? itemInstructions(it, lang) : { en: '', hi: '', schedule: '' };
       const insText = lang === 'hi' ? ins.hi : ins.en;
       const nameFull = t.main + (t.sub ? '  ' + t.sub : '');
-      let need = heightOf(`${idx + 1}. ` + nameFull, w, 10.2 * sc, 'bold') + (compLine ? heightOf(compLine, w, 7.8 * sc) : 0) + heightOf(partsLine, w, 8.6 * sc, 'bold') + 2;
+      let need = heightOf(`${idx + 1}. ` + nameFull, w, (brandFirst ? 11 : 10.2) * sc, 'bold') + (compLine ? heightOf(compLine, w, 7.8 * sc) : 0) + heightOf(partsLine, w, 8.6 * sc, 'bold') + 2;
       if (insText) need += lang === 'hi' ? hiBlock(insText, w - 2, 8.8 * sc, NAVY).h : heightOf(insText, w - 2, 8.5 * sc, 'italic');
       ensure(Math.min(need + 1, 40));
-      font('bold', 10.2 * sc, NAVY);
+      font('bold', (brandFirst ? 11 : 10.2) * sc, NAVY);
       doc.text(`${idx + 1}.`, M, y + 3.5);
       const nameLines = wrap(t.main, w);
-      nameLines.forEach((l, i) => { font('bold', 10.2 * sc, NAVY); ensure(lh(10.2 * sc)); doc.text(l, indent, y + 3.5); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc, GREY); doc.text(clean(t.sub), indent + tw, y + 3.5); } y += lh(10.2 * sc); });
-      if (compLine) para(compLine, indent, w, 'normal', 7.8 * sc, GREY);
+      nameLines.forEach((l, i) => { font('bold', (brandFirst ? 11 : 10.2) * sc, NAVY); ensure(lh(10.2 * sc)); doc.text(l, indent, y + 3.5); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc, GREY); doc.text(clean(t.sub), indent + tw, y + 3.5); } y += lh(10.2 * sc); });
+      if (compLine) para(compLine, indent, w, 'normal', brandFirst ? 7.2 * sc : 7.8 * sc, [128, 138, 152]);
       para(partsLine, indent, w, 'bold', 8.6 * sc, [30, 64, 110]);
       if (it.useTaper && it.taper.length) {
         const steps = it.taper.map((s, i) => `Step ${i + 1}: ${s.dose} ${it.doseUnit}${s.dose > 1 ? 's' : ''} x ${s.timesPerDay}/day for ${s.days} day${s.days > 1 ? 's' : ''}`).join('   ');

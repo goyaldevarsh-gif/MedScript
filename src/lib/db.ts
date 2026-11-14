@@ -40,7 +40,9 @@ function merge<T>(base: T, over: any): T {
 }
 export async function getSettings(): Promise<AppSettings> {
   const row = await db.settings.get('main');
-  return merge(defaultSettings(), row?.value);
+  const out: AppSettings = merge(defaultSettings(), row?.value);
+  if (!row?.value?.layout?.nameV2) { out.layout.nameDisplay = 'brand'; out.layout.nameV2 = true; }
+  return out;
 }
 export async function updateSettings(fn: (s: AppSettings) => AppSettings | void): Promise<AppSettings> {
   return db.transaction('rw', db.settings, async () => {

@@ -45,7 +45,7 @@ export interface SealCfg {
   uploaded: string; widthMm: number; offsetX: number; offsetY: number;
 }
 export interface LayoutCfg {
-  nameDisplay: 'generic' | 'brand'; genericCaps: boolean; fontScale: 'normal' | 'large';
+  nameDisplay: 'generic' | 'brand'; nameV2?: boolean; genericCaps: boolean; fontScale: 'normal' | 'large';
   showPhone: boolean; showComposition: boolean; footerBranding: boolean; headerBrand: boolean;
   footerNote: string; sealLeft: boolean;
 }

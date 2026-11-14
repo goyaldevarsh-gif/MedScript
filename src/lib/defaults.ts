@@ -18,7 +18,7 @@ export function defaultSettings(): AppSettings {
       showReg: true, showClinic: false, showSymbol: true, uploaded: '', widthMm: 52, offsetX: 0, offsetY: 0,
     },
     layout: {
-      nameDisplay: 'generic', genericCaps: true, fontScale: 'normal', showPhone: true, showComposition: true,
+      nameDisplay: 'brand', genericCaps: true, fontScale: 'normal', showPhone: true, showComposition: true,
       footerBranding: true, headerBrand: true, footerNote: '', sealLeft: true,
     },
     defaultLang: 'en', defaultFollowUpDays: 14, lastBackupAt: 0, rxCounter: 0, patientCounter: 0, seeded: false,
