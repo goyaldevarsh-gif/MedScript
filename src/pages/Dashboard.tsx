@@ -42,7 +42,7 @@ export default function Dashboard() {
       <OvInbox />
       <div className="flex justify-center"><SampleRx /></div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card className="p-4">
           <SectionTitle icon={<Clock size={16} />} title={`Today's prescriptions (${today.length})`} />
           <div className="space-y-2">{today.slice(0, 5).map((r) => <RxRow key={r.id} rx={r} />)}
@@ -64,7 +64,7 @@ export default function Dashboard() {
         </Card>
         <Card className="p-4">
           <SectionTitle icon={<Layers size={16} />} title="Favourite templates" link={{ to: '/templates', label: 'All templates' }} />
-          <div className="grid gap-2 sm:grid-cols-2">{favTpls.map((t) => (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">{favTpls.map((t) => (
             <button key={t.id} onClick={() => nav(`/new?template=${t.id}`)} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-2.5 text-left hover:border-brand hover:bg-brand-50">
               <TemplateIcon name={t.icon} className="h-8 w-8 rounded-lg bg-brand-50 p-1.5 text-brand" /><span className="text-sm font-bold">{t.name}</span></button>))}
             {!favTpls.length && <div className="text-sm text-slate-500">Star a template to pin it here.</div>}</div>
@@ -72,7 +72,7 @@ export default function Dashboard() {
       </div>
       <Card className="p-4">
         <SectionTitle title="Recent prescriptions" />
-        <div className="grid gap-2 md:grid-cols-2">{rxs.slice(0, 8).map((r) => <RxRow key={r.id} rx={r} />)}</div>
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">{rxs.slice(0, 8).map((r) => <RxRow key={r.id} rx={r} />)}</div>
         {!rxs.length && <Empty title="No prescriptions yet" text="Tap “Create New Prescription” to make your first one in under a minute." />}
       </Card>
       {(finals > 0 && (daysSinceBackup === null || daysSinceBackup > 7)) && (

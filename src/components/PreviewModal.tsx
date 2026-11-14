@@ -33,7 +33,7 @@ export default function PreviewModal({ rx, onClose, onFinalize, sample }: { rx: 
       footer={
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-xs font-semibold text-slate-600">{sample ? (rx.doctorSnapshot ? 'Sample with dummy doctor, clinic, signature and stamp. Nothing is saved.' : 'Sample with your own profile, signature and stamp. Nothing is saved.') : final ? <span className="flex items-center gap-1 text-teal-700"><CheckCircle2 size={14} /> Authorised · {rx.rxNo}</span> : 'Draft: no signature or stamp is applied until you authorise it.'}</div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex w-full flex-wrap gap-2 sm:w-auto [&>button]:flex-1 [&>button]:whitespace-nowrap sm:[&>button]:flex-none">
             <Btn variant="secondary" disabled={!blob} onClick={() => blob && download(blob, name)}><Download size={16} /> {sample ? 'Download sample' : final ? 'Download PDF' : 'Download draft'}</Btn>
             {final && !sample ? (
               <>

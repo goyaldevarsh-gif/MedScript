@@ -94,10 +94,10 @@ export function CustomMedicineForm({ initial, onClose, onSaved }: { initial?: Pa
   }
   return (
     <Modal title={initial?.id ? 'Edit my medicine' : 'Add custom medicine'} onClose={onClose}
-      footer={<div className="flex justify-end gap-2"><Btn variant="secondary" onClick={onClose}>Cancel</Btn><Btn onClick={save}>Save medicine</Btn></div>}>
+      footer={<div className="flex gap-2 [&>button]:flex-1 sm:justify-end sm:[&>button]:flex-none"><Btn variant="secondary" onClick={onClose}>Cancel</Btn><Btn onClick={save}>Save medicine</Btn></div>}>
       <div className="space-y-3">
         <div className="rounded-lg bg-amber-50 p-2.5 text-xs font-medium text-amber-900">Enter details exactly as printed on the pack. Custom entries are marked <b>unverified</b> and are remembered for next time.</div>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Brand name (optional)"><input className="field" value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="As printed on pack" /></Field>
           <Field label="Generic name *"><input className="field" value={generic} onChange={(e) => { setGeneric(e.target.value); setErr(''); }} placeholder="e.g. Paracetamol" /></Field>
         </div>
@@ -112,7 +112,7 @@ export function CustomMedicineForm({ initial, onClose, onSaved }: { initial?: Pa
           ))}
           <Btn variant="ghost" size="sm" onClick={() => setIngs([...ings, { name: '', strength: '' }])}><Plus size={14} /> Add ingredient (combination)</Btn>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Field label="Dosage form"><select className="field" value={form} onChange={(e) => { setForm(e.target.value); setRoute(routeForForm(e.target.value)); }}>{FORMS.map((f) => <option key={f}>{f}</option>)}</select></Field>
           <Field label="Route"><select className="field" value={route} onChange={(e) => setRoute(e.target.value)}>{ROUTES.map((f) => <option key={f}>{f}</option>)}</select></Field>
           <Field label="Manufacturer"><input className="field" value={mfr} onChange={(e) => setMfr(e.target.value)} /></Field>
@@ -193,7 +193,7 @@ export function DrugLibrary({ onClose, onPick }: { onClose: () => void; onPick?:
         <Empty icon={<Search />} title="No medicine found" text="Add it as a custom medicine. It will be saved and appear in search next time."
           action={<Btn onClick={() => setCustom({ generic: q.trim() })}><Plus size={16} /> Add “{q || 'custom medicine'}”</Btn>} />
       ) : (
-        <div className="grid gap-2 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
           {list.map((m) => (
             <MedRow key={m.id} m={m} fav={idx?.meta.get(m.id)?.favourite} onFav={() => toggleFavourite(m.id)}
               onAdd={onPick ? () => { onPick(m); toast(`${m.brand || m.generic} added`); } : undefined}
@@ -228,7 +228,7 @@ export function MedicineSearch({ onPick }: { onPick: (m: Medicine) => void }) {
     <div>
       <div className="relative">
         <Search size={18} className="absolute left-3 top-3 text-slate-400" />
-        <input className="field pl-10 pr-24" placeholder="Search medicine: brand, generic, salt or type 'pain killer', 'calcium'…" value={q}
+        <input className="field pl-10 pr-24" placeholder="Search brand, generic or 'pain killer'…" value={q}
           onChange={(e) => { setQ(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)}
           onKeyDown={(e) => { if (e.key === 'Enter' && list[0]) { e.preventDefault(); pick(list[0]); } if (e.key === 'Escape') setOpen(false); }} />
         <button type="button" onClick={() => setLib(true)} className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-md bg-slate-100 px-2.5 py-1.5 text-xs font-bold text-navy hover:bg-slate-200"><Library size={14} /> Library</button>

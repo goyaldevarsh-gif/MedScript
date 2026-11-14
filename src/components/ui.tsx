@@ -37,7 +37,7 @@ export function Chip({ active, children, onClick, tone = 'brand', className, tit
   const on = tone === 'red' ? 'bg-danger text-white border-danger' : tone === 'teal' ? 'bg-teal text-white border-teal' : 'bg-brand text-white border-brand';
   return (
     <button type="button" title={title} onClick={onClick}
-      className={cx('rounded-full border px-3.5 py-1.5 text-sm font-bold transition active:scale-95', active ? on : 'border-slate-300 bg-white text-navy hover:border-brand hover:text-brand', className)}>
+      className={cx('inline-flex min-h-[40px] items-center justify-center rounded-full border px-3.5 py-1.5 text-sm font-bold transition active:scale-95 sm:min-h-0', active ? on : 'border-slate-300 bg-white text-navy hover:border-brand hover:text-brand', className)}>
       {children}
     </button>
   );
@@ -48,7 +48,7 @@ export function Badge({ children, tone = 'slate' }: { children: ReactNode; tone?
 }
 export function Empty({ icon, title, text, action }: { icon?: ReactNode; title: string; text?: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
+    <div className="flex flex-col items-center gap-2 px-4 py-6 text-center sm:py-10">
       {icon && <div className="rounded-full bg-teal-50 p-3 text-teal">{icon}</div>}
       <div className="text-base font-bold">{title}</div>
       {text && <div className="max-w-sm text-sm text-slate-600">{text}</div>}
@@ -94,7 +94,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastCtx.Provider value={push}>
       {children}
-      <div className="pointer-events-none fixed inset-x-0 bottom-20 z-[60] flex flex-col items-center gap-2 px-3 md:bottom-6">
+      <div className="pointer-events-none fixed inset-x-0 top-[68px] z-[60] flex flex-col items-center gap-2 px-3 md:bottom-6 md:top-auto">
         {list.map((t) => (
           <div key={t.id} className={cx('pointer-events-auto flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-xl', t.tone === 'err' ? 'bg-danger' : 'bg-navy')}>
             {t.tone !== 'err' && <Check size={16} className="text-teal-100" />}

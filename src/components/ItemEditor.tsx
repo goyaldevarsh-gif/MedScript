@@ -63,7 +63,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
               ))}
             </div>
           )}
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Field label="Brand (from pack, optional)"><input className="field" value={it.brand} onChange={(e) => set({ brand: e.target.value })} placeholder="Brand name" /></Field>
             <Field label="Route"><select className="field" value={it.route} onChange={(e) => set({ route: e.target.value })}>{ROUTES.map((r) => <option key={r}>{r}</option>)}</select></Field>
             <Field label="Dose unit"><select className="field" value={it.doseUnit} onChange={(e) => set({ doseUnit: e.target.value, doseQty: e.target.value === 'mL' ? 5 : it.doseQty })}>{UNITS.map((r) => <option key={r}>{r}</option>)}</select></Field>
@@ -148,7 +148,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
             </div>
           )}
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label={`Quantity ${qty.text && !it.qtyOverride ? '(auto: ' + qty.text + ')' : ''}`} hint="Leave blank to use the auto-calculated quantity.">
               <input className="field" value={it.qtyOverride} onChange={(e) => set({ qtyOverride: e.target.value })} placeholder={qty.text || 'e.g. 1 tube'} />
             </Field>

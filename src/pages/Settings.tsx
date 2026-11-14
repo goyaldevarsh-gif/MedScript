@@ -31,7 +31,7 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-6xl p-4 sm:p-6">
       <h1 className="mb-4 text-2xl font-extrabold">Settings</h1>
-      <div className="grid gap-4 md:grid-cols-[230px_1fr]">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[230px_minmax(0,1fr)]">
         <nav className="scroll-thin flex gap-1.5 overflow-x-auto md:flex-col md:overflow-visible">
           {TABS.map((t) => (
             <button key={t.k} onClick={() => setSp({ tab: t.k }, { replace: true })} className={cx('flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition', tab === t.k ? 'bg-navy text-white' : 'bg-white text-navy hover:bg-slate-100 md:bg-transparent')}>
@@ -80,7 +80,7 @@ function DoctorCard({ s }: { s: AppSettings }) {
         <div className="flex flex-wrap gap-2">{SPECIALTIES.map((x) => <Chip key={x.key} active={(s.specialtyKey || 'ortho') === x.key} onClick={async () => { await chooseSpecialty(x.key); toast('Specialty set: ' + x.label); }}>{x.label}</Chip>)}</div>
         <p className="mt-1 text-xs font-medium text-slate-500">Ortho: body-site, side, ortho templates and advice. Others: simple Rx form.</p>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Full name *"><input className="field" value={d.fullName} onChange={(e) => set({ fullName: e.target.value })} placeholder="e.g. Anita Sharma" /><E k="fullName" /></Field>
         <Field label="Qualifications"><input className="field" value={d.qualifications} onChange={(e) => set({ qualifications: e.target.value })} placeholder="e.g. MBBS, MS (Orthopaedics)" /></Field>
         <Field label="Specialty"><input className="field" value={d.specialty} onChange={(e) => set({ specialty: e.target.value })} placeholder="e.g. Orthopaedic Surgeon" /></Field>
@@ -145,7 +145,7 @@ function ClinicEditor({ c, isDefault, canDelete }: { c: Clinic; isDefault: boole
   return (
     <Card className="space-y-3 p-5">
       <div className="flex items-center gap-2"><span className="font-extrabold">{c.name || 'New clinic'}</span>{isDefault && <Badge tone="blue">Default</Badge>}</div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Clinic / hospital name"><input className="field" value={d.name} onChange={(e) => set({ name: e.target.value })} /></Field>
         <PhonesField label="Clinic phone / mobile number(s)" primary={d.phone} more={d.morePhones} onChange={(p, m) => set({ phone: p, morePhones: m })} />
         <Field label="Address" className="sm:col-span-2"><textarea className="field" rows={2} value={d.address} onChange={(e) => set({ address: e.target.value })} /></Field>
@@ -191,7 +191,7 @@ function SignatureCard({ s }: { s: AppSettings }) {
     <Card className="space-y-4 p-5">
       <div><h2 className="flex items-center gap-2 text-lg font-extrabold"><FileSignature size={19} /> Digital signature</h2>
         <p className="text-sm text-slate-600">Upload your own signature image or draw it. It is only applied when <b>you</b> authorise a prescription, never to drafts.</p></div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div>
           <div className={cx('flex h-36 items-center justify-center rounded-xl border border-slate-200', checker)}>{sig.dataUrl ? <img src={sig.dataUrl} alt="Signature preview" className="max-h-28 max-w-[90%] object-contain" /> : <span className="text-sm font-semibold text-slate-400">No signature added</span>}</div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -238,7 +238,7 @@ function SealCard({ s }: { s: AppSettings }) {
         {([['none', 'No stamp'], ['generated', 'Generate from profile'], ['uploaded', 'Upload my stamp']] as const).map(([m, l]) => <Chip key={m} active={sl.mode === m} onClick={() => patch({ mode: m })}>{l}</Chip>)}
       </div>
       {sl.mode === 'generated' && !ok && <div className="rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900">Add your full name and registration number in Doctor profile first. The stamp uses only details you have entered.</div>}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className={cx('flex min-h-[200px] items-center justify-center rounded-xl border border-slate-200 p-3', checker)}>
           {url ? <img src={url} alt="Stamp preview" className="max-h-52 max-w-full object-contain" /> : <span className="text-sm font-semibold text-slate-400">No stamp</span>}
         </div>
@@ -294,7 +294,7 @@ function LayoutCard({ s }: { s: AppSettings }) {
         <div><span className="lbl">Medicine names</span>
           <div className="flex flex-wrap gap-2"><Chip active={L.nameDisplay === 'generic'} onClick={() => patch({ nameDisplay: 'generic' })}>Generic first (NMC recommended)</Chip><Chip active={L.nameDisplay === 'brand'} onClick={() => patch({ nameDisplay: 'brand' })}>Brand in CAPS, salt small below</Chip></div></div>
         <div><span className="lbl">Text size</span><div className="flex gap-2"><Chip active={L.fontScale === 'normal'} onClick={() => patch({ fontScale: 'normal' })}>Normal</Chip><Chip active={L.fontScale === 'large'} onClick={() => patch({ fontScale: 'large' })}>Large</Chip></div></div>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Sw k="genericCaps" label="Generic names in CAPITAL LETTERS" hint="NMC: legibly and preferably in capitals" />
           <Sw k="showComposition" label="Print composition under each medicine" />
           <Sw k="showPhone" label="Print patient phone number" />
@@ -330,7 +330,7 @@ function FavCard() {
   return (
     <Card className="space-y-3 p-5">
       <div className="flex items-center justify-between"><div><h2 className="text-lg font-extrabold">Favourite medicines</h2><p className="text-sm text-slate-600">Shown as one-tap chips in the prescription builder.</p></div><Btn onClick={() => setLib(true)}><Plus size={16} /> Browse library</Btn></div>
-      <div className="grid gap-2 lg:grid-cols-2">{favs.map((m) => <MedRow key={m.id} m={m} fav onFav={() => toggleFavourite(m.id)} />)}</div>
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">{favs.map((m) => <MedRow key={m.id} m={m} fav onFav={() => toggleFavourite(m.id)} />)}</div>
       {!favs.length && <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500"><Star className="mx-auto mb-1" size={18} /> No favourites yet. Open the library and tap the star next to a medicine.</div>}
       {lib && <DrugLibrary onClose={() => setLib(false)} />}
     </Card>
@@ -371,7 +371,7 @@ function BackupCard({ s }: { s: AppSettings }) {
         </Modal>
       )}
       {wipe && (
-        <Modal title="Erase all data?" onClose={() => setWipe(false)} footer={<div className="flex justify-end gap-2"><Btn variant="secondary" onClick={() => setWipe(false)}>Cancel</Btn><Btn variant="danger" disabled={typed !== 'DELETE'} onClick={async () => { await wipeAll(); toast('All data erased'); setTimeout(() => location.reload(), 600); }}>Erase everything</Btn></div>}>
+        <Modal title="Erase all data?" onClose={() => setWipe(false)} footer={<div className="flex gap-2 [&>button]:flex-1 sm:justify-end sm:[&>button]:flex-none"><Btn variant="secondary" onClick={() => setWipe(false)}>Cancel</Btn><Btn variant="danger" disabled={typed !== 'DELETE'} onClick={async () => { await wipeAll(); toast('All data erased'); setTimeout(() => location.reload(), 600); }}>Erase everything</Btn></div>}>
           <p className="mb-2 text-sm text-slate-700">This permanently deletes patients, prescriptions, templates, signature, stamp and settings from this device. Download a backup first.</p>
           <input className="field" placeholder="Type DELETE to confirm" value={typed} onChange={(e) => setTyped(e.target.value)} />
         </Modal>

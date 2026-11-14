@@ -1,5 +1,5 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FilePlus2, Users, Layers, Settings as Cog, Plus, WifiOff } from 'lucide-react';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, FilePlus2, Users, Layers, Settings as Cog, Plus, WifiOff, ChevronLeft } from 'lucide-react';
 import { Logo, Mark } from './Logo';
 import { cx } from '../lib/util';
 import { useOnline, useUpdate } from '../lib/pwa';
@@ -16,8 +16,13 @@ const NAV = [
   { to: '/settings', label: 'Settings', icon: Cog },
 ];
 
+/** Phone tab bar: New Rx sits in the middle. */
+const MOBILE_NAV = [NAV[0], NAV[2], NAV[1], NAV[3], NAV[4]];
+
 export default function Layout() {
   const nav = useNavigate();
+  const { pathname } = useLocation();
+  const inBuilder = pathname === '/new' || pathname.startsWith('/rx/');
   const online = useOnline();
   const upd = useUpdate();
   const s = useSettings();
@@ -62,16 +67,19 @@ export default function Layout() {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile header */}
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2.5 md:hidden">
-          <div className="flex items-center gap-2"><Mark className="h-7 w-auto" /><span className="text-lg font-extrabold">MedScript</span></div>
+          <div className="flex items-center gap-2">
+            {inBuilder && <button aria-label="Back to dashboard" onClick={() => nav('/')} className="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-slate-700 active:bg-slate-100"><ChevronLeft size={24} /></button>}
+            <Mark className="h-7 w-auto" /><span className="text-lg font-extrabold">MedScript</span>
+          </div>
           {!online && <span className="flex items-center gap-1 rounded-md bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800"><WifiOff size={13} /> Offline</span>}
         </header>
-        <main className="scroll-thin min-h-0 flex-1 overflow-y-auto pb-24 md:pb-6"><Outlet /></main>
+        <main className={cx('scroll-thin min-h-0 flex-1 overflow-y-auto md:pb-6', inBuilder ? 'pb-4' : 'pb-24')}><Outlet /></main>
         {/* Mobile tab bar */}
-        <nav className="safe-b fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200 bg-white md:hidden">
-          {NAV.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => cx('flex flex-1 flex-col items-center gap-0.5 py-2 text-[10.5px] font-bold', isActive ? 'text-brand' : 'text-slate-500')}>
+        <nav className={cx('safe-b fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white md:hidden', inBuilder ? 'hidden' : 'flex')}>
+          {MOBILE_NAV.map((n) => (
+            <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => cx('flex min-h-[56px] flex-1 flex-col items-center justify-end gap-0.5 pb-1.5 pt-2 text-[10.5px] font-bold', isActive ? 'text-brand' : 'text-slate-500')}>
               {n.to === '/new' ? (
-                <span className="-mt-5 flex h-12 w-12 items-center justify-center rounded-full bg-brand text-white shadow-lg shadow-brand/40"><Plus size={24} /></span>
+                <span className="-mt-4 flex h-11 w-11 items-center justify-center rounded-full bg-brand text-white shadow-lg shadow-brand/40 ring-4 ring-white"><Plus size={22} /></span>
               ) : <n.icon size={21} />}
               {n.short || n.label}
             </NavLink>

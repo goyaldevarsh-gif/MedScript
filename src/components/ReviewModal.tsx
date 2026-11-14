@@ -61,7 +61,7 @@ export default function ReviewModal({ rx, settings, onClose, onDone, onChangeTog
               I have reviewed the alerts above and authorise this prescription.
             </label>
           ) : <span className="text-xs font-semibold text-slate-500">Authorising confirms you have reviewed the medicines and doses.</span>}
-          <div className="flex gap-2"><Btn variant="secondary" onClick={onClose}>Back to edit</Btn><Btn variant="success" disabled={(needAck && !ack) || blockers.length > 0 || busy} onClick={authorise}><FileSignature size={16} /> {busy ? 'Authorising…' : 'Authorise & generate'}</Btn></div>
+          <div className="flex w-full gap-2 sm:w-auto [&>button]:flex-1 [&>button:last-child]:flex-[1.8] [&>button]:whitespace-nowrap sm:[&>button]:flex-none"><Btn variant="secondary" onClick={onClose}>Back to edit</Btn><Btn variant="success" disabled={(needAck && !ack) || blockers.length > 0 || busy} onClick={authorise}><FileSignature size={16} /> {busy ? 'Authorising…' : 'Authorise & generate'}</Btn></div>
         </div>
       }>
       <div className="space-y-4">
@@ -103,7 +103,7 @@ export default function ReviewModal({ rx, settings, onClose, onDone, onChangeTog
 
         <div>
           <div className="lbl">Show on prescription</div>
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <Toggle k="logo" icon={<ImageIcon size={18} />} label="Clinic logo" have={hasLogo || settings.layout.headerBrand} miss="No logo uploaded" />
             <Toggle k="signature" icon={<FileSignature size={18} />} label="Digital signature" have={hasSig} miss="Add in Settings → Signature & seal" />
             <Toggle k="stamp" icon={<Stamp size={18} />} label="Clinic stamp" have={hasSeal} miss="Add in Settings → Signature & seal" />

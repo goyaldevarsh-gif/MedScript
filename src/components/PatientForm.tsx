@@ -20,7 +20,7 @@ export default function PatientForm({ initial, onClose, onSaved }: { initial?: P
   }
   const E = ({ k }: { k: string }) => (err[k] ? <span className="mt-1 block text-xs font-semibold text-danger">{err[k]}</span> : null);
   return (
-    <Modal title={initial ? 'Edit patient' : 'New patient'} onClose={onClose} footer={<div className="flex justify-end gap-2"><Btn variant="secondary" onClick={onClose}>Cancel</Btn><Btn onClick={save}>Save patient</Btn></div>}>
+    <Modal title={initial ? 'Edit patient' : 'New patient'} onClose={onClose} footer={<div className="flex gap-2 [&>button]:flex-1 sm:justify-end sm:[&>button]:flex-none"><Btn variant="secondary" onClick={onClose}>Cancel</Btn><Btn onClick={save}>Save patient</Btn></div>}>
       <div className="space-y-3">
         <Field label="Patient name *"><input autoFocus className="field" value={p.name} onChange={(e) => set({ name: e.target.value })} /><E k="name" /></Field>
         <div className="grid grid-cols-2 gap-3">

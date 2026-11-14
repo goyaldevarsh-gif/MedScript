@@ -178,7 +178,11 @@ function Builder() {
   const clinicOptions = settings.clinics;
   const p = rx.patient;
   const itemWarn = (id: string) => warnings.filter((w) => w.itemId === id);
-  const topWarn = warnings.filter((w) => w.level !== 'info' && !w.itemId);
+  const topWarnRaw = warnings.filter((w) => w.level !== 'info' && !w.itemId);
+  const missing = topWarnRaw.filter((w) => /^Patient (name|age|sex) is missing/.test(w.text));
+  const topWarn = missing.length > 1
+    ? [{ ...missing[0], text: 'Patient details missing: ' + missing.map((w) => w.text.replace(/^Patient (\w+) is missing.*/, '$1')).join(', ') + '.' }, ...topWarnRaw.filter((w) => !missing.includes(w))]
+    : topWarnRaw;
   const itemWarnAll = warnings.filter((w) => w.level !== 'info' && w.itemId);
   const unsetProfile = !settings.doctor.fullName.trim() || !settings.doctor.regNo.trim();
 
@@ -186,10 +190,10 @@ function Builder() {
     <div className="mx-auto max-w-7xl p-3 pb-32 sm:p-5 md:pb-28">
       {/* top bar */}
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-xl font-extrabold sm:text-2xl">{readOnly ? <span className="flex items-center gap-2"><Lock size={20} className="text-teal" /> {rx.rxNo}</span> : 'New Prescription'}</h1>
+        <h1 className="mr-auto whitespace-nowrap text-xl font-extrabold sm:text-2xl">{readOnly ? <span className="flex items-center gap-2"><Lock size={20} className="text-teal" /> {rx.rxNo}</span> : 'New Prescription'}</h1>
         {!readOnly && (
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
-            {status === 'saving' ? <><Loader2 size={13} className="animate-spin" /> Saving…</> : status === 'saved' ? <><Check size={14} className="text-teal" /> Draft saved</> : hasContent(rx) ? 'Autosave on' : 'Nothing to save yet'}
+            {status === 'saving' ? <><Loader2 size={13} className="animate-spin" /> Saving…</> : status === 'saved' ? <><Check size={14} className="text-teal" /> Draft saved</> : hasContent(rx) ? 'Autosave on' : ''}
           </span>
         )}
         {!readOnly && clinicOptions.length > 1 && (
@@ -207,7 +211,7 @@ function Builder() {
         {!readOnly && (
           <label className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-600"><input type="checkbox" checked={rx.showInstr !== false} onChange={(e) => update((r) => ({ ...r, showInstr: e.target.checked }))} /> Instruction line</label>
         )}
-        {!readOnly && <Btn variant="secondary" size="sm" onClick={() => setTplPicker(true)}><Layers size={16} /> Template</Btn>}
+        {!readOnly && <Btn variant="secondary" size="sm" className="!px-3" onClick={() => setTplPicker(true)}><Layers size={16} /> Template</Btn>}
       </div>
 
       {unsetProfile && !readOnly && (
@@ -235,7 +239,7 @@ function Builder() {
           <Chip className="whitespace-nowrap" onClick={() => setTplPicker(true)}>All templates</Chip>
         </div>
       )}
-      <div className="grid gap-4 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <div className="space-y-4 lg:col-span-5">
           <PatientCard p={p} nextPid={nextPid} readOnly={!!readOnly} setPatient={setPatient} onPick={(pt) => update((r) => ({ ...r, patient: { ...pt }, patientId: pt.id }))} onClear={() => update((r) => ({ ...r, patient: { ...blankRxPatient(), id: uid() }, patientId: '' }))} />
           {ortho && <Card className="p-4">
@@ -310,7 +314,7 @@ function Builder() {
       </div>
 
       {/* sticky action bar */}
-      <div className="fixed inset-x-0 bottom-[60px] z-30 border-t border-slate-200 bg-white/95 px-3 py-2.5 backdrop-blur md:bottom-0 md:left-64">
+      <div className="safe-b fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-3 py-2.5 backdrop-blur md:left-64">
         <div className="mx-auto flex max-w-7xl items-center gap-2">
           {!readOnly ? (
             <>
@@ -362,7 +366,7 @@ function PatientCard({ p, nextPid, readOnly, setPatient, onPick, onClear }: { p:
         {!readOnly && !p.pid && (
           <div className="relative">
             <Search size={16} className="absolute left-3 top-3 text-slate-400" />
-            <input className="field pl-9" placeholder="Search existing patient (name / phone / ID)" value={q} onChange={(e) => setQ(e.target.value)} />
+            <input className="field pl-9" placeholder="Search existing patient" value={q} onChange={(e) => setQ(e.target.value)} />
             {matches.length > 0 && (
               <div className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
                 {matches.map((m) => <button key={m.id} className="flex w-full items-center justify-between px-3 py-2.5 text-left hover:bg-brand-50" onClick={() => { onPick(m); setQ(''); }}><span className="text-sm font-bold">{m.name}</span><span className="text-xs text-slate-500">{m.age}{m.ageUnit} · {m.sex} · {m.phone || m.pid}</span></button>)}
@@ -400,7 +404,7 @@ function SaveTemplateModal({ rx, onClose }: { rx: Prescription; onClose: () => v
     toast('Saved to My Templates'); onClose();
   }
   return (
-    <Modal title="Save as my template" onClose={onClose} footer={<div className="flex justify-end gap-2"><Btn variant="secondary" onClick={onClose}>Cancel</Btn><Btn onClick={save} disabled={!name.trim()}>Save template</Btn></div>}>
+    <Modal title="Save as my template" onClose={onClose} footer={<div className="flex gap-2 [&>button]:flex-1 sm:justify-end sm:[&>button]:flex-none"><Btn variant="secondary" onClick={onClose}>Cancel</Btn><Btn onClick={save} disabled={!name.trim()}>Save template</Btn></div>}>
       <div className="space-y-3">
         <Field label="Template name"><input autoFocus className="field" value={name} onChange={(e) => setName(e.target.value)} /></Field>
         <label className="flex items-start gap-2 text-sm font-semibold"><input type="checkbox" className="mt-1" checked={withMeds} onChange={(e) => setWithMeds(e.target.checked)} /> Include the {rx.items.length} medicine(s) with doses (you will still review them each time)</label>

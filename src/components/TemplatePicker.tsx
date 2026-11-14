@@ -17,7 +17,7 @@ export default function TemplatePicker({ onClose, onPick }: { onClose: () => voi
     <Modal title="Start from a template" onClose={onClose}>
       <div className="relative mb-3"><Search size={18} className="absolute left-3 top-3 text-slate-400" /><input autoFocus className="field pl-10" placeholder="Search templates" value={q} onChange={(e) => setQ(e.target.value)} /></div>
       <p className="mb-3 text-xs text-slate-600">Templates fill diagnosis, examination, investigations and advice. Medicines are never added unless you saved them in your own template.</p>
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {f.map((t) => (
           <button key={t.id} onClick={() => onPick(t)} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-brand hover:bg-brand-50">
             <TemplateIcon name={t.icon} className="h-9 w-9 shrink-0 rounded-lg bg-brand-50 p-1.5 text-brand" />

@@ -29,7 +29,7 @@ export default function Templates() {
       <div className="relative"><Search size={18} className="absolute left-3 top-3 text-slate-400" /><input className="field pl-10" placeholder="Search templates" value={q} onChange={(e) => setQ(e.target.value)} /></div>
       <div className="flex gap-2">{([['all', 'All'], ['fav', 'Favourites'], ['mine', 'Created by me']] as const).map(([v, l]) => <Chip key={v} active={tab === v} onClick={() => setTab(v)}>{l}</Chip>)}</div>
       <p className="text-xs text-slate-600">Starter templates fill diagnosis, examination, investigations and advice. They never add medicines on their own. All templates are editable.</p>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {f.map((t) => (
           <div key={t.id} className="card flex flex-col p-3.5">
             <div className="flex items-start gap-3">
@@ -64,9 +64,9 @@ function TemplateEditor({ t, onClose }: { t: Template; onClose: () => void }) {
     toast('Template saved'); onClose();
   }
   return (
-    <Modal wide title={t.name ? 'Edit template' : 'New template'} onClose={onClose} footer={<div className="flex justify-end gap-2"><Btn variant="secondary" onClick={onClose}>Cancel</Btn><Btn onClick={save}>Save template</Btn></div>}>
+    <Modal wide title={t.name ? 'Edit template' : 'New template'} onClose={onClose} footer={<div className="flex gap-2 [&>button]:flex-1 sm:justify-end sm:[&>button]:flex-none"><Btn variant="secondary" onClick={onClose}>Cancel</Btn><Btn onClick={save}>Save template</Btn></div>}>
       <div className="space-y-3">
-        <div className="grid gap-3 sm:grid-cols-2"><Field label="Template name *"><input className="field" value={d.name} onChange={(e) => { setD({ ...d, name: e.target.value }); setErr(''); }} /></Field>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><Field label="Template name *"><input className="field" value={d.name} onChange={(e) => { setD({ ...d, name: e.target.value }); setErr(''); }} /></Field>
           <Field label="Diagnosis"><input className="field" value={d.clinical.diagnosis} onChange={(e) => c({ diagnosis: e.target.value })} /></Field></div>
         <div className="flex flex-wrap gap-2">{ICONS.map((i) => <button key={i} type="button" onClick={() => setD({ ...d, icon: i })} className={cx('rounded-lg border p-2', d.icon === i ? 'border-brand bg-brand-50 text-brand' : 'border-slate-200 text-slate-500')} aria-label={i}><TemplateIcon name={i} className="h-5 w-5" /></button>)}</div>
         <Field label="Chief complaint"><input className="field" value={d.clinical.complaint} onChange={(e) => c({ complaint: e.target.value })} /></Field>
