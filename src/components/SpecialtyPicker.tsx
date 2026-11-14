@@ -18,8 +18,8 @@ export default function SpecialtyPrompt() {
   const s = useSettings();
   if (!s || s.specialtyKey) return null;
   return (
-    <Modal title={<span className="flex items-center gap-2"><Stethoscope size={20} /> Aap kis specialty ke doctor ho?</span>} onClose={() => chooseSpecialty('ortho')}>
-      <p className="mb-3 text-sm font-medium text-slate-600">Isi hisaab se prescription form, templates aur advice set honge. Settings mein kabhi bhi badal sakte ho.</p>
+    <Modal title={<span className="flex items-center gap-2"><Stethoscope size={20} /> What is your specialty?</span>} onClose={() => chooseSpecialty('ortho')}>
+      <p className="mb-3 text-sm font-medium text-slate-600">The prescription form, templates and advice are set up for it. You can change this anytime in Settings.</p>
       <div className="space-y-2.5">
         {SPECIALTIES.map((x) => (
           <button key={x.key} onClick={() => chooseSpecialty(x.key)} className="w-full rounded-2xl border-2 border-slate-200 bg-white p-4 text-left transition hover:border-brand active:scale-[.99]">
