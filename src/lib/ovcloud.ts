@@ -15,7 +15,9 @@ function load() {
   if (!boot) boot = (async () => {
     const [{ initializeApp, getApps, getApp }, A, F] = await Promise.all([import('firebase/app'), import('firebase/auth'), import('firebase/firestore')]);
     const app = getApps().some((a) => a.name === 'ov') ? getApp('ov') : initializeApp(CFG, 'ov');
-    return { auth: A.getAuth(app), fs: F.getFirestore(app), A, F };
+    let fs: import('firebase/firestore').Firestore;
+    try { fs = F.initializeFirestore(app, { experimentalAutoDetectLongPolling: true }); } catch { fs = F.getFirestore(app); }
+    return { auth: A.getAuth(app), fs, A, F };
   })();
   return boot;
 }
@@ -29,6 +31,7 @@ export const ovMsg = (e: unknown) => {
   if (c.includes('permission-denied')) return 'OrthoVault cloud refused access (Firestore rules need a small update).';
   if (c.includes('invalid-credential') || c.includes('wrong-password') || c.includes('user-not-found') || c.includes('invalid-email')) return 'Email or password is wrong.';
   if (c.includes('network') || c.includes('unavailable')) return 'No internet right now.';
+  if (c.includes('timeout')) return 'Could not reach OrthoVault cloud (timed out).';
   return 'Could not reach OrthoVault: ' + ((e as Error)?.message || 'unknown error');
 };
 export async function ovSignIn(email: string, password: string): Promise<string> {
@@ -63,3 +66,15 @@ const KEY = 'ms-ov-sent';
 const sent = (): string[] => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
 export const markSent = (id: string) => { try { localStorage.setItem(KEY, JSON.stringify([...new Set([...sent(), id])].slice(-500))); } catch { /* ignore */ } };
 export const wasSent = (id: string) => sent().includes(id);
+
+/** One-shot connection check used by Settings: signed in? can it read the inbox? how many patients are waiting? */
+export async function ovCheck(email: string): Promise<string> {
+  const { fs, F, user } = await me();
+  if (!user) return 'Not signed in on this device. Unlink and link again.';
+  if ((user.email || '').toLowerCase() !== email.toLowerCase()) return `Signed in as ${user.email}, but linked as ${email}.`;
+  const snap = await Promise.race([
+    F.getDocs(F.collection(fs, 'users', user.uid, 'mvOutbox')),
+    new Promise<never>((_, rej) => setTimeout(() => rej(Object.assign(new Error('Timed out reaching OrthoVault cloud'), { code: 'timeout' })), 15000)),
+  ]);
+  return `Connected. ${snap.size} patient${snap.size === 1 ? '' : 's'} waiting from OrthoVault.`;
+}

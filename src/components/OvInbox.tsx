@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useSettings, db } from '../lib/db';
-import { dropInbox, watchInbox, type InboxItem } from '../lib/ovcloud';
+import { dropInbox, ovMsg, watchInbox, type InboxItem } from '../lib/ovcloud';
 import { enc } from '../lib/orthovault';
 import { Card } from './ui';
 
@@ -12,12 +12,14 @@ export default function OvInbox({ compact }: { compact?: boolean }) {
   const nav = useNavigate();
   const email = s?.ovEmail || '';
   const [items, setItems] = useState<InboxItem[]>([]);
+  const [err, setErr] = useState('');
   useEffect(() => {
     if (!email) { setItems([]); return; }
     let off: (() => void) | undefined; let dead = false;
-    watchInbox(email, (x) => !dead && setItems(x)).then((u) => { if (dead) u(); else off = u; }).catch(() => {});
+    watchInbox(email, (x) => { if (!dead) { setItems(x); setErr(''); } }, (e) => !dead && setErr(ovMsg(e))).then((u) => { if (dead) u(); else off = u; }).catch(() => {});
     return () => { dead = true; off?.(); };
   }, [email]);
+  if (email && err) return <div className="rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">OrthoVault: {err}</div>;
   if (!email || !items.length) return null;
   async function start(it: InboxItem) {
     const known = (await db.patients.toArray()).find((p) => p.ovId === it.id);
