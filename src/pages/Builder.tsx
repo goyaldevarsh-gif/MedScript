@@ -1,5 +1,7 @@
 import { ADVICE_CHIPS, shortAdvice } from '../data/advice';
 import { isOrtho } from '../lib/defaults';
+import { markSent, ovMsg, sendRx } from '../lib/ovcloud';
+import OvInbox from '../components/OvInbox';
 import { decodeOvIn, ovSaveUrl, ovSex, ovSide } from '../lib/orthovault';
 import BodyPicker from '../components/BodyPicker';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -33,6 +35,13 @@ function Builder() {
   const settings = useSettings();
   const ortho = isOrtho(settings);
   const [rx, setRx] = useState<Prescription | null>(null);
+  async function saveToOv() {
+    if (!rx) return;
+    if (settings?.ovEmail) {
+      try { await sendRx(rx, settings?.ovEmail); markSent(rx.id); toast('Sent to OrthoVault'); }
+      catch (e) { toast(ovMsg(e), { tone: 'err' }); }
+    } else if (settings?.orthovaultUrl) window.open(ovSaveUrl(settings.orthovaultUrl, rx), '_blank');
+  }
   const [rev, setRev] = useState(0);
   const [status, setStatus] = useState<'saved' | 'saving' | 'idle'>('idle');
   const [openItem, setOpenItem] = useState<string | null>(null);
@@ -211,13 +220,14 @@ function Builder() {
           <ShieldCheck size={18} /> Authorised {rx.authorizedAt ? fmtDateTime(rx.authorizedAt) : ''} · locked{rx.version > 1 ? ` · version ${rx.version}` : ''}
           <span className="ml-auto flex flex-wrap gap-2">
             <Btn size="sm" onClick={() => setPreview(true)}><Eye size={15} /> View / share PDF</Btn>
-            {settings.orthovaultUrl && <Btn size="sm" variant="secondary" onClick={() => window.open(ovSaveUrl(settings.orthovaultUrl!, rx), '_blank')}><ExternalLink size={15} /> Save to OrthoVault</Btn>}
+            {(settings.orthovaultUrl || settings.ovEmail) && <Btn size="sm" variant="secondary" onClick={() => saveToOv()}><ExternalLink size={15} /> Save to OrthoVault</Btn>}
             <Btn size="sm" variant="secondary" onClick={() => dupe(false)}><Copy size={15} /> Duplicate as draft</Btn>
             <Btn size="sm" variant="secondary" onClick={() => dupe(true)}><FileEdit size={15} /> Amend (new version)</Btn>
           </span>
         </div>
       )}
 
+      {!readOnly && !rx.patient.name.trim() && !rx.items.length && <div className="mb-3"><OvInbox compact /></div>}
       {!readOnly && !rx.items.length && !rx.clinical.diagnosis.trim() && quickTpls.length > 0 && (
         <div className="mb-3 flex items-center gap-2 overflow-x-auto pb-1 scroll-thin" aria-label="Quick start">
           <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-slate-500">Quick start</span>

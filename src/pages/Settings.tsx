@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { BadgeCheck, Building2, Cloud, Download, Eye, FileSignature, Layout as LayoutIcon, Pill, Plus, Smartphone, Star, Trash2, Upload, User, Stamp, Languages, Check, AlertTriangle, ShieldAlert } from 'lucide-react';
 import type { AppSettings, Clinic, Doctor, Lang, Prescription } from '../lib/types';
 import { db, exportAll, importAll, toggleFavourite, updateSettings, useMedicineIndex, useSettings, wipeAll } from '../lib/db';
+import OvLinkCard from '../components/OvLinkCard';
 import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../components/ui';
 import SignaturePad from '../components/SignaturePad';
 import { DrugLibrary, MedRow } from '../components/MedicineLibrary';
@@ -46,7 +47,7 @@ export default function SettingsPage() {
           {tab === 'lang' && <LangCard s={s} />}
           {tab === 'favs' && <FavCard />}
           {tab === 'backup' && <BackupCard s={s} />}
-          {tab === 'app' && <AppCard />}
+          {tab === 'app' && <><OvLinkCard s={s} /><AppCard /></>}
         </div>
       </div>
     </div>

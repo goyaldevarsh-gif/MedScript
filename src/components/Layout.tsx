@@ -5,6 +5,8 @@ import { cx } from '../lib/util';
 import { useOnline, useUpdate } from '../lib/pwa';
 import { useSettings } from '../lib/db';
 import SpecialtyPrompt from './SpecialtyPicker';
+import { useEffect } from 'react';
+import { flushOv } from '../lib/ovsync';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -20,6 +22,14 @@ export default function Layout() {
   const upd = useUpdate();
   const s = useSettings();
   const doc = s?.doctor.fullName;
+  const ovEmail = s?.ovEmail;
+  useEffect(() => {
+    if (!ovEmail) return;
+    flushOv(ovEmail);
+    const f = () => flushOv(ovEmail);
+    window.addEventListener('online', f);
+    return () => window.removeEventListener('online', f);
+  }, [ovEmail, online]);
   return (
     <div className="flex h-full">
       <SpecialtyPrompt />
