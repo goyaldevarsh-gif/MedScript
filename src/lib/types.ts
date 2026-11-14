@@ -6,7 +6,7 @@ export type Lang = 'en' | 'hi' | 'both';
 
 export interface Patient {
   id: string; pid: string; name: string; age: string; ageUnit: 'Y' | 'M';
-  sex: Sex; phone: string; weight: string; allergies: string;
+  sex: Sex; phone: string; weight: string; allergies: string; ovId?: string;
   createdAt: number; updatedAt: number;
 }
 export interface Ingredient { name: string; strength: string }
@@ -54,7 +54,7 @@ export interface AppSettings {
   doctor: Doctor; clinics: Clinic[]; defaultClinicId: string;
   signature: SignatureCfg; seal: SealCfg; layout: LayoutCfg;
   defaultLang: Lang; defaultFollowUpDays: number; lastBackupAt: number;
-  rxCounter: number; patientCounter: number; seeded: boolean; specialtyKey?: SpecialtyKey;
+  rxCounter: number; patientCounter: number; seeded: boolean; specialtyKey?: SpecialtyKey; orthovaultUrl?: string;
 }
 export interface DoctorSnapshot {
   doctor: Doctor; clinic: Clinic; signature: SignatureCfg; sealDataUrl: string; seal: SealCfg; layout: LayoutCfg;
@@ -64,7 +64,7 @@ export interface Prescription {
   patientId: string; patient: Patient; clinicId: string;
   clinical: Clinical; print: PrintOpts; items: RxItem[];
   followUpDays: number; followUpDate: string; lang: Lang; toggles: PdfToggles;
-  showInstr?: boolean; followUpManual?: boolean; qrUrl?: string;
+  showInstr?: boolean; followUpManual?: boolean; qrUrl?: string; ovId?: string;
   createdAt: number; updatedAt: number; authorizedAt?: number; hash?: string;
   doctorSnapshot?: DoctorSnapshot; warningsAtAuth?: string[];
 }

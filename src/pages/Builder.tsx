@@ -1,13 +1,14 @@
 import { ADVICE_CHIPS, shortAdvice } from '../data/advice';
 import { isOrtho } from '../lib/defaults';
+import { decodeOvIn, ovSaveUrl, ovSex, ovSide } from '../lib/orthovault';
 import BodyPicker from '../components/BodyPicker';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Check, Eye, FilePlus2, Layers, Save, ShieldCheck, Copy, FileEdit, Lock, Search, X, UserPlus, Loader2 } from 'lucide-react';
+import { Check, Eye, FilePlus2, Layers, Save, ShieldCheck, Copy, FileEdit, Lock, Search, X, UserPlus, Loader2, ExternalLink } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import type { Clinical, Lang, Medicine, Patient, Prescription, RxItem, Side, Template } from '../lib/types';
 import { blankRx, itemFromMedicine } from '../lib/defaults';
-import { db, deleteDraft, duplicateRx, peekPatientId, saveDraft, touchMedicines, useSettings } from '../lib/db';
+import { db, deleteDraft, duplicateRx, peekPatientId, saveDraft, touchMedicines, updateSettings, useSettings } from '../lib/db';
 import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../components/ui';
 import { MedicineSearch } from '../components/MedicineLibrary';
 import ItemEditor from '../components/ItemEditor';
@@ -59,7 +60,7 @@ function Builder() {
         toast('Prescription not found', { tone: 'err' }); nav('/', { replace: true }); return;
       }
       const r = blankRx(settings.defaultClinicId, settings.defaultLang, settings.defaultFollowUpDays);
-      const pid = sp.get('patient'); const tid = sp.get('template'); const mid = sp.get('med');
+      const pid = sp.get('patient'); const tid = sp.get('template'); const mid = sp.get('med'); const ovq = sp.get('ov');
       if (pid) { const p = await db.patients.get(pid); if (p) { r.patient = { ...p }; r.patientId = p.id; } }
       if (tid) { const t = await db.templates.get(tid); if (t) applyTpl(r, t); }
       if (mid) {
@@ -67,8 +68,22 @@ function Builder() {
         const m = [...idx, ...CATALOGUE].find((x) => x.id === mid);
         if (m) r.items.push(itemFromMedicine(m));
       }
+      const ovb = sp.get('ovback');
+      if (ovb && /^https:\/\//.test(ovb) && ovb !== settings.orthovaultUrl) updateSettings((s) => { s.orthovaultUrl = ovb; }).catch(() => {});
+      if (ovq) {
+        const o = decodeOvIn(ovq);
+        if (o) {
+          const d10 = (o.phone || '').replace(/\D/g, '').slice(-10);
+          const known = (await db.patients.toArray()).find((p) => (o.id && p.ovId === o.id) || (d10.length === 10 && p.phone.replace(/\D/g, '').slice(-10) === d10) || norm(p.name) === norm(o.name));
+          if (known) { r.patient = { ...known, ovId: o.id || known.ovId }; r.patientId = known.id; }
+          else r.patient = { ...r.patient, name: o.name.trim(), age: o.age || '', ageUnit: o.ageUnit === 'M' ? 'M' : 'Y', sex: ovSex(o.sex) as Prescription['patient']['sex'], phone: d10, weight: o.weight || '', ovId: o.id };
+          r.ovId = o.id;
+          r.clinical = { ...r.clinical, complaint: o.cc || '', diagnosis: o.dx || '', side: ovSide(o.side) as Prescription['clinical']['side'] };
+          if (o.back && /^https:\/\//.test(o.back) && o.back !== settings.orthovaultUrl) updateSettings((s) => { s.orthovaultUrl = o.back; }).catch(() => {});
+        }
+      }
       setRx(r);
-      if (tid || pid || mid) setRev(1);
+      if (tid || pid || mid || ovq) setRev(1);
     })();
   }, [settings]); // eslint-disable-line
 
@@ -196,6 +211,7 @@ function Builder() {
           <ShieldCheck size={18} /> Authorised {rx.authorizedAt ? fmtDateTime(rx.authorizedAt) : ''} · locked{rx.version > 1 ? ` · version ${rx.version}` : ''}
           <span className="ml-auto flex flex-wrap gap-2">
             <Btn size="sm" onClick={() => setPreview(true)}><Eye size={15} /> View / share PDF</Btn>
+            {settings.orthovaultUrl && <Btn size="sm" variant="secondary" onClick={() => window.open(ovSaveUrl(settings.orthovaultUrl!, rx), '_blank')}><ExternalLink size={15} /> Save to OrthoVault</Btn>}
             <Btn size="sm" variant="secondary" onClick={() => dupe(false)}><Copy size={15} /> Duplicate as draft</Btn>
             <Btn size="sm" variant="secondary" onClick={() => dupe(true)}><FileEdit size={15} /> Amend (new version)</Btn>
           </span>
