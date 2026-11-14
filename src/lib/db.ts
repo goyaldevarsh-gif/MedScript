@@ -71,6 +71,11 @@ export async function seedIfNeeded() {
       }))
     );
   }
+  /* refresh built-in templates the user never edited, so content fixes reach existing installs */
+  for (const t of await db.templates.toArray()) {
+    const st = t.builtIn ? STARTERS.find((x) => x.key === t.sourceKey) : undefined;
+    if (st && t.updatedAt === t.createdAt && JSON.stringify(t.clinical) !== JSON.stringify(st.clinical)) await db.templates.put({ ...t, name: st.name, clinical: st.clinical, followUpDays: st.followUpDays });
+  }
   if (fresh) await updateSettings((x) => { x.seeded = true; });
 }
 export async function resetBuiltInTemplate(id: string) {

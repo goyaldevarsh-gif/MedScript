@@ -1,5 +1,18 @@
 /** English advice line -> Hindi (Devanagari). Lines not listed here print in English only. */
 export const ADVICE_HI: Record<string, string> = {
+  'Come back immediately if the knee becomes hot, red and very swollen, or you develop fever.': 'घुटना गर्म, लाल और बहुत सूजा हो जाए या बुखार आए तो तुरंत दिखाएँ।',
+  'Come back immediately if you cannot put weight on the foot, or the foot becomes numb, cold or blue.': 'पैर पर वज़न न रख पाएँ, या पैर सुन्न, ठंडा या नीला पड़ जाए तो तुरंत दिखाएँ।',
+  'Come back immediately if you develop chest pain, fever, or sudden weakness of the arm.': 'सीने में दर्द, बुखार या हाथ में अचानक कमज़ोरी हो तो तुरंत दिखाएँ।',
+  'Come back immediately after any fall, or if you develop new severe back or hip pain.': 'गिरने के बाद, या पीठ/कूल्हे में नया तेज़ दर्द हो तो तुरंत दिखाएँ।',
+  'Come back immediately if you develop fever, many joints become painful, or you cannot bear weight.': 'बुखार आए, कई जोड़ों में दर्द हो या चल न पाएँ तो तुरंत दिखाएँ।',
+  'Come back immediately if you suddenly cannot lift the arm, or the shoulder becomes hot and swollen with fever.': 'हाथ अचानक उठा न पाएँ, या कंधा गर्म-सूजा हो और बुखार आए तो तुरंत दिखाएँ।',
+  'Come back immediately if the knee locks, the leg becomes cold, pale or numb, or swelling increases.': 'घुटना जाम हो जाए, पैर ठंडा/पीला/सुन्न हो या सूजन बढ़े तो तुरंत दिखाएँ।',
+  'Come back immediately if you suddenly cannot put weight on the leg, or after any fall.': 'अचानक पैर पर वज़न न रख पाएँ, या गिरने के बाद तुरंत दिखाएँ।',
+  'Come back immediately if swelling increases rapidly, you feel numbness, or you cannot move the limb.': 'सूजन तेज़ी से बढ़े, सुन्नपन हो या अंग हिला न पाएँ तो तुरंत दिखाएँ।',
+  'Come back if numbness becomes constant or the thumb becomes weak': 'सुन्नपन लगातार रहे या अंगूठा कमज़ोर हो तो दिखाएँ।',
+  'Come back if the knee locks and cannot be straightened': 'घुटना जाम हो जाए और सीधा न हो तो दिखाएँ।',
+  'Come back immediately if there is sudden pain with a snap or inability to stand on tiptoe': 'अचानक झटके के साथ दर्द हो या पंजों पर खड़े न हो पाएँ तो तुरंत दिखाएँ।',
+  'Come back immediately if there is severe pain, swelling, blue / cold / numb fingers or toes, a foul smell, or the cast feels tight or loose': 'तेज़ दर्द, सूजन, उँगलियाँ नीली/ठंडी/सुन्न हों, बदबू आए या प्लास्टर कसा/ढीला लगे तो तुरंत दिखाएँ।',
   'Adequate sun exposure daily and calcium-rich diet (milk, curd, ragi, green leafy vegetables)': 'रोज़ धूप लें और कैल्शियम से भरपूर भोजन करें (दूध, दही, रागी, हरी पत्तेदार सब्ज़ियाँ)',
   'Avoid carrying heavy weight on the head or shoulders': 'सिर या कंधों पर भारी वज़न न उठाएँ',
   'Avoid heavy lifting and forward bending; lift with knees bent': 'भारी वज़न उठाने और आगे झुकने से बचें; वज़न उठाते समय घुटने मोड़ें',

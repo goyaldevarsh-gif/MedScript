@@ -20,6 +20,7 @@ export const STARTERS: StarterTemplate[] = [
       'Avoid squatting, sitting cross-legged and Indian-style toilet; use a commode',
       'Avoid long stairs and prolonged standing; use a walking stick if needed',
       'Hot fomentation to the knee for 15 minutes, twice daily',
+      'Come back immediately if the knee becomes hot, red and very swollen, or you develop fever.',
     ],
   }, 'Bilateral'),
   t('lbp', 'Low back pain', 'spine', 14, {
@@ -61,6 +62,7 @@ export const STARTERS: StarterTemplate[] = [
       'Weight-bearing as tolerated with support',
       'Begin ankle range-of-motion and balance exercises once pain settles',
       'Avoid walking on uneven surfaces and high heels until recovered',
+      'Come back immediately if you cannot put weight on the foot, or the foot becomes numb, cold or blue.',
     ],
   }),
   t('plantar-fasciitis', 'Plantar fasciitis', 'ankle', 28, {
@@ -110,6 +112,7 @@ export const STARTERS: StarterTemplate[] = [
       'Do not sleep on the affected side',
       'Pendulum and gentle range-of-motion exercises as shown',
       'Ice or heat application, whichever gives relief',
+      'Come back immediately if you develop chest pain, fever, or sudden weakness of the arm.',
     ],
   }),
   t('osteoporosis', 'Osteoporosis', 'bone', 90, {
@@ -123,6 +126,7 @@ export const STARTERS: StarterTemplate[] = [
       'Fall prevention: remove loose mats, good lighting at home, non-slip footwear',
       'Avoid smoking and alcohol',
       'Take bone-health medicines regularly as prescribed',
+      'Come back immediately after any fall, or if you develop new severe back or hip pain.',
     ],
   }),
   t('acl-postop', 'ACL reconstruction - post-operative', 'knee', 14, {
@@ -261,6 +265,7 @@ export const STARTERS: StarterTemplate[] = [
       'Sleep with a pillow supporting the arm',
       'Pendulum and scapular stabilisation exercises as shown',
       'Ice or warm compress, 10 minutes, twice daily',
+      'Come back immediately if you suddenly cannot lift the arm, or the shoulder becomes hot and swollen with fever.',
     ],
   }, 'Right'),
   t('meniscus', 'Meniscus injury', 'knee', 14, {
@@ -286,6 +291,7 @@ export const STARTERS: StarterTemplate[] = [
       'Ice, compression and elevation for the first 2 weeks',
       'Quadriceps and hamstring strengthening, and full knee extension, as shown',
       'Surgical reconstruction will be planned after swelling settles and motion returns',
+      'Come back immediately if the knee locks, the leg becomes cold, pale or numb, or swelling increases.',
     ],
   }, 'Right'),
   t('pfps', 'Patellofemoral pain syndrome', 'knee', 28, {
@@ -323,6 +329,7 @@ export const STARTERS: StarterTemplate[] = [
       'Avoid squatting, sitting cross-legged and Indian-style toilet; use a commode',
       'Hip strengthening and range-of-motion exercises as shown',
       'Reduce body weight if overweight',
+      'Come back immediately if you suddenly cannot put weight on the leg, or after any fall.',
     ],
   }, 'Right'),
   t('gtps', 'Greater trochanteric pain syndrome', 'hip', 21, {
@@ -359,6 +366,7 @@ export const STARTERS: StarterTemplate[] = [
       'Drink plenty of water (2.5 to 3 litres a day)',
       'Avoid red meat, organ meat, seafood, beer and alcohol',
       'Do not start or stop uric-acid-lowering medicine without advice',
+      'Come back immediately if you develop fever, many joints become painful, or you cannot bear weight.',
     ],
   }, 'Right'),
   t('muscle-strain', 'Muscle strain / soft tissue injury', 'bone', 7, {
@@ -370,6 +378,7 @@ export const STARTERS: StarterTemplate[] = [
       'Rest, ice for 10 minutes every 3 to 4 hours for the first 2 days, compression, elevation',
       'Avoid strenuous activity and stretching into pain for now',
       'Gradual stretching and strengthening as pain settles',
+      'Come back immediately if swelling increases rapidly, you feel numbness, or you cannot move the limb.',
     ],
   }, 'Right'),
   t('cast-care', 'Plaster / cast care', 'fracture', 14, {
