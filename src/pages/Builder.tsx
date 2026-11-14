@@ -21,7 +21,8 @@ import { checkRx, disclaimer } from '../lib/safety';
 import { STARTERS } from '../data/templates';
 import { cx, fmtDateTime, norm, uid } from '../lib/util';
 
-const hasContent = (r: Prescription) => !!(r.patient.name.trim() || r.clinical.diagnosis.trim() || r.clinical.complaint.trim() || r.items.length);
+// a draft is only worth keeping once a medicine is added (stops empty duplicate drafts)
+const hasContent = (r: Prescription) => r.items.length > 0;
 const FU = [0, 3, 7, 14, 21, 28, 42, 90];
 const fuLabel = (d: number) => (d === 0 ? 'None' : d % 7 === 0 ? `${d / 7} wk` : d === 90 ? '3 mo' : `${d} d`);
 

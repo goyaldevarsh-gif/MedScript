@@ -8,6 +8,7 @@ import SpecialtyPrompt from './SpecialtyPicker';
 import { useEffect } from 'react';
 import { flushOv } from '../lib/ovsync';
 import { startSync, stopSync } from '../lib/sync';
+import { db } from '../lib/db';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -29,6 +30,9 @@ export default function Layout() {
   const s = useSettings();
   const doc = s?.doctor.fullName;
   const ovEmail = s?.ovEmail;
+  useEffect(() => { // one-off tidy: drop empty drafts (no medicines) left behind by older versions
+    db.prescriptions.where('status').equals('draft').filter((r) => !r.items.length && Date.now() - r.updatedAt > 120000).delete().catch(() => {});
+  }, []);
   useEffect(() => {
     if (!ovEmail) return;
     flushOv(ovEmail);
