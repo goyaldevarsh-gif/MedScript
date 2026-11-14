@@ -63,7 +63,7 @@ Myonal 50|Eperisone 50 mg|Tablet|Muscle relaxant
 Shelcal 500|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 250 IU|Tablet|Calcium + Vitamin D
 Cipcal 500|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 250 IU|Tablet|Calcium + Vitamin D
 Calcirol Sachet|Cholecalciferol (Vitamin D3) 60000 IU|Sachet|Vitamin D
-Uprise-D3 60K|Cholecalciferol (Vitamin D3) 60000 IU|Capsule|Vitamin D
+Uprise-D3 60K|Cholecalciferol (Vitamin D3) 60000 IU|Softgel capsule|Vitamin D
 Arachitol 6L|Cholecalciferol (Vitamin D3) 600000 IU/mL|Injection:IM|Vitamin D
 Rocaltrol|Calcitriol 0.25 mcg|Capsule|Vitamin D (active)
 Limcee 500|Vitamin C (Ascorbic acid) 500 mg|Tablet|Vitamin
@@ -164,6 +164,36 @@ Febugood 40|Febuxostat 40 mg|Tablet|Anti-gout
 Hcqs 200|Hydroxychloroquine 200 mg|Tablet|DMARD
 Folitrax 7.5|Methotrexate 7.5 mg|Tablet|DMARD
 Folitrax 15|Methotrexate 15 mg|Tablet|DMARD
+Zerodol-S|Aceclofenac 100 mg + Serratiopeptidase 15 mg|Tablet|NSAID combination
+Zerodol-MR|Aceclofenac 100 mg + Tizanidine 2 mg|Tablet|NSAID + muscle relaxant
+Zerodol-TH 8|Aceclofenac 100 mg + Thiocolchicoside 8 mg|Tablet|NSAID + muscle relaxant
+Zerodol-TH Max 4|Aceclofenac 100 mg + Paracetamol 325 mg + Thiocolchicoside 4 mg|Tablet|NSAID + muscle relaxant
+Zerodol-TH Max 8|Aceclofenac 100 mg + Paracetamol 325 mg + Thiocolchicoside 8 mg|Tablet|NSAID + muscle relaxant
+Zerodol Gel|Aceclofenac|Gel:Topical|NSAID (topical)
+Signoflam|Aceclofenac 100 mg + Paracetamol 325 mg + Serratiopeptidase 15 mg|Tablet|NSAID combination
+Signoflam-P|Aceclofenac 100 mg + Paracetamol 500 mg|Tablet|NSAID combination
+Signoflam-TH 4|Aceclofenac 100 mg + Paracetamol 325 mg + Thiocolchicoside 4 mg|Tablet|NSAID + muscle relaxant
+Signoflam-TH 8|Aceclofenac 100 mg + Paracetamol 325 mg + Thiocolchicoside 8 mg|Tablet|NSAID + muscle relaxant
+Signoflam 200 SR|Aceclofenac 200 mg|Tablet (SR)|NSAID
+Osicare-Trio|Glucosamine sulphate 564 mg + Curcuma longa extract 60 mg + Boswellia serrata extract 30 mg + Undenatured type II collagen 20 mg|Tablet|Joint / tendon support
+Trinyros 50|Aflapin (Boswellia serrata extract) 50 mg|Capsule|Joint / tendon support
+Rosiflex|Rosehip extract|Capsule|Joint / tendon support
+Rosiflex-C|Rosehip extract 275 mg + Vitamin C|Capsule|Joint / tendon support
+Gemcal-D3|Calcium 500 mg + Cholecalciferol (Vitamin D3) 500 IU|Tablet|Calcium + Vitamin D
+Gemcal-D3 Capsule|Calcium carbonate + Cholecalciferol (Vitamin D3)|Capsule|Calcium + Vitamin D
+Gemcal Capsule|Calcium carbonate + Calcitriol 0.25 mcg + Zinc|Capsule|Calcium + Vitamin D
+Gemcal Plus|Calcium carbonate + Calcitriol + Vitamin K2-7 + Methylcobalamin + Magnesium + Boron + Zinc|Capsule|Calcium + Vitamin D
+Gemcal Suspension|Calcium citrate + Calcitriol|Suspension|Calcium + Vitamin D
+Gemcal-XT|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 2000 IU + L-Methylfolate calcium 1 mg + Methylcobalamin 1500 mcg + Pyridoxal-5-phosphate 20 mg|Tablet|Calcium + Vitamin D
+Tayo 60K|Cholecalciferol (Vitamin D3) 60000 IU|Chewable tablet|Vitamin D
+Tayo Soft 60K|Cholecalciferol (Vitamin D3) 60000 IU|Softgel capsule|Vitamin D
+Tayo Derm 60K|Cholecalciferol (Vitamin D3) 60000 IU|Softgel capsule|Vitamin D
+Tayo Total|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 2000 IU + Methylcobalamin 1500 mcg + L-Methylfolate calcium 1 mg + Pyridoxal-5-phosphate 20 mg|Tablet|Calcium + Vitamin D
+Tayo-M|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 2000 IU + Methylcobalamin 1500 mcg + L-Methylfolate calcium 1 mg + Pyridoxal-5-phosphate 20 mg|Tablet|Calcium + Vitamin D
+Uprise-D3 1K|Cholecalciferol (Vitamin D3) 1000 IU|Softgel capsule|Vitamin D
+Uprise-D3 2K|Cholecalciferol (Vitamin D3) 2000 IU|Softgel capsule|Vitamin D
+Uprise-D3 Sachet|Cholecalciferol (Vitamin D3) 60000 IU|Sachet|Vitamin D
+Uprise-D3 60K Syrup|Cholecalciferol (Vitamin D3) 60000 IU/5 mL|Syrup|Vitamin D
 `.trim().split('\n');
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');

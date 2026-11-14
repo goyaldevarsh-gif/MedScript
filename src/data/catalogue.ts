@@ -246,7 +246,7 @@ const blobCache = new WeakMap<Medicine, string>();
 export function searchBlob(m: Medicine): string {
   let b = blobCache.get(m);
   if (!b) {
-    b = [m.brand, m.generic, m.ingredients.map((i) => i.name).join(' '), m.strength, m.form, m.manufacturer, m.category || '', ...groupsOf(m).map((x) => GROUP_WORDS[x] || '')].join(' ').toLowerCase();
+    b = [m.brand, /osicare/i.test(m.brand) ? 'ossicare' : '', /rosiflex/i.test(m.brand) ? 'rosifex' : '', m.generic, m.ingredients.map((i) => i.name).join(' '), m.strength, m.form, m.manufacturer, m.category || '', ...groupsOf(m).map((x) => GROUP_WORDS[x] || '')].join(' ').toLowerCase();
     blobCache.set(m, b);
   }
   return b;
