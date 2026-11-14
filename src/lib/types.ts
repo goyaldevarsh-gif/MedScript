@@ -59,7 +59,12 @@ export interface AppSettings {
 export interface DoctorSnapshot {
   doctor: Doctor; clinic: Clinic; signature: SignatureCfg; sealDataUrl: string; seal: SealCfg; layout: LayoutCfg;
 }
+export interface Wound {
+  on: boolean; type?: string; status?: string; site?: string; autoSite?: string; dressing?: string; sutureDays?: number; note?: string;
+  pins?: { v: 'front' | 'back'; x: number; y: number }[];
+}
 export interface Prescription {
+  wound?: Wound;
   id: string; rxNo: string; status: 'draft' | 'final'; version: number; parentId?: string;
   patientId: string; patient: Patient; clinicId: string;
   clinical: Clinical; print: PrintOpts; items: RxItem[];

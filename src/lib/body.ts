@@ -47,16 +47,27 @@ export function shapeEl(s: Shape, on: boolean) {
 }
 export const BODY_H = 270;
 /** SVG string with one or two views for printing */
-export function bodySvg(sel: string[], views: ('front' | 'back')[]): string {
+export type Pin = { v: 'front' | 'back'; x: number; y: number };
+export const pinEl = (p: Pin, r = 4.2) => `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="#f59e0b" stroke="#7c2d12" stroke-width="1.3"/><circle cx="${p.x}" cy="${p.y}" r="${r * 0.35}" fill="#fff"/>`;
+/** which body region a tapped point belongs to (nearest shape) */
+export function regionAt(v: 'front' | 'back', x: number, y: number): string {
+  let best = '', bd = 1e9;
+  for (const s of shapes(v)) {
+    const d = s.t === 'e' ? Math.hypot((x - s.a[0]) / s.a[2], (y - s.a[1]) / s.a[3]) : Math.hypot((x - (s.a[0] + s.a[2] / 2)) / (s.a[2] / 2), (y - (s.a[1] + s.a[3] / 2)) / (s.a[3] / 2)) * 0.9;
+    if (d < bd) { bd = d; best = s.id; }
+  }
+  return bd < 2.2 ? partLabel(best) : '';
+}
+export function bodySvg(sel: string[], views: ('front' | 'back')[], pins: Pin[] = []): string {
   const S = new Set(sel);
-  const g = views.map((v, i) => `<g transform="translate(${i * 124},0)">${shapes(v).map((s) => shapeEl(s, S.has(s.id))).join('')}</g>`).join('');
+  const g = views.map((v, i) => `<g transform="translate(${i * 124},0)">${shapes(v).map((s) => shapeEl(s, S.has(s.id))).join('')}${pins.filter((p) => p.v === v).map((p) => pinEl(p, 6.5)).join('')}</g>`).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${views.length * 124 - 4} ${BODY_H}" width="${views.length * 124 - 4}" height="${BODY_H}">${g}</svg>`;
 }
 /** Marked figure as PNG for the PDF; size in mm */
-export async function bodyPng(sel: string[]): Promise<{ url: string; w: number; h: number } | null> {
-  if (!sel.length) return null;
-  const views: ('front' | 'back')[] = needsBack(sel) ? ['front', 'back'] : ['front'];
-  const svg = bodySvg(sel, views);
+export async function bodyPng(sel: string[], pins: Pin[] = []): Promise<{ url: string; w: number; h: number } | null> {
+  if (!sel.length && !pins.length) return null;
+  const views: ('front' | 'back')[] = needsBack(sel) || pins.some((p) => p.v === 'back') ? ['front', 'back'] : ['front'];
+  const svg = bodySvg(sel, views, pins);
   const img = new Image();
   await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error('body')); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); });
   const W = views.length * 120 * 4, H = BODY_H * 4;

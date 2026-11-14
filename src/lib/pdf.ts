@@ -2,6 +2,7 @@ import type { DoctorSnapshot, Prescription, RxItem } from './types';
 import { imageSize, renderSeal } from './imaging';
 import { fmtMobile, phoneList } from './phone';
 import { bodyPng } from './body';
+import { woundLine } from './wound';
 import QRCode from 'qrcode';
 import { dosePattern, computeQty, doseLabel, durationLabel, freqLabel, freqMeta, itemInstructions, timingMeta } from './dosage';
 import { addDays, fmtDate, fmtDateTime } from './util';
@@ -87,7 +88,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const sealSize = sealUrl ? await imageSize(sealUrl) : null;
   const logoSize = clinic.logo ? await imageSize(clinic.logo) : null;
   const c = rx.clinical;
-  const body = await bodyPng(c.bodyParts || []).catch(() => null);
+  const body = await bodyPng(c.bodyParts || [], rx.wound?.on ? rx.wound.pins || [] : []).catch(() => null);
   const qrText = (rx.qrUrl ?? (clinic.qrUrl || snap.doctor.qrUrl) ?? '').trim();
   const qrUrl = qrText ? await QRCode.toDataURL(qrText, { margin: 0, width: 240, errorCorrectionLevel: 'M', color: { dark: '#3b4a5e', light: '#ffffff' } }).catch(() => '') : '';
   const lang: 'en' | 'hi' = rx.lang === 'en' ? 'en' : 'hi';
@@ -214,6 +215,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   row('Comorbidities', c.comorbidities || '');
   if (rx.print.examination) row('Examination', c.examination.split(/[;\n]/).map((x) => x.trim()).filter((x) => x && !/:\s*$/.test(x)).join('; '));
   if (rx.print.investigations) row('Investigations', c.investigations);
+  { const wl = woundLine(rx); if (wl) row('Wound', wl + (rx.wound?.pins?.length ? '  (marked on figure)' : '')); }
   if (rx.print.notes) row('Notes', c.notes);
   if (body && doc.getNumberOfPages() === pageAtClin) {
     doc.addImage(body.url, 'PNG', PW - M - body.w, yClin, body.w, body.h, undefined, 'FAST');

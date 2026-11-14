@@ -4,6 +4,7 @@ import { markSent, ovMsg, sendRx } from '../lib/ovcloud';
 import OvInbox from '../components/OvInbox';
 import { decodeOvIn, ovSaveUrl, ovSex, ovSide } from '../lib/orthovault';
 import BodyPicker from '../components/BodyPicker';
+import WoundCard from '../components/WoundCard';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Check, Eye, FilePlus2, Layers, Save, ShieldCheck, Copy, FileEdit, Lock, Search, X, UserPlus, Loader2, ExternalLink } from 'lucide-react';
@@ -264,6 +265,7 @@ function Builder() {
               <label className="flex items-center gap-2 text-xs font-semibold text-slate-600"><input type="checkbox" checked={rx.print.complaint} onChange={(e) => update((r) => ({ ...r, print: { ...r.print, complaint: e.target.checked } }))} /> Print chief complaint on prescription</label>
             </fieldset>
           </Card>
+          {ortho && <WoundCard rx={rx} update={update} readOnly={!!readOnly} />}
         </div>
 
         <div className="space-y-4 lg:col-span-7">
