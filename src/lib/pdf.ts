@@ -20,7 +20,7 @@ const FORM_PREFIX: Record<string, string> = { Tablet: 'TAB.', Capsule: 'CAP.', S
 const drName = (n: string) => (!n.trim() ? '' : /^dr\.?\s/i.test(n) ? n.trim() : 'Dr. ' + n.trim());
 
 export interface PdfOpts { draft: boolean; showSignature: boolean; showStamp: boolean; showLogo: boolean }
-export const pdfName = (rx: Prescription) => `Rx_${(rx.patient.name || 'patient').replace(/[^a-z0-9]+/gi, '_')}_${new Date(rx.authorizedAt || rx.updatedAt).toISOString().slice(0, 10)}${rx.rxNo ? '_' + rx.rxNo : '_DRAFT'}.pdf`;
+export const pdfName = (rx: Prescription) => `Rx_${(rx.patient.name || 'patient').replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'patient'}_${new Date(rx.authorizedAt || rx.updatedAt).toISOString().slice(0, 10)}${rx.rxNo ? '_' + rx.rxNo : '_DRAFT'}.pdf`;
 
 export function itemTitle(it: RxItem, mode: 'generic' | 'brand', caps: boolean): { main: string; sub: string } {
   const pre = FORM_PREFIX[it.form] || '';
@@ -165,7 +165,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   {
     const p = rx.patient;
     const when = fmtDate(rx.authorizedAt || rx.createdAt);
-    const ageSex = `${p.age ? p.age + (p.ageUnit === 'M' ? ' M' : ' Y') : '-'} / ${p.sex || '-'}`;
+    const ageSex = [p.age ? p.age + (p.ageUnit === 'M' ? ' M' : ' Y') : '', p.sex || ''].filter(Boolean).join(' / ') || '-';
     const row2: string[] = [];
     if (L.showPhone && p.phone) row2.push(`Phone: ${fmtMobile(p.phone)}`);
     if (p.weight) row2.push(`Weight: ${p.weight} kg`);
@@ -174,7 +174,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     const h = 6.4 + (row2.length ? 4.6 : 0) + (allergy ? heightOf(allergy, CW - 6, 8.5 * sc, 'bold') + 0.5 : 0) + 2.4;
     doc.setFillColor(...SURFACE); doc.roundedRect(M, y, CW, h, 1.6, 1.6, 'F');
     let yy = y + 5;
-    if (DEV.test(p.name)) { const b = hiBlock(p.name, 78, 10 * sc, NAVY, true); doc.addImage(b.url, 'PNG', M + 3, yy - 4.4, b.w, b.h, undefined, 'FAST'); } else { font('bold', 10 * sc, NAVY); doc.text(clean(p.name || 'Patient name not entered'), M + 3, yy); }
+    if (DEV.test(p.name)) { let np = 10 * sc, b = hiBlock(p.name, 78, np, NAVY, true); while (b.h > np * 0.3528 * 1.75 && np > 6.5) { np -= 0.5; b = hiBlock(p.name, 78, np, NAVY, true); } doc.addImage(b.url, 'PNG', M + 3, yy - 4.4, b.w, b.h, undefined, 'FAST'); } else { let nt = 10 * sc; const nm = clean(p.name || 'Patient name not entered'); font('bold', nt, NAVY); while (doc.getTextWidth(nm) > 78 && nt > 6.5) { nt -= 0.5; font('bold', nt, NAVY); } doc.text(nm, M + 3, yy); }
     font('normal', 9 * sc, NAVY);
     doc.text(clean(`Age/Sex: ${ageSex}`), M + 84, yy);
     doc.text(clean(`ID: ${p.pid || '-'}`), M + 122, yy);
