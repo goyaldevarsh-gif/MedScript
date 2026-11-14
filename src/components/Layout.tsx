@@ -7,6 +7,7 @@ import { useSettings } from '../lib/db';
 import SpecialtyPrompt from './SpecialtyPicker';
 import { useEffect } from 'react';
 import { flushOv } from '../lib/ovsync';
+import { startSync, stopSync } from '../lib/sync';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -31,6 +32,7 @@ export default function Layout() {
   useEffect(() => {
     if (!ovEmail) return;
     flushOv(ovEmail);
+    startSync(ovEmail);
     const f = () => flushOv(ovEmail);
     window.addEventListener('online', f);
     return () => window.removeEventListener('online', f);

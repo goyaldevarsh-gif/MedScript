@@ -78,3 +78,9 @@ export async function ovCheck(email: string): Promise<string> {
   ]);
   return `Connected as ${user.email} (id …${user.uid.slice(-6)}). ${snap.size} patient${snap.size === 1 ? '' : 's'} waiting from OrthoVault.`;
 }
+
+/** Raw handle to the signed-in account (used by cross-device sync). */
+export async function cloud() {
+  const { fs, F, user } = await me();
+  return user ? { fs, F, uid: user.uid, email: user.email } : null;
+}
