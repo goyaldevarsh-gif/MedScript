@@ -88,7 +88,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const logoSize = clinic.logo ? await imageSize(clinic.logo) : null;
   const c = rx.clinical;
   const body = await bodyPng(c.bodyParts || []).catch(() => null);
-  const qrText = (rx.qrUrl ?? clinic.qrUrl ?? '').trim();
+  const qrText = (rx.qrUrl ?? (clinic.qrUrl || snap.doctor.qrUrl) ?? '').trim();
   const qrUrl = qrText ? await QRCode.toDataURL(qrText, { margin: 0, width: 240, errorCorrectionLevel: 'M', color: { dark: '#3b4a5e', light: '#ffffff' } }).catch(() => '') : '';
   const lang: 'en' | 'hi' = rx.lang === 'en' ? 'en' : 'hi';
   const T = (en: string, hi: string) => (lang === 'hi' ? hi : en);
@@ -153,7 +153,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const showSeal = !opts.draft && opts.showStamp && sealUrl && sealSize;
   const sealW = showSeal ? snap.seal.widthMm : 0;
   const sealH = showSeal && sealSize ? sealW * (sealSize.h / sealSize.w) : 0;
-  const BLOCK_H = Math.max(36, sealH + 6, qrUrl ? 30 : 0);
+  const BLOCK_H = Math.max(42, sealH + 12, qrUrl ? 30 : 0);
   const limitNormal = () => PH - 16;
   function ensure(h: number) {
     if (y + h > limitNormal()) { doc.addPage(); drawContHeader(); }
@@ -228,6 +228,9 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     doc.setDrawColor(210, 218, 228); doc.setLineWidth(0.25); doc.line(M + 12, y + 5, PW - M, y + 5);
     y += 9.5;
     const showIns = rx.showInstr !== false;
+    /* few medicines: larger text so the page does not look empty */
+    const nMed = rx.items.length;
+    const ms = nMed <= 3 ? 1.2 : nMed <= 5 ? 1.1 : nMed <= 7 ? 1.04 : 1;
     rx.items.forEach((it, idx) => {
       const t = itemTitle(it, L.nameDisplay, L.genericCaps);
       const indent = M + 7, w = CW - 7;
@@ -250,21 +253,21 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       const ins = showIns ? itemInstructions(it, lang) : { en: '', hi: '', schedule: '' };
       const insText = lang === 'hi' ? ins.hi : ins.en;
       const nameFull = t.main + (t.sub ? '  ' + t.sub : '');
-      let need = heightOf(`${idx + 1}. ` + nameFull, w, (brandFirst ? 11 : 10.2) * sc, 'bold') + (compLine ? heightOf(compLine, w, 7.8 * sc) : 0) + heightOf(partsLine, w, 8.6 * sc, 'bold') + 2;
-      if (insText) need += lang === 'hi' ? hiBlock(insText, w - 2, 8.8 * sc, NAVY).h : heightOf(insText, w - 2, 8.5 * sc, 'italic');
+      let need = heightOf(`${idx + 1}. ` + nameFull, w, (brandFirst ? 11 : 10.2) * sc * ms, 'bold') + (compLine ? heightOf(compLine, w, 7.8 * sc * ms) : 0) + heightOf(partsLine, w, 8.6 * sc * ms, 'bold') + 2;
+      if (insText) need += lang === 'hi' ? hiBlock(insText, w - 2, 8.8 * sc * ms, NAVY).h : heightOf(insText, w - 2, 8.5 * sc * ms, 'italic');
       ensure(Math.min(need + 1, 40));
-      font('bold', (brandFirst ? 11 : 10.2) * sc, NAVY);
+      font('bold', (brandFirst ? 11 : 10.2) * sc * ms, NAVY);
       doc.text(`${idx + 1}.`, M, y + 3.5);
       const nameLines = wrap(t.main, w);
-      nameLines.forEach((l, i) => { font('bold', (brandFirst ? 11 : 10.2) * sc, NAVY); ensure(lh(10.2 * sc)); doc.text(l, indent, y + 3.5); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc, GREY); doc.text(clean(t.sub), indent + tw, y + 3.5); } y += lh(10.2 * sc); });
-      if (compLine) para(compLine, indent, w, 'normal', brandFirst ? 7.2 * sc : 7.8 * sc, [128, 138, 152]);
-      para(partsLine, indent, w, 'bold', 8.6 * sc, [30, 64, 110]);
+      nameLines.forEach((l, i) => { font('bold', (brandFirst ? 11 : 10.2) * sc * ms, NAVY); ensure(lh(10.2 * sc * ms)); doc.text(l, indent, y + 3.5); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc * ms, GREY); doc.text(clean(t.sub), indent + tw, y + 3.5); } y += lh(10.2 * sc * ms); });
+      if (compLine) para(compLine, indent, w, 'normal', brandFirst ? 7.2 * sc * ms : 7.8 * sc * ms, [128, 138, 152]);
+      para(partsLine, indent, w, 'bold', 8.6 * sc * ms, [30, 64, 110]);
       if (it.useTaper && it.taper.length) {
         const steps = it.taper.map((s, i) => `Step ${i + 1}: ${s.dose} ${it.doseUnit}${s.dose > 1 ? 's' : ''} x ${s.timesPerDay}/day for ${s.days} day${s.days > 1 ? 's' : ''}`).join('   ');
-        para(steps, indent, w, 'normal', 8.4 * sc, NAVY);
+        para(steps, indent, w, 'normal', 8.4 * sc * ms, NAVY);
       }
-      if (insText) { if (lang === 'hi') hiPara(insText, indent, w - 2, 8.8 * sc, [70, 82, 100], false); else para(insText, indent, w - 2, 'italic', 8.5 * sc, [70, 82, 100]); }
-      y += 1.7;
+      if (insText) { if (lang === 'hi') hiPara(insText, indent, w - 2, 8.8 * sc * ms, [70, 82, 100], false); else para(insText, indent, w - 2, 'italic', 8.5 * sc * ms, [70, 82, 100]); }
+      y += 1.7 + (ms - 1) * 6;
     });
     y += 0.5;
   }
@@ -306,7 +309,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   if (y > PH - 16 - BLOCK_H) { doc.addPage(); drawContHeader(); }
   const sigBottom = PH - 16;
   const lineY = sigBottom - 11;
-  const colW = 60, gap = 6;
+  const colW = 60, gap = 9;
   let sigLeft = PW - M - colW, sealX = 0;
   if (showSeal) {
     if (L.sealLeft) sealX = sigLeft - gap - sealW; else { sealX = PW - M - sealW; sigLeft = sealX - gap - colW; }
@@ -321,9 +324,16 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   font('bold', 9.3 * sc, NAVY); doc.text(clean(drName(snap.doctor.fullName)), sigRight - colW / 2, lineY + 4.2, { align: 'center' });
   font('normal', 7.8 * sc, GREY);
   let ty = lineY + 7.8;
-  if (snap.doctor.qualifications) { doc.text(clean(snap.doctor.qualifications), sigRight - colW / 2, ty, { align: 'center', maxWidth: colW + 4 }); ty += 3.4; }
-  if (snap.doctor.regNo) doc.text(clean('Reg. No. ' + snap.doctor.regNo), sigRight - colW / 2, ty, { align: 'center' });
-  if (showSeal && sealSize) doc.addImage(sealUrl, 'PNG', sealX + snap.seal.offsetX, sigBottom - sealH + snap.seal.offsetY + 1, sealW, sealH, undefined, 'FAST');
+  if (snap.doctor.qualifications) { wrap(clean(snap.doctor.qualifications), colW + 4).slice(0, 2).forEach((l) => { doc.text(l, sigRight - colW / 2, ty, { align: 'center' }); ty += 3.4; }); }
+  /* registration number: one line above both the stamp and the signature */
+  const sealBottom = sigBottom - 1;
+  const imgTop = Math.min(lineY - 20, showSeal ? sealBottom - sealH : lineY - 20);
+  if (snap.doctor.regNo) {
+    const cx = showSeal ? (Math.min(sealX, sigLeft) + sigRight) / 2 : sigRight - colW / 2;
+    font('bold', 8.4 * sc, NAVY);
+    doc.text(clean('Reg. No.: ' + snap.doctor.regNo + (snap.doctor.regCouncil ? ' (' + snap.doctor.regCouncil + ')' : '')), cx, imgTop - 2, { align: 'center' });
+  }
+  if (showSeal && sealSize) doc.addImage(sealUrl, 'PNG', sealX + snap.seal.offsetX, sealBottom - sealH + snap.seal.offsetY, sealW, sealH, undefined, 'FAST');
   if (qrUrl) {
     const qs = 16, qx = M, qy = sigBottom - qs - 7;
     doc.addImage(qrUrl, 'PNG', qx, qy, qs, qs, undefined, 'FAST');

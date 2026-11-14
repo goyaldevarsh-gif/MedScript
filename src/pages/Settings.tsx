@@ -87,6 +87,7 @@ function DoctorCard({ s }: { s: AppSettings }) {
         <Field label="Registering council" hint="e.g. State Medical Council name"><input className="field" value={d.regCouncil} onChange={(e) => set({ regCouncil: e.target.value })} /></Field>
         <PhonesField label="Your mobile number(s)" primary={d.phone} more={d.morePhones} onChange={(p, m) => set({ phone: p, morePhones: m })} /><E k="phone" />
         <Field label="Email (optional)"><input type="email" className="field" value={d.email} onChange={(e) => set({ email: e.target.value })} /><E k="email" /></Field>
+        <Field label="QR link for all prescriptions (optional)" hint="Printed as a small QR on every Rx. A clinic-specific or per-Rx link overrides it." className="sm:col-span-2"><input className="field" value={d.qrUrl || ''} onChange={(e) => set({ qrUrl: e.target.value.trim() })} placeholder="https://… (website, WhatsApp, Google review, patient guide)" /></Field>
       </div>
       <div className="flex items-center justify-between">
         <div className="text-xs font-semibold text-slate-500">{!d.regNo.trim() && <span className="flex items-center gap-1 text-amber-700"><AlertTriangle size={13} /> Registration number is needed before you can authorise prescriptions.</span>}</div>
