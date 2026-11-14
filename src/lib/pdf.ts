@@ -232,7 +232,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       const t = itemTitle(it, L.nameDisplay, L.genericCaps);
       const indent = M + 7, w = CW - 7;
       const comp = it.ingredients.map((g) => `${g.name}${g.strength ? ' ' + g.strength : ''}`).join(' + ');
-      const compLine = L.showComposition && it.brand && it.ingredients.length ? `Composition: ${comp}${it.manufacturer ? '  |  Mfr: ' + it.manufacturer : ''}` : '';
+      const compLine = L.showComposition && it.brand && it.ingredients.length > 1 ? `Composition: ${comp}${it.manufacturer ? '  |  Mfr: ' + it.manufacturer : ''}` : '';
       const qty = computeQty(it);
       const parts: string[] = [];
       if (it.useTaper && it.taper.length) parts.push('Tapering schedule');
