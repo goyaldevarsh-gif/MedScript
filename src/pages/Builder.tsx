@@ -38,8 +38,9 @@ function Builder() {
   const [preview, setPreview] = useState(false);
   const [review, setReview] = useState(false);
   const [tplPicker, setTplPicker] = useState(false);
+  const starterRank = (t: Template) => { const i = STARTERS.findIndex((s) => s.key === t.sourceKey); return i < 0 ? 999 : i; };
   const pastRx = useLiveQuery(() => db.prescriptions.orderBy('updatedAt').reverse().limit(400).toArray(), []) || [];
-  const quickTpls = (useLiveQuery(() => db.templates.toArray(), []) || []).filter((t) => isOrtho(settings) || !t.builtIn).sort((a, b) => Number(b.favourite) - Number(a.favourite) || Number(b.items.length > 0) - Number(a.items.length > 0) || a.name.localeCompare(b.name)).slice(0, 8);
+  const quickTpls = (useLiveQuery(() => db.templates.toArray(), []) || []).filter((t) => isOrtho(settings) || !t.builtIn).sort((a, b) => Number(b.favourite) - Number(a.favourite) || Number(b.items.length > 0) - Number(a.items.length > 0) || starterRank(a) - starterRank(b) || a.name.localeCompare(b.name)).slice(0, 7);
   const [saveTpl, setSaveTpl] = useState(false);
   const [nextPid, setNextPid] = useState('');
   const rxRef = useRef<Prescription | null>(null);

@@ -59,16 +59,19 @@ export function useSettings(): AppSettings | undefined {
 /* ---------- Seed ---------- */
 export async function seedIfNeeded() {
   const s = await getSettings();
-  if (!s.seeded) {
-    const now = Date.now();
+  const now = Date.now();
+  const have = new Set((await db.templates.toArray()).map((t) => t.id));
+  const fresh = !s.seeded;
+  const add = STARTERS.filter((st) => !have.has('tpl-' + st.key));
+  if (add.length) {
     await db.templates.bulkPut(
-      STARTERS.map((st) => ({
-        id: 'tpl-' + st.key, name: st.name, builtIn: true, sourceKey: st.key, icon: st.icon, favourite: ['knee-oa', 'lbp', 'fracture-fu'].includes(st.key),
+      add.map((st) => ({
+        id: 'tpl-' + st.key, name: st.name, builtIn: true, sourceKey: st.key, icon: st.icon, favourite: fresh && ['knee-oa', 'lbp', 'cervical', 'frozen-shoulder', 'plantar-fasciitis', 'ankle-sprain', 'fracture-fu'].includes(st.key),
         clinical: st.clinical, followUpDays: st.followUpDays, items: [], createdAt: now, updatedAt: now,
       }))
     );
-    await updateSettings((x) => { x.seeded = true; });
   }
+  if (fresh) await updateSettings((x) => { x.seeded = true; });
 }
 export async function resetBuiltInTemplate(id: string) {
   const t = await db.templates.get(id);
