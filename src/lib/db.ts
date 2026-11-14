@@ -76,6 +76,10 @@ export async function seedIfNeeded() {
     const st = t.builtIn ? STARTERS.find((x) => x.key === t.sourceKey) : undefined;
     if (st && t.updatedAt === t.createdAt && JSON.stringify(t.clinical) !== JSON.stringify(st.clinical)) await db.templates.put({ ...t, name: st.name, clinical: st.clinical, followUpDays: st.followUpDays });
   }
+  /* one-time: Dr. Devarsh Goyal's profile gets his Know Your Condition site as the default QR (other doctors are untouched) */
+  if (!s.qrDefaultDone && /devarsh\s+goyal/i.test(s.doctor.fullName)) {
+    await updateSettings((x) => { if (!x.doctor.qrUrl?.trim()) x.doctor.qrUrl = 'https://goyaldevarsh-gif.github.io/know-your-condition/'; x.qrDefaultDone = true; });
+  }
   if (fresh) await updateSettings((x) => { x.seeded = true; });
 }
 export async function resetBuiltInTemplate(id: string) {

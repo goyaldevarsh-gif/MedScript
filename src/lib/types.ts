@@ -54,7 +54,7 @@ export interface AppSettings {
   doctor: Doctor; clinics: Clinic[]; defaultClinicId: string;
   signature: SignatureCfg; seal: SealCfg; layout: LayoutCfg;
   defaultLang: Lang; defaultFollowUpDays: number; lastBackupAt: number;
-  rxCounter: number; patientCounter: number; seeded: boolean; specialtyKey?: SpecialtyKey;
+  rxCounter: number; patientCounter: number; seeded: boolean; specialtyKey?: SpecialtyKey; qrDefaultDone?: boolean;
 }
 export interface DoctorSnapshot {
   doctor: Doctor; clinic: Clinic; signature: SignatureCfg; sealDataUrl: string; seal: SealCfg; layout: LayoutCfg;
