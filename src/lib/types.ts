@@ -49,11 +49,12 @@ export interface LayoutCfg {
   showPhone: boolean; showComposition: boolean; footerBranding: boolean; headerBrand: boolean;
   footerNote: string; sealLeft: boolean;
 }
+export type SpecialtyKey = 'ortho' | 'general' | 'other';
 export interface AppSettings {
   doctor: Doctor; clinics: Clinic[]; defaultClinicId: string;
   signature: SignatureCfg; seal: SealCfg; layout: LayoutCfg;
   defaultLang: Lang; defaultFollowUpDays: number; lastBackupAt: number;
-  rxCounter: number; patientCounter: number; seeded: boolean;
+  rxCounter: number; patientCounter: number; seeded: boolean; specialtyKey?: SpecialtyKey;
 }
 export interface DoctorSnapshot {
   doctor: Doctor; clinic: Clinic; signature: SignatureCfg; sealDataUrl: string; seal: SealCfg; layout: LayoutCfg;

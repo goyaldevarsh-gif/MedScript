@@ -7,6 +7,8 @@ import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../comp
 import SignaturePad from '../components/SignaturePad';
 import { DrugLibrary, MedRow } from '../components/MedicineLibrary';
 import SampleRx from '../components/SampleRx';
+import { chooseSpecialty } from '../components/SpecialtyPicker';
+import { SPECIALTIES } from '../lib/defaults';
 import { cleanStamp, rotateDataUrl, cleanSignature, fileToDataUrl, renderSeal, resizeImage, sealPossible, sealAspect } from '../lib/imaging';
 import { blankRx, itemFromMedicine, newClinic } from '../lib/defaults';
 import { CATALOGUE } from '../data/catalogue';
@@ -57,6 +59,7 @@ function DoctorCard({ s }: { s: AppSettings }) {
   const [d, setD] = useState<Doctor>(s.doctor);
   const [err, setErr] = useState<Record<string, string>>({});
   const set = (x: Partial<Doctor>) => setD({ ...d, ...x });
+  useEffect(() => { setD((cur) => (cur.specialty === s.doctor.specialty ? cur : { ...cur, specialty: s.doctor.specialty })); }, [s.doctor.specialty]);
   const dirty = JSON.stringify(d) !== JSON.stringify(s.doctor);
   async function save() {
     const e: Record<string, string> = {};
@@ -71,6 +74,11 @@ function DoctorCard({ s }: { s: AppSettings }) {
   return (
     <Card className="space-y-4 p-5">
       <div><h2 className="text-lg font-extrabold">Doctor profile</h2><p className="text-sm text-slate-600">Printed on every prescription. Enter exactly as registered. MedScript never fills registration details for you.</p></div>
+      <div>
+        <span className="lbl">I practise</span>
+        <div className="flex flex-wrap gap-2">{SPECIALTIES.map((x) => <Chip key={x.key} active={(s.specialtyKey || 'ortho') === x.key} onClick={async () => { await chooseSpecialty(x.key); toast('Specialty set: ' + x.label); }}>{x.label}</Chip>)}</div>
+        <p className="mt-1 text-xs font-medium text-slate-500">Ortho: body-site, side, ortho templates and advice. Others: simple Rx form.</p>
+      </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Full name *"><input className="field" value={d.fullName} onChange={(e) => set({ fullName: e.target.value })} placeholder="e.g. Anita Sharma" /><E k="fullName" /></Field>
         <Field label="Qualifications"><input className="field" value={d.qualifications} onChange={(e) => set({ qualifications: e.target.value })} placeholder="e.g. MBBS, MS (Orthopaedics)" /></Field>

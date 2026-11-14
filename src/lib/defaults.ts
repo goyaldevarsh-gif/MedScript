@@ -82,3 +82,11 @@ export function itemFromMedicine(m: { id?: string; brand: string; generic: strin
     sosMax: null, useTaper: false, taper: [], qtyOverride: '', instructionOverride: '', notes: '',
   };
 }
+
+export const SPECIALTIES: { key: 'ortho' | 'general' | 'other'; label: string; sub: string; title: string }[] = [
+  { key: 'ortho', label: 'Orthopaedics', sub: 'Site, side, trauma/non-trauma, ortho templates and advice', title: 'Orthopaedic Surgeon' },
+  { key: 'general', label: 'General Physician', sub: 'Simple Rx: complaint, diagnosis, medicines, advice', title: 'General Physician' },
+  { key: 'other', label: 'Other specialty', sub: 'Same simple Rx; you type your own specialty', title: '' },
+];
+/** Ortho-specific parts (body picker, side, ortho starter templates, ortho advice) show unless another specialty is chosen. */
+export const isOrtho = (s?: { specialtyKey?: string } | null) => !s?.specialtyKey || s.specialtyKey === 'ortho';

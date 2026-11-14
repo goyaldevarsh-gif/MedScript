@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Copy, Pencil, Plus, RotateCcw, Search, Star, Trash2 } from 'lucide-react';
-import { db, resetBuiltInTemplate } from '../lib/db';
+import { db, resetBuiltInTemplate, useSettings } from '../lib/db';
 import type { Side, Template } from '../lib/types';
 import { Badge, Btn, Chip, Empty, Field, Modal, useToast } from '../components/ui';
 import { TemplateIcon } from '../components/TemplateIcon';
-import { emptyClinical } from '../lib/defaults';
+import { emptyClinical, isOrtho } from '../lib/defaults';
 import { cx, norm, uid } from '../lib/util';
 
 const ICONS = ['knee', 'spine', 'ankle', 'shoulder', 'hip', 'hand', 'fracture', 'bone', 'postop'];
@@ -14,7 +14,8 @@ const ICONS = ['knee', 'spine', 'ankle', 'shoulder', 'hip', 'hand', 'fracture', 
 export default function Templates() {
   const nav = useNavigate();
   const toast = useToast();
-  const list = useLiveQuery(() => db.templates.toArray(), []) || [];
+  const st = useSettings();
+  const list = (useLiveQuery(() => db.templates.toArray(), []) || []).filter((t) => isOrtho(st) || !t.builtIn);
   const [q, setQ] = useState('');
   const [tab, setTab] = useState<'all' | 'fav' | 'mine'>('all');
   const [edit, setEdit] = useState<Template | null>(null);

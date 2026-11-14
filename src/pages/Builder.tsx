@@ -1,4 +1,5 @@
 import { ADVICE_CHIPS, shortAdvice } from '../data/advice';
+import { isOrtho } from '../lib/defaults';
 import BodyPicker from '../components/BodyPicker';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -29,6 +30,7 @@ function Builder() {
   const nav = useNavigate();
   const toast = useToast();
   const settings = useSettings();
+  const ortho = isOrtho(settings);
   const [rx, setRx] = useState<Prescription | null>(null);
   const [rev, setRev] = useState(0);
   const [status, setStatus] = useState<'saved' | 'saving' | 'idle'>('idle');
@@ -185,21 +187,21 @@ function Builder() {
       <div className="grid gap-4 lg:grid-cols-12">
         <div className="space-y-4 lg:col-span-5">
           <PatientCard p={p} nextPid={nextPid} readOnly={!!readOnly} setPatient={setPatient} onPick={(pt) => update((r) => ({ ...r, patient: { ...pt }, patientId: pt.id }))} onClear={() => update((r) => ({ ...r, patient: { ...blankRxPatient(), id: uid() }, patientId: '' }))} />
-          <Card className="p-4">
+          {ortho && <Card className="p-4">
             <div className="mb-2 text-sm font-extrabold uppercase tracking-wide text-slate-500">Site of complaint</div>
             <BodyPicker clin={rx.clinical} set={setClin} readOnly={!!readOnly} />
-          </Card>
+          </Card>}
           <Card className="p-4">
             <fieldset disabled={readOnly} className="space-y-3">
               <div className="text-sm font-extrabold uppercase tracking-wide text-slate-500">Clinical details</div>
               <Field label="Chief complaint"><input className="field" value={rx.clinical.complaint} onChange={(e) => setClin({ complaint: e.target.value })} placeholder="e.g. Pain in right knee for 3 months" /></Field>
               <Field label="Diagnosis"><input list="dx-list" className="field" value={rx.clinical.diagnosis} onChange={(e) => setClin({ diagnosis: e.target.value })} placeholder="Start typing…" /></Field>
               <Field label="Comorbidities (optional)"><input className="field" value={rx.clinical.comorbidities || ''} onChange={(e) => setClin({ comorbidities: e.target.value })} placeholder="e.g. Diabetes, Hypertension, Anaemia" /></Field>
-              <datalist id="dx-list">{STARTERS.map((s) => <option key={s.key} value={s.clinical.diagnosis} />)}</datalist>
-              <div>
+              <datalist id="dx-list">{(ortho ? STARTERS : []).map((s) => <option key={s.key} value={s.clinical.diagnosis} />)}</datalist>
+              {ortho && <div>
                 <span className="lbl">Side</span>
                 <div className="flex flex-wrap gap-2">{(['Left', 'Right', 'Bilateral', 'N/A'] as Side[]).map((s) => <Chip key={s} active={rx.clinical.side === s} onClick={() => setClin({ side: s })}>{s}</Chip>)}</div>
-              </div>
+              </div>}
               <PrintField label="Examination findings" value={rx.clinical.examination} onChange={(v) => setClin({ examination: v })} on={rx.print.examination} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, examination: b } }))} />
               <PrintField label="Investigations" value={rx.clinical.investigations} onChange={(v) => setClin({ investigations: v })} on={rx.print.investigations} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, investigations: b } }))} />
               <PrintField label="Clinical notes (private by default)" value={rx.clinical.notes} onChange={(v) => setClin({ notes: v })} on={rx.print.notes} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, notes: b } }))} />
@@ -234,7 +236,7 @@ function Builder() {
             <fieldset disabled={readOnly} className="space-y-3">
               <Field label="Advice (one point per line, 2-3 short points are enough)">
                 <textarea className="field min-h-[110px]" value={rx.clinical.advice.join('\n')} onChange={(e) => setClin({ advice: e.target.value.split('\n') })} placeholder={'Rest\nPhysiotherapy as advised\nHot fomentation'} />
-                {!readOnly && <div className="mt-2 flex flex-wrap gap-1.5">{ADVICE_CHIPS.filter((x) => !rx.clinical.advice.includes(x)).map((x) => <Chip key={x} onClick={() => setClin({ advice: [...rx.clinical.advice.filter((l) => l.trim()), x] })}>+ {x}</Chip>)}</div>}
+                {!readOnly && ortho && <div className="mt-2 flex flex-wrap gap-1.5">{ADVICE_CHIPS.filter((x) => !rx.clinical.advice.includes(x)).map((x) => <Chip key={x} onClick={() => setClin({ advice: [...rx.clinical.advice.filter((l) => l.trim()), x] })}>+ {x}</Chip>)}</div>}
               </Field>
               <Field label="Tests to bring on next visit (optional)"><input className="field" value={rx.clinical.nextTests || ''} onChange={(e) => setClin({ nextTests: e.target.value })} placeholder="e.g. CBC, ESR" /></Field>
               <div>

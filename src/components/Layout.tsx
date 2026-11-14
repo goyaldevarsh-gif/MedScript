@@ -4,6 +4,7 @@ import { Logo, Mark } from './Logo';
 import { cx } from '../lib/util';
 import { useOnline, useUpdate } from '../lib/pwa';
 import { useSettings } from '../lib/db';
+import SpecialtyPrompt from './SpecialtyPicker';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -21,6 +22,7 @@ export default function Layout() {
   const doc = s?.doctor.fullName;
   return (
     <div className="flex h-full">
+      <SpecialtyPrompt />
       {upd.available && (
         <div className="fixed inset-x-3 top-3 z-[100] mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-navy px-4 py-3 text-white shadow-2xl">
           <div className="flex-1 text-sm"><div className="font-extrabold">New version available</div><div className="text-xs text-slate-300">Your data and drafts stay safe.</div></div>

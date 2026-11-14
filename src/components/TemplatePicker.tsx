@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Search, Star } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../lib/db';
+import { db, useSettings } from '../lib/db';
+import { isOrtho } from '../lib/defaults';
 import type { Template } from '../lib/types';
 import { Empty, Modal } from './ui';
 import { TemplateIcon } from './TemplateIcon';
 import { norm } from '../lib/util';
 
 export default function TemplatePicker({ onClose, onPick }: { onClose: () => void; onPick: (t: Template) => void }) {
-  const list = useLiveQuery(() => db.templates.toArray(), []) || [];
+  const st = useSettings();
+  const list = (useLiveQuery(() => db.templates.toArray(), []) || []).filter((t) => isOrtho(st) || !t.builtIn);
   const [q, setQ] = useState('');
   const f = list.filter((t) => norm(t.name + ' ' + t.clinical.diagnosis).includes(norm(q))).sort((a, b) => Number(b.favourite) - Number(a.favourite) || a.name.localeCompare(b.name));
   return (
