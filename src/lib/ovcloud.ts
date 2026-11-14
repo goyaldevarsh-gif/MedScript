@@ -76,5 +76,5 @@ export async function ovCheck(email: string): Promise<string> {
     F.getDocs(F.collection(fs, 'users', user.uid, 'mvOutbox')),
     new Promise<never>((_, rej) => setTimeout(() => rej(Object.assign(new Error('Timed out reaching OrthoVault cloud'), { code: 'timeout' })), 15000)),
   ]);
-  return `Connected. ${snap.size} patient${snap.size === 1 ? '' : 's'} waiting from OrthoVault.`;
+  return `Connected as ${user.email} (id …${user.uid.slice(-6)}). ${snap.size} patient${snap.size === 1 ? '' : 's'} waiting from OrthoVault.`;
 }
