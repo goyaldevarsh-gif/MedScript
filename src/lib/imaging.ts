@@ -55,6 +55,7 @@ export async function cleanSignature(src: string, removeWhite: boolean, maxSide 
   const c = document.createElement('canvas');
   c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
   const ctx = c.getContext('2d', { willReadFrequently: true })!;
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); /* transparent PNGs: put on white first */
   ctx.drawImage(img, 0, 0, c.width, c.height);
   if (removeWhite) {
     const d = ctx.getImageData(0, 0, c.width, c.height);
@@ -89,6 +90,7 @@ export async function cleanStamp(src: string, maxSide = 1100): Promise<string> {
   const W = Math.round(img.naturalWidth * k), H = Math.round(img.naturalHeight * k);
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const ctx = c.getContext('2d', { willReadFrequently: true })!;
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); /* transparent PNGs: put on white first */
   ctx.drawImage(img, 0, 0, W, H);
   const d = ctx.getImageData(0, 0, W, H); const px = d.data;
   const lum = new Float32Array(W * H);
