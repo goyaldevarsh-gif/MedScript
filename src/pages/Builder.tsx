@@ -1,6 +1,5 @@
 import { ADVICE_CHIPS, shortAdvice } from '../data/advice';
 import { isOrtho } from '../lib/defaults';
-import { resolveQr } from '../lib/qr';
 import BodyPicker from '../components/BodyPicker';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -278,7 +277,7 @@ function Builder() {
                   <input type="number" min="0" className="field w-24" value={rx.followUpDays || ''} placeholder="days" onChange={(e) => update((r) => ({ ...r, followUpDays: Number(e.target.value) || 0, followUpManual: true }))} aria-label="Custom follow-up days" />
                 </div>
               </div>
-              <Field label="QR on prescription: patient education link (optional)"><input className="field" value={rx.qrUrl ?? (settings?.clinics.find((c) => c.id === rx.clinicId)?.qrUrl || settings?.doctor.qrUrl) ?? ''} onChange={(e) => update((r) => ({ ...r, qrUrl: e.target.value }))} placeholder="Paste a condition-guide link, leave empty for no QR" />{(() => { const base = (rx.qrUrl ?? (settings?.clinics.find((c) => c.id === rx.clinicId)?.qrUrl || settings?.doctor.qrUrl) ?? '').trim(); const r = resolveQr(base, rx.clinical.diagnosis, rx.lang); return r && r !== base ? <span className="mt-1 block break-all text-xs font-semibold text-teal-700">QR opens this condition page: {r}</span> : null; })()}</Field>
+              <Field label="QR on prescription: patient education link (optional)"><input className="field" value={rx.qrUrl ?? (settings?.clinics.find((c) => c.id === rx.clinicId)?.qrUrl || settings?.doctor.qrUrl) ?? ''} onChange={(e) => update((r) => ({ ...r, qrUrl: e.target.value }))} placeholder="Paste a condition-guide link, leave empty for no QR" /></Field>
             </fieldset>
           </Card>
         </div>

@@ -1,6 +1,5 @@
 import type { DoctorSnapshot, Prescription, RxItem } from './types';
 import { imageSize, renderSeal } from './imaging';
-import { resolveQr } from './qr';
 import { fmtMobile, phoneList } from './phone';
 import { bodyPng } from './body';
 import QRCode from 'qrcode';
@@ -89,7 +88,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const logoSize = clinic.logo ? await imageSize(clinic.logo) : null;
   const c = rx.clinical;
   const body = await bodyPng(c.bodyParts || []).catch(() => null);
-  const qrText = resolveQr((rx.qrUrl ?? (clinic.qrUrl || snap.doctor.qrUrl) ?? '').trim(), rx.clinical.diagnosis, rx.lang);
+  const qrText = (rx.qrUrl ?? (clinic.qrUrl || snap.doctor.qrUrl) ?? '').trim();
   const qrUrl = qrText ? await QRCode.toDataURL(qrText, { margin: 0, width: 240, errorCorrectionLevel: 'M', color: { dark: '#3b4a5e', light: '#ffffff' } }).catch(() => '') : '';
   const lang: 'en' | 'hi' = rx.lang === 'en' ? 'en' : 'hi';
   const T = (en: string, hi: string) => (lang === 'hi' ? hi : en);

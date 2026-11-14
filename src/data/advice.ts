@@ -1,6 +1,7 @@
 /** English advice line -> Hindi (Devanagari). Lines not listed here print in English only. */
 export const ADVICE_HI: Record<string, string> = {
-  'Come back immediately if the knee becomes hot, red and very swollen, or you develop fever.': 'घुटना गर्म, लाल और बहुत सूजा हो जाए या बुखार आए तो तुरंत दिखाएँ।',
+  'Come back immediately if you have chest pain, sweating or breathlessness with shoulder pain, or a hot, red, swollen shoulder with fever.': 'कंधे के दर्द के साथ सीने में दर्द, पसीना या सांस फूलना हो, या कंधा लाल, गर्म, सूजा हो और बुखार आए तो तुरंत इमरजेंसी में जाएँ।',
+  'Come back immediately if the knee becomes hot, red and very swollen with fever, or you cannot stand after a fall or injury.': 'घुटना अचानक लाल, गर्म, बहुत सूजा और बुखार हो, या गिरने/चोट के बाद खड़े न हो पाएँ तो तुरंत दिखाएँ।',
   'Come back immediately if you cannot put weight on the foot, or the foot becomes numb, cold or blue.': 'पैर पर वज़न न रख पाएँ, या पैर सुन्न, ठंडा या नीला पड़ जाए तो तुरंत दिखाएँ।',
   'Come back immediately if you develop chest pain, fever, or sudden weakness of the arm.': 'सीने में दर्द, बुखार या हाथ में अचानक कमज़ोरी हो तो तुरंत दिखाएँ।',
   'Come back immediately after any fall, or if you develop new severe back or hip pain.': 'गिरने के बाद, या पीठ/कूल्हे में नया तेज़ दर्द हो तो तुरंत दिखाएँ।',
@@ -34,7 +35,7 @@ export const ADVICE_HI: Record<string, string> = {
   'Come back immediately if you develop fever, wound redness / discharge, or calf pain / swelling.': 'बुखार, घाव पर लालिमा या पानी/मवाद आने, पिंडली में दर्द या सूजन होने पर तुरंत दिखाएँ।',
   'Come back immediately if you develop severe pain, increasing swelling, numbness, colour change of fingers / toes, or a foul smell from the cast.': 'तेज़ दर्द, बढ़ती सूजन, सुन्नपन, उँगलियों का रंग बदलने या प्लास्टर से बदबू आने पर तुरंत दिखाएँ।',
   'Come back immediately if you develop weakness of hands or difficulty walking.': 'हाथों में कमज़ोरी या चलने में दिक़्क़त होने पर तुरंत दिखाएँ।',
-  'Come back immediately if you develop weakness in legs, numbness around groin/buttocks, difficulty passing urine or stool, or fever.': 'पैरों में कमज़ोरी, कूल्हों/जाँघ के आसपास सुन्नपन, पेशाब या शौच में दिक़्क़त या बुखार होने पर तुरंत दिखाएँ।',
+  'Come back immediately if you develop weakness in legs, numbness around groin/buttocks, difficulty passing urine or stool, fever, or back pain after a fall or accident.': 'पैरों में कमज़ोरी, कूल्हों/जाँघ के आसपास सुन्नपन, पेशाब या शौच में दिक़्क़त, बुखार, या गिरने/दुर्घटना के बाद कमर दर्द हो तो तुरंत दिखाएँ।',
   'Core and back-extension exercises as shown': 'बताई गई पेट और कमर की मज़बूती वाली कसरतें करें',
   'Daily knee bending and straightening exercises; ice and elevation after exercise': 'रोज़ घुटना मोड़ने-सीधा करने की कसरत करें; कसरत के बाद बर्फ़ लगाएँ और पैर ऊँचा रखें',
   'Do ankle pumps and leg movements frequently to prevent clots': 'खून के थक्के न जमें, इसलिए टखने और पैर बार-बार हिलाते रहें',

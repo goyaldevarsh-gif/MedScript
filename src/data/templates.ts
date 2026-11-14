@@ -6,7 +6,7 @@ const t = (key: string, name: string, icon: string, followUpDays: number, c: Par
   clinical: { complaint: '', side, notes: '', examination: '', investigations: '', ...c },
 });
 
-const RED_FLAG_BACK = 'Come back immediately if you develop weakness in legs, numbness around groin/buttocks, difficulty passing urine or stool, or fever.';
+const RED_FLAG_BACK = 'Come back immediately if you develop weakness in legs, numbness around groin/buttocks, difficulty passing urine or stool, fever, or back pain after a fall or accident.';
 
 export const STARTERS: StarterTemplate[] = [
   t('knee-oa', 'Knee osteoarthritis', 'knee', 28, {
@@ -20,7 +20,7 @@ export const STARTERS: StarterTemplate[] = [
       'Avoid squatting, sitting cross-legged and Indian-style toilet; use a commode',
       'Avoid long stairs and prolonged standing; use a walking stick if needed',
       'Hot fomentation to the knee for 15 minutes, twice daily',
-      'Come back immediately if the knee becomes hot, red and very swollen, or you develop fever.',
+      'Come back immediately if the knee becomes hot, red and very swollen with fever, or you cannot stand after a fall or injury.',
     ],
   }, 'Bilateral'),
   t('lbp', 'Low back pain', 'spine', 14, {
@@ -87,7 +87,9 @@ export const STARTERS: StarterTemplate[] = [
       'Codman pendulum exercises, wall-climbing and stick exercises daily',
       'Hot fomentation before exercises',
       'Do not immobilise the shoulder; keep it moving within pain limits',
+      'Sleep with a pillow under the arm; do not force or jerk the shoulder, and do not let anyone pull the arm',
       'Recovery is gradual and can take several months; regular exercise is essential',
+      'Come back immediately if you have chest pain, sweating or breathlessness with shoulder pain, or a hot, red, swollen shoulder with fever.',
     ],
   }),
   t('tennis-elbow', 'Tennis elbow', 'hand', 21, {
