@@ -38,6 +38,8 @@ function Builder() {
   const [preview, setPreview] = useState(false);
   const [review, setReview] = useState(false);
   const [tplPicker, setTplPicker] = useState(false);
+  const pastRx = useLiveQuery(() => db.prescriptions.orderBy('updatedAt').reverse().limit(400).toArray(), []) || [];
+  const quickTpls = (useLiveQuery(() => db.templates.toArray(), []) || []).filter((t) => isOrtho(settings) || !t.builtIn).sort((a, b) => Number(b.favourite) - Number(a.favourite) || Number(b.items.length > 0) - Number(a.items.length > 0) || a.name.localeCompare(b.name)).slice(0, 8);
   const [saveTpl, setSaveTpl] = useState(false);
   const [nextPid, setNextPid] = useState('');
   const rxRef = useRef<Prescription | null>(null);
@@ -110,12 +112,27 @@ function Builder() {
   const setPatient = (p: Partial<Patient>) => update((r) => ({ ...r, patient: { ...r.patient, ...p } }));
   const setClin = (c: Partial<Clinical>) => update((r) => ({ ...r, clinical: { ...r.clinical, ...c } }));
   const warnings = useMemo(() => (rx ? checkRx(rx) : []), [rx]);
+  /* meds the doctor usually prescribes for this diagnosis (from own past prescriptions) */
+  const usual = useMemo(() => {
+    const dx = norm(rx?.clinical.diagnosis || '');
+    if (!rx || dx.length < 3) return [] as { it: RxItem; n: number }[];
+    const key = (i: RxItem) => norm(`${i.brand || i.generic} ${i.strength || ''}`);
+    const have = new Set(rx.items.map(key));
+    const tally = new Map<string, { it: RxItem; n: number }>();
+    for (const p of pastRx) {
+      if (p.id === rx.id || p.status !== 'final') continue;
+      const pd = norm(p.clinical.diagnosis || ''); if (!pd || !(pd.includes(dx) || dx.includes(pd))) continue;
+      for (const i of p.items) { const k = key(i); if (have.has(k)) continue; const e = tally.get(k); if (e) e.n++; else tally.set(k, { it: i, n: 1 }); }
+    }
+    return [...tally.values()].sort((a, b) => b.n - a.n).slice(0, 6);
+  }, [rx, pastRx]);
 
   async function addMedicine(m: Medicine) {
     const it = itemFromMedicine(m);
-    try { const mm = m.id ? await db.meta.get(m.id) : undefined; if (mm?.reg) Object.assign(it, mm.reg); } catch { /* ignore */ }
+    let remembered = false;
+    try { const mm = m.id ? await db.meta.get(m.id) : undefined; if (mm?.reg) { Object.assign(it, mm.reg); remembered = true; } } catch { /* ignore */ }
     update((r) => ({ ...r, items: [...r.items, it] }));
-    setOpenItem(it.id);
+    setOpenItem(remembered ? null : it.id);
     if (m.source === 'catalogue' || m.source === 'brand') touchMedicines([{ ...it, medId: m.id }]).catch(() => {});
   }
   function removeItem(it: RxItem) {
@@ -184,6 +201,13 @@ function Builder() {
         </div>
       )}
 
+      {!readOnly && !rx.items.length && !rx.clinical.diagnosis.trim() && quickTpls.length > 0 && (
+        <div className="mb-3 flex items-center gap-2 overflow-x-auto pb-1 scroll-thin" aria-label="Quick start">
+          <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-slate-500">Quick start</span>
+          {quickTpls.map((t) => <Chip key={t.id} tone="teal" className="whitespace-nowrap" onClick={() => pickTemplate(t)}>{t.favourite ? '★ ' : ''}{t.name}{t.items.length ? ` · ${t.items.length} meds` : ''}</Chip>)}
+          <Chip className="whitespace-nowrap" onClick={() => setTplPicker(true)}>All templates</Chip>
+        </div>
+      )}
       <div className="grid gap-4 lg:grid-cols-12">
         <div className="space-y-4 lg:col-span-5">
           <PatientCard p={p} nextPid={nextPid} readOnly={!!readOnly} setPatient={setPatient} onPick={(pt) => update((r) => ({ ...r, patient: { ...pt }, patientId: pt.id }))} onClear={() => update((r) => ({ ...r, patient: { ...blankRxPatient(), id: uid() }, patientId: '' }))} />
@@ -214,6 +238,12 @@ function Builder() {
           <Card className="p-4">
             <div className="mb-3 flex items-center justify-between"><div className="text-sm font-extrabold uppercase tracking-wide text-slate-500">Medicines {rx.items.length > 0 && <span className="ml-1 rounded-full bg-navy px-2 py-0.5 text-xs text-white">{rx.items.length}</span>}</div></div>
             {!readOnly && <MedicineSearch onPick={addMedicine} />}
+            {!readOnly && usual.length > 0 && (
+              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                <span className="text-xs font-extrabold uppercase tracking-wide text-slate-500">Usually for this</span>
+                {usual.map(({ it, n }) => <Chip key={it.id} tone="teal" onClick={() => update((r) => ({ ...r, items: [...r.items, { ...JSON.parse(JSON.stringify(it)), id: uid() }] }))}>+ {it.brand || it.generic} {it.strength}{n > 1 ? ` ×${n}` : ''}</Chip>)}
+              </div>
+            )}
             {(topWarn.length > 0 || itemWarnAll.length > 0) && (
               <div className="mt-3 space-y-1.5">
                 {[...topWarn, ...itemWarnAll].map((w, i) => (

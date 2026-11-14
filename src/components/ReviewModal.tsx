@@ -31,6 +31,7 @@ export default function ReviewModal({ rx, settings, onClose, onDone, onChangeTog
   const notes = warnings.filter((w) => w.level !== 'info');
   const info = warnings.filter((w) => w.level === 'info');
   const brandFirst = settings.layout.nameDisplay === 'brand';
+  const needAck = notes.length > 0;
 
   async function authorise() {
     setBusy(true);
@@ -52,11 +53,13 @@ export default function ReviewModal({ rx, settings, onClose, onDone, onChangeTog
     <Modal wide title={<span className="flex items-center gap-2"><ShieldCheck size={18} className="text-teal" /> Review & authorise</span>} onClose={onClose}
       footer={
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <label className={cx('flex max-w-xl items-start gap-2 text-sm font-semibold', blockers.length > 0 && 'opacity-50')}>
-            <input type="checkbox" className="mt-0.5 h-5 w-5 accent-brand" checked={ack} disabled={blockers.length > 0} onChange={(e) => setAck(e.target.checked)} />
-            I have reviewed every medicine, dose, instruction and alert, and I authorise this prescription.
-          </label>
-          <div className="flex gap-2"><Btn variant="secondary" onClick={onClose}>Back to edit</Btn><Btn variant="success" disabled={!ack || blockers.length > 0 || busy} onClick={authorise}><FileSignature size={16} /> {busy ? 'Authorising…' : 'Authorise & generate'}</Btn></div>
+          {needAck ? (
+            <label className={cx('flex max-w-xl items-start gap-2 text-sm font-semibold', blockers.length > 0 && 'opacity-50')}>
+              <input type="checkbox" className="mt-0.5 h-5 w-5 accent-brand" checked={ack} disabled={blockers.length > 0} onChange={(e) => setAck(e.target.checked)} />
+              I have reviewed the alerts above and authorise this prescription.
+            </label>
+          ) : <span className="text-xs font-semibold text-slate-500">Authorising confirms you have reviewed the medicines and doses.</span>}
+          <div className="flex gap-2"><Btn variant="secondary" onClick={onClose}>Back to edit</Btn><Btn variant="success" disabled={(needAck && !ack) || blockers.length > 0 || busy} onClick={authorise}><FileSignature size={16} /> {busy ? 'Authorising…' : 'Authorise & generate'}</Btn></div>
         </div>
       }>
       <div className="space-y-4">
