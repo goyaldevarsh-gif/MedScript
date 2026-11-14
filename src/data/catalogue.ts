@@ -117,6 +117,59 @@ const singles: Row[] = [
   ['Cetirizine', ['10 mg'], 'Tablet', 'Oral', 'Antihistamine'],
   ['Lactulose', ['10 g/15 mL'], 'Syrup', 'Oral', 'Laxative'],
   ['Bisacodyl', ['5 mg'], 'Tablet', 'Oral', 'Laxative'],
+  // Added: more NSAIDs / analgesics
+  ['Meloxicam', ['7.5 mg', '15 mg'], 'Tablet', 'Oral', 'NSAID'],
+  ['Piroxicam', ['20 mg'], 'Tablet', 'Oral', 'NSAID'],
+  ['Nimesulide', ['100 mg'], 'Tablet', 'Oral', 'NSAID'],
+  ['Etodolac', ['300 mg', '400 mg'], 'Tablet', 'Oral', 'NSAID'],
+  ['Lornoxicam', ['4 mg', '8 mg'], 'Tablet', 'Oral', 'NSAID'],
+  ['Indomethacin', ['25 mg'], 'Capsule', 'Oral', 'NSAID'],
+  ['Diclofenac', ['100 mg'], 'Tablet (SR)', 'Oral', 'NSAID'],
+  ['Tramadol', ['100 mg'], 'Tablet (SR)', 'Oral', 'Opioid analgesic'],
+  ['Tapentadol', ['50 mg'], 'Tablet', 'Oral', 'Opioid analgesic'],
+  ['Ketorolac', ['2% w/w'], 'Gel', 'Topical', 'NSAID'],
+  // Added: neuropathic / muscle
+  ['Nortriptyline', ['10 mg', '25 mg'], 'Tablet', 'Oral', 'Neuropathic pain'],
+  ['Gabapentin', ['400 mg', '600 mg'], 'Tablet', 'Oral', 'Neuropathic pain'],
+  ['Pregabalin', ['50 mg', '300 mg'], 'Capsule', 'Oral', 'Neuropathic pain'],
+  ['Eperisone', ['50 mg', '150 mg'], 'Tablet', 'Oral', 'Muscle relaxant'],
+  ['Folic acid', ['5 mg'], 'Tablet', 'Oral', 'Vitamin'],
+  ['Vitamin B12 (Cyanocobalamin)', ['1000 mcg/mL'], 'Injection', 'IM', 'Vitamin B12'],
+  // Added: bone health
+  ['Ibandronate', ['150 mg'], 'Tablet', 'Oral', 'Bisphosphonate'],
+  ['Raloxifene', ['60 mg'], 'Tablet', 'Oral', 'SERM'],
+  ['Teriparatide', ['20 mcg/80 mcL'], 'Injection', 'SC', 'Anabolic (bone)'],
+  ['Calcium citrate', ['500 mg'], 'Tablet', 'Oral', 'Calcium'],
+  ['Menaquinone-7 (Vitamin K2)', ['45 mcg', '100 mcg'], 'Capsule', 'Oral', 'Vitamin'],
+  ['Cholecalciferol (Vitamin D3)', ['3000 IU', '4000 IU'], 'Tablet', 'Oral', 'Vitamin D'],
+  // Added: antibiotics / infection / trauma
+  ['Amoxicillin', ['250 mg', '500 mg'], 'Capsule', 'Oral', 'Antibiotic'],
+  ['Cephalexin', ['250 mg', '500 mg'], 'Capsule', 'Oral', 'Antibiotic'],
+  ['Cefpodoxime', ['100 mg', '200 mg'], 'Tablet', 'Oral', 'Antibiotic'],
+  ['Azithromycin', ['250 mg', '500 mg'], 'Tablet', 'Oral', 'Antibiotic'],
+  ['Ciprofloxacin', ['500 mg'], 'Tablet', 'Oral', 'Antibiotic'],
+  ['Levofloxacin', ['500 mg', '750 mg'], 'Tablet', 'Oral', 'Antibiotic'],
+  ['Vancomycin', ['500 mg', '1 g'], 'Injection', 'IV', 'Antibiotic'],
+  ['Meropenem', ['1 g'], 'Injection', 'IV', 'Antibiotic'],
+  ['Gentamicin', ['80 mg/2 mL'], 'Injection', 'IV', 'Antibiotic'],
+  ['Tetanus toxoid', ['0.5 mL'], 'Injection', 'IM', 'Vaccine (tetanus)'],
+  ['Human tetanus immunoglobulin', ['250 IU'], 'Injection', 'IM', 'Immunoglobulin'],
+  // Added: anticoagulants / steroids / misc
+  ['Warfarin', ['1 mg', '2 mg', '5 mg'], 'Tablet', 'Oral', 'Anticoagulant'],
+  ['Dabigatran', ['110 mg', '150 mg'], 'Capsule', 'Oral', 'Anticoagulant'],
+  ['Heparin', ['5000 IU/mL'], 'Injection', 'SC', 'Anticoagulant'],
+  ['Betamethasone', ['4 mg/mL'], 'Injection', 'IM', 'Corticosteroid'],
+  ['Hydrocortisone', ['100 mg'], 'Injection', 'IV', 'Corticosteroid'],
+  ['Deflazacort', ['6 mg', '12 mg'], 'Tablet', 'Oral', 'Corticosteroid'],
+  ['Bupivacaine', ['0.25% w/v', '0.5% w/v'], 'Injection', 'Local infiltration', 'Local anaesthetic'],
+  ['Famotidine', ['20 mg'], 'Tablet', 'Oral', 'H2 blocker'],
+  ['Hyaluronidase', ['1500 IU'], 'Injection', 'Local infiltration', 'Enzyme'],
+  ['Methotrexate', ['2.5 mg', '7.5 mg', '15 mg'], 'Tablet', 'Oral', 'DMARD'],
+  ['Hydroxychloroquine', ['200 mg', '400 mg'], 'Tablet', 'Oral', 'DMARD'],
+  ['Sulfasalazine', ['500 mg'], 'Tablet', 'Oral', 'DMARD'],
+  ['Colchicine', ['0.5 mg'], 'Tablet', 'Oral', 'Anti-gout'],
+  ['Febuxostat', ['40 mg', '80 mg'], 'Tablet', 'Oral', 'Anti-gout'],
+  ['Allopurinol', ['100 mg', '300 mg'], 'Tablet', 'Oral', 'Anti-gout'],
 ];
 
 const combos: Medicine[] = [
@@ -129,11 +182,37 @@ const combos: Medicine[] = [
   combo([['Amoxicillin', '1000 mg'], ['Clavulanic acid', '200 mg']], 'Injection', 'IV', 'Antibiotic'),
   combo([['Calcium carbonate', '1250 mg'], ['Cholecalciferol (Vitamin D3)', '250 IU']], 'Tablet', 'Oral', 'Calcium + Vitamin D'),
   combo([['Glucosamine sulphate', '1500 mg'], ['Chondroitin sulphate', '1200 mg']], 'Sachet', 'Oral', 'Chondroprotective'),
+  combo([['Aceclofenac', '100 mg'], ['Paracetamol', '325 mg'], ['Serratiopeptidase', '15 mg']], 'Tablet', 'Oral', 'NSAID combination'),
+  combo([['Aceclofenac', '100 mg'], ['Thiocolchicoside', '4 mg']], 'Tablet', 'Oral', 'NSAID + muscle relaxant'),
+  combo([['Aceclofenac', '100 mg'], ['Thiocolchicoside', '8 mg']], 'Tablet', 'Oral', 'NSAID + muscle relaxant'),
+  combo([['Etoricoxib', '60 mg'], ['Thiocolchicoside', '4 mg']], 'Tablet', 'Oral', 'NSAID + muscle relaxant'),
+  combo([['Etoricoxib', '90 mg'], ['Thiocolchicoside', '4 mg']], 'Tablet', 'Oral', 'NSAID + muscle relaxant'),
+  combo([['Diclofenac', '50 mg'], ['Paracetamol', '325 mg']], 'Tablet', 'Oral', 'NSAID combination'),
+  combo([['Diclofenac', '50 mg'], ['Paracetamol', '325 mg'], ['Serratiopeptidase', '15 mg']], 'Tablet', 'Oral', 'NSAID combination'),
+  combo([['Nimesulide', '100 mg'], ['Paracetamol', '325 mg']], 'Tablet', 'Oral', 'NSAID combination'),
+  combo([['Ibuprofen', '400 mg'], ['Paracetamol', '325 mg'], ['Chlorzoxazone', '250 mg']], 'Tablet', 'Oral', 'NSAID + muscle relaxant'),
+  combo([['Paracetamol', '325 mg'], ['Chlorzoxazone', '250 mg']], 'Tablet', 'Oral', 'Analgesic + muscle relaxant'),
+  combo([['Gabapentin', '300 mg'], ['Nortriptyline', '10 mg']], 'Tablet', 'Oral', 'Neuropathic combination'),
+  combo([['Gabapentin', '300 mg'], ['Methylcobalamin', '500 mcg']], 'Tablet', 'Oral', 'Neuropathic combination'),
+  combo([['Pregabalin', '75 mg'], ['Nortriptyline', '10 mg']], 'Capsule', 'Oral', 'Neuropathic combination'),
+  combo([['Duloxetine', '20 mg'], ['Methylcobalamin', '1500 mcg']], 'Capsule', 'Oral', 'Neuropathic combination'),
+  combo([['Piperacillin', '4 g'], ['Tazobactam', '0.5 g']], 'Injection', 'IV', 'Antibiotic'),
+  combo([['Calcium carbonate', '500 mg'], ['Cholecalciferol (Vitamin D3)', '250 IU']], 'Tablet', 'Oral', 'Calcium + Vitamin D'),
+  combo([['Calcium citrate', '1000 mg'], ['Cholecalciferol (Vitamin D3)', '500 IU']], 'Tablet', 'Oral', 'Calcium + Vitamin D'),
+  combo([['Calcium carbonate', '500 mg'], ['Cholecalciferol (Vitamin D3)', '250 IU'], ['Menaquinone-7 (Vitamin K2)', '45 mcg']], 'Tablet', 'Oral', 'Calcium + Vitamin D'),
+  combo([['Calcium carbonate', '500 mg'], ['Calcitriol', '0.25 mcg'], ['Zinc', '7.5 mg'], ['Magnesium', '50 mg']], 'Softgel capsule', 'Oral', 'Calcium + Vitamin D'),
+  combo([['Diclofenac', '1% w/w'], ['Linseed oil', ''], ['Methyl salicylate', ''], ['Menthol', '']], 'Gel', 'Topical', 'NSAID (topical)'),
+  combo([['Diclofenac', '1% w/w'], ['Methyl salicylate', ''], ['Menthol', '']], 'Gel', 'Topical', 'NSAID (topical)'),
+  combo([['Glucosamine sulphate', '750 mg'], ['Chondroitin sulphate', '100 mg']], 'Tablet', 'Oral', 'Chondroprotective'),
+  combo([['Glucosamine sulphate', '1500 mg'], ['Methylsulfonylmethane (MSM)', '500 mg']], 'Tablet', 'Oral', 'Chondroprotective'),
+  combo([['Diacerein', '50 mg'], ['Glucosamine sulphate', '750 mg']], 'Capsule', 'Oral', 'Chondroprotective'),
 ];
 
-export const CATALOGUE: Medicine[] = [...singles.flatMap(single), ...combos, ...SUPPLEMENTS, ...BRANDS];
+const _all: Medicine[] = [...singles.flatMap(single), ...combos, ...SUPPLEMENTS, ...BRANDS];
+const _seen = new Set<string>();
+export const CATALOGUE: Medicine[] = _all.filter((m) => (_seen.has(m.id) ? false : (_seen.add(m.id), true)));
 
-export const GROUPS = ['Pain killers', 'Calcium', 'Vitamins', 'Bone health', 'Muscle relaxants', 'Neuropathic', 'Antibiotics', 'Supplements', 'Tendon & cartilage', 'Steroids & injections', 'Gastro', 'Anticoagulants', 'Topicals'] as const;
+export const GROUPS = ['Pain killers', 'Calcium', 'Vitamins', 'Bone health', 'Muscle relaxants', 'Neuropathic', 'Antibiotics', 'Supplements', 'Tendon & cartilage', 'Steroids & injections', 'Gastro', 'Anticoagulants', 'Topicals', 'Gout & RA'] as const;
 export type Group = (typeof GROUPS)[number];
 export function groupsOf(m: Medicine): Group[] {
   const c = (m.category || '').toLowerCase();
@@ -151,6 +230,7 @@ export function groupsOf(m: Medicine): Group[] {
   if (/cortico|local anaes/.test(c) || m.route === 'Intra-articular') g.push('Steroids & injections');
   if (/ppi|antiemetic|gastro|laxative|h2/.test(c)) g.push('Gastro');
   if (/anticoag|antiplatelet|antifibrin/.test(c)) g.push('Anticoagulants');
+  if (/dmard|gout/.test(c)) g.push('Gout & RA');
   if (m.route === 'Topical') g.push('Topicals');
   return Array.from(new Set(g));
 }
@@ -160,7 +240,7 @@ const GROUP_WORDS: Record<string, string> = {
   'Muscle relaxants': 'muscle relaxant relaxants spasm', Neuropathic: 'neuropathic nerve neuropathy',
   Antibiotics: 'antibiotic antibiotics infection', Supplements: 'supplement supplements',
   'Tendon & cartilage': 'tendon ligament cartilage collagen joint chondroprotective',
-  'Steroids & injections': 'steroid injection', Gastro: 'gastro acidity antacid ppi', Anticoagulants: 'anticoagulant blood thinner dvt', Topicals: 'topical gel cream ointment',
+  'Steroids & injections': 'steroid injection', Gastro: 'gastro acidity antacid ppi', Anticoagulants: 'anticoagulant blood thinner dvt', Topicals: 'topical gel cream ointment', 'Gout & RA': 'gout uric acid rheumatoid arthritis ra dmard',
 };
 const blobCache = new WeakMap<Medicine, string>();
 export function searchBlob(m: Medicine): string {

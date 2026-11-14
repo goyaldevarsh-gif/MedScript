@@ -137,6 +137,33 @@ Domstal 10|Domperidone 10 mg|Tablet|Antiemetic
 Betadine Ointment|Povidone iodine 5% w/w|Ointment|Antiseptic
 Soframycin|Framycetin 1% w/w|Cream|Antibacterial (topical)
 T-Bact|Mupirocin 2% w/w|Ointment|Antibacterial (topical)
+Zerodol-SP|Aceclofenac 100 mg + Paracetamol 325 mg + Serratiopeptidase 15 mg|Tablet|NSAID combination
+Zerodol-TH 4|Aceclofenac 100 mg + Thiocolchicoside 4 mg|Tablet|NSAID + muscle relaxant
+Nucoxia-MR|Etoricoxib 60 mg + Thiocolchicoside 4 mg|Tablet|NSAID + muscle relaxant
+Mobic 7.5|Meloxicam 7.5 mg|Tablet|NSAID
+Mobic 15|Meloxicam 15 mg|Tablet|NSAID
+Dolonex DT 20|Piroxicam 20 mg|Tablet|NSAID
+Nimulid 100|Nimesulide 100 mg|Tablet|NSAID
+Gabapin 300|Gabapentin 300 mg|Capsule|Neuropathic pain
+Gabapin-NT|Gabapentin 300 mg + Nortriptyline 10 mg|Tablet|Neuropathic combination
+Volini Gel|Diclofenac + Linseed oil + Methyl salicylate + Menthol|Gel:Topical|NSAID (topical)
+Azee 500|Azithromycin 500 mg|Tablet|Antibiotic
+Azithral 500|Azithromycin 500 mg|Tablet|Antibiotic
+Mox 500|Amoxicillin 500 mg|Capsule|Antibiotic
+Novamox 500|Amoxicillin 500 mg|Capsule|Antibiotic
+Sporidex 500|Cephalexin 500 mg|Capsule|Antibiotic
+Vancocin CP 1 g|Vancomycin 1 g|Injection:IV|Antibiotic
+Bonmax 70|Alendronate 70 mg|Tablet|Bisphosphonate
+Pantocid-D|Pantoprazole 40 mg + Domperidone 30 mg|Capsule|PPI combination
+Bupivan 0.5%|Bupivacaine 0.5% w/v|Injection:Local infiltration|Local anaesthetic
+Sensorcaine 0.5%|Bupivacaine 0.5% w/v|Injection:Local infiltration|Local anaesthetic
+Betnesol Injection|Betamethasone 4 mg/mL|Injection:IM|Corticosteroid
+Zyloric 100|Allopurinol 100 mg|Tablet|Anti-gout
+Zyloric 300|Allopurinol 300 mg|Tablet|Anti-gout
+Febugood 40|Febuxostat 40 mg|Tablet|Anti-gout
+Hcqs 200|Hydroxychloroquine 200 mg|Tablet|DMARD
+Folitrax 7.5|Methotrexate 7.5 mg|Tablet|DMARD
+Folitrax 15|Methotrexate 15 mg|Tablet|DMARD
 `.trim().split('\n');
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
