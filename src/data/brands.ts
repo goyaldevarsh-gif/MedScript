@@ -206,6 +206,10 @@ Arava 20|Leflunomide 20 mg|Tablet|DMARD
 Xeljanz 5|Tofacitinib 5 mg|Tablet|DMARD
 Voltaren Emulgel|Diclofenac 1.16% w/w|Gel:Topical|NSAID (topical)
 Plavix 75|Clopidogrel 75 mg|Tablet|Antiplatelet
+Tendocare Forte|L-Arginine (SR) 500 mg + Chondroitin sulphate 200 mg + Collagen peptide type I 40 mg + Sodium hyaluronate 30 mg + Vitamin C 12.5 mg|Tablet|Collagen / tendon support
+Tendocare|Collagen peptide + Sodium hyaluronate + Chondroitin sulphate + Vitamin C|Tablet|Collagen / tendon support
+T-Heal|Collagen peptide type I + Mucopolysaccharides + Vitamin C|Capsule|Collagen / tendon support
+T-Heal Forte|L-Arginine + Collagen peptide type I + Sodium hyaluronate + Chondroitin sulphate + Vitamin C|Tablet|Collagen / tendon support
 `.trim().split('\n');
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
