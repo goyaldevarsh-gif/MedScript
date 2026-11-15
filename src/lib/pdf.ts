@@ -1,7 +1,8 @@
 import type { DoctorSnapshot, Prescription, RxItem } from './types';
 import { imageSize, renderSeal } from './imaging';
 import { fmtMobile, phoneList } from './phone';
-import { bodyPng } from './body';
+import { figuresPng, partLabel } from './body';
+import { detailOf } from './detail';
 import { woundLine } from './wound';
 import QRCode from 'qrcode';
 import { dosePattern, computeQty, doseLabel, durationLabel, freqLabel, freqMeta, itemInstructions, timingMeta } from './dosage';
@@ -88,7 +89,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const sealSize = sealUrl ? await imageSize(sealUrl) : null;
   const logoSize = clinic.logo ? await imageSize(clinic.logo) : null;
   const c = rx.clinical;
-  const body = await bodyPng(c.bodyParts || [], rx.wound?.on ? rx.wound.pins || [] : []).catch(() => null);
+  const body = await figuresPng(c.bodyParts || [], rx.wound?.on ? rx.wound.pins || [] : []).catch(() => null);
   const qrText = (rx.qrUrl ?? (clinic.qrUrl || snap.doctor.qrUrl) ?? '').trim();
   const qrUrl = qrText ? await QRCode.toDataURL(qrText, { margin: 0, width: 240, errorCorrectionLevel: 'M', color: { dark: '#3b4a5e', light: '#ffffff' } }).catch(() => '') : '';
   const lang: 'en' | 'hi' = rx.lang === 'en' ? 'en' : 'hi';
@@ -210,6 +211,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     box(M + LBL, c.injury === 'trauma', 'Trauma'); box(M + LBL + 28, c.injury === 'nontrauma', 'Non-trauma');
     y += 5.6;
   }
+  if ((c.bodyParts || []).some((id) => detailOf(id))) row('Site', (c.bodyParts || []).map((id) => partLabel(id)).join('; '));
   if (rx.print.complaint) row('Complaint', c.complaint);
   if (c.diagnosis.trim()) row('Diagnosis', c.diagnosis + (c.side && c.side !== 'N/A' ? ` (${c.side})` : ''));
   row('Comorbidities', c.comorbidities || '');

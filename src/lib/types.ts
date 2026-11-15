@@ -61,7 +61,7 @@ export interface DoctorSnapshot {
 }
 export interface Wound {
   on: boolean; type?: string; status?: string; site?: string; autoSite?: string; dressing?: string; sutureDays?: number; note?: string;
-  pins?: { v: 'front' | 'back'; x: number; y: number }[];
+  pins?: { v: string; x: number; y: number; f?: 'hand' | 'foot'; side?: 'R' | 'L' }[];
 }
 export interface Prescription {
   wound?: Wound;

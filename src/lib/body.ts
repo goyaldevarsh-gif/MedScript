@@ -1,10 +1,12 @@
+import { DETAIL_NAMES, detailOf, detailShapes, detailH, sideOfId, viewOf, W, type Detail, type DView } from './detail';
 /** Simple front/back body figure with tappable regions, used in the Builder and printed (marked) on the prescription. */
 export type Shape = { id: string; t: 'e' | 'r'; a: number[] };
 const CX = 60;
 const NAMES: Record<string, string> = { head: 'Head', neck: 'Neck', cervical: 'Cervical spine', thoracic: 'Dorsal spine', lumbar: 'Lumbar spine', sacrum: 'Sacrum / SI joint', chest: 'Chest', abdomen: 'Abdomen / pelvis', shoulder: 'shoulder', scapula: 'scapula', arm: 'arm', elbow: 'elbow', forearm: 'forearm', wrist: 'wrist', hand: 'hand', hip: 'hip', thigh: 'thigh', knee: 'knee', leg: 'leg', ankle: 'ankle', foot: 'foot' };
 export const partLabel = (id: string) => {
   const [p, s] = id.split('-');
-  return s ? `${s === 'R' ? 'Right' : 'Left'} ${NAMES[p] || p}` : NAMES[p] || id;
+  const nm = NAMES[p] || DETAIL_NAMES[p] || p;
+  return s ? `${s === 'R' ? 'Right' : 'Left'} ${nm}` : nm;
 };
 const BACK_ONLY = ['cervical', 'thoracic', 'lumbar', 'sacrum', 'scapula'];
 export const needsBack = (sel: string[]) => sel.some((s) => BACK_ONLY.includes(s.split('-')[0]));
@@ -47,32 +49,57 @@ export function shapeEl(s: Shape, on: boolean) {
 }
 export const BODY_H = 270;
 /** SVG string with one or two views for printing */
-export type Pin = { v: 'front' | 'back'; x: number; y: number };
+export type Pin = { v: string; x: number; y: number; f?: Detail; side?: 'R' | 'L' };
 export const pinEl = (p: Pin, r = 4.2) => `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="#f59e0b" stroke="#7c2d12" stroke-width="1.3"/><circle cx="${p.x}" cy="${p.y}" r="${r * 0.35}" fill="#fff"/>`;
-/** which body region a tapped point belongs to (nearest shape) */
-export function regionAt(v: 'front' | 'back', x: number, y: number): string {
+/** nearest region of a set of shapes for a tapped point */
+export function nearestRegion(list: Shape[], x: number, y: number): string {
   let best = '', bd = 1e9;
-  for (const s of shapes(v)) {
+  for (const s of list) {
     const d = s.t === 'e' ? Math.hypot((x - s.a[0]) / s.a[2], (y - s.a[1]) / s.a[3]) : Math.hypot((x - (s.a[0] + s.a[2] / 2)) / (s.a[2] / 2), (y - (s.a[1] + s.a[3] / 2)) / (s.a[3] / 2)) * 0.9;
     if (d < bd) { bd = d; best = s.id; }
   }
   return bd < 2.2 ? partLabel(best) : '';
 }
+export const regionAt = (v: 'front' | 'back', x: number, y: number): string => nearestRegion(shapes(v), x, y);
+export const regionOfPin = (p: Pin): string => (p.f ? nearestRegion(detailShapes(p.f, p.v as DView, p.side || 'R'), p.x, p.y) : regionAt(p.v as 'front' | 'back', p.x, p.y));
 export function bodySvg(sel: string[], views: ('front' | 'back')[], pins: Pin[] = []): string {
   const S = new Set(sel);
-  const g = views.map((v, i) => `<g transform="translate(${i * 124},0)">${shapes(v).map((s) => shapeEl(s, S.has(s.id))).join('')}${pins.filter((p) => p.v === v).map((p) => pinEl(p, 6.5)).join('')}</g>`).join('');
+  const g = views.map((v, i) => `<g transform="translate(${i * 124},0)">${shapes(v).map((s) => shapeEl(s, S.has(s.id))).join('')}${pins.filter((p) => !p.f && p.v === v).map((p) => pinEl(p, 6.5)).join('')}</g>`).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${views.length * 124 - 4} ${BODY_H}" width="${views.length * 124 - 4}" height="${BODY_H}">${g}</svg>`;
 }
-/** Marked figure as PNG for the PDF; size in mm */
-export async function bodyPng(sel: string[], pins: Pin[] = []): Promise<{ url: string; w: number; h: number } | null> {
-  if (!sel.length && !pins.length) return null;
-  const views: ('front' | 'back')[] = needsBack(sel) || pins.some((p) => p.v === 'back') ? ['front', 'back'] : ['front'];
-  const svg = bodySvg(sel, views, pins);
+type Inst = { w: number; h: number; inner: string };
+function instances(sel: string[], pins: Pin[]): Inst[] {
+  const out: Inst[] = [];
+  const bodySel = sel.filter((s) => !detailOf(s)), bodyPins = pins.filter((p) => !p.f);
+  if (bodySel.length || bodyPins.length) {
+    const views: ('front' | 'back')[] = needsBack(bodySel) || bodyPins.some((p) => p.v === 'back') ? ['front', 'back'] : ['front'];
+    const S = new Set(bodySel);
+    out.push({ w: views.length * 124 - 4, h: BODY_H, inner: views.map((v, i) => `<g transform="translate(${i * 124},0)">${shapes(v).map((s) => shapeEl(s, S.has(s.id))).join('')}${bodyPins.filter((p) => p.v === v).map((p) => pinEl(p, 6.5)).join('')}</g>`).join('') });
+  }
+  const want = new Map<string, { d: Detail; view: DView; side: 'R' | 'L' }>();
+  const sides = new Map<string, DView[]>();
+  for (const id of sel) { const d = detailOf(id); if (!d) continue; const side = sideOfId(id), v = viewOf(id), k = d + side; if (v) sides.set(k, [...(sides.get(k) || []), v]); else if (!sides.has(k)) sides.set(k, []); }
+  for (const [k, vs] of sides) { const d = k.slice(0, 4) as Detail, side = k.slice(4) as 'R' | 'L'; for (const v of (vs.length ? [...new Set(vs)] : (['dorsal'] as DView[]))) want.set(`${d}|${v}|${side}`, { d, view: v, side }); }
+  for (const p of pins) if (p.f) want.set(`${p.f}|${p.v}|${p.side || 'R'}`, { d: p.f, view: p.v as DView, side: p.side || 'R' });
+  const S = new Set(sel);
+  for (const { d, view, side } of want.values()) {
+    const sh = detailShapes(d, view, side);
+    out.push({ w: W, h: detailH(d, view), inner: sh.map((s) => shapeEl(s, S.has(s.id))).join('') + pins.filter((p) => p.f === d && p.v === view && (p.side || 'R') === side).map((p) => pinEl(p, 5.2)).join('') });
+  }
+  return out.slice(0, 3);
+}
+/** Marked figures (body and / or detailed hand / foot) as one PNG for the PDF; size in mm */
+export async function figuresPng(sel: string[], pins: Pin[] = []): Promise<{ url: string; w: number; h: number } | null> {
+  const list = instances(sel, pins); if (!list.length) return null;
+  const H = 250, gap = 10;
+  let x = 0; const parts: string[] = [];
+  for (const it of list) { const k = H / it.h; parts.push(`<g transform="translate(${x},0) scale(${k})">${it.inner}</g>`); x += it.w * k + gap; }
+  const wU = Math.round(x - gap);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${wU} ${H}" width="${wU}" height="${H}">${parts.join('')}</svg>`;
   const img = new Image();
   await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error('body')); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); });
-  const W = views.length * 120 * 4, H = BODY_H * 4;
-  const c = document.createElement('canvas'); c.width = W; c.height = H;
-  c.getContext('2d')!.drawImage(img, 0, 0, W, H);
-  const hMm = 38;
-  return { url: c.toDataURL('image/png'), w: (hMm * W) / H, h: hMm };
+  const S = 4, cv = document.createElement('canvas'); cv.width = wU * S; cv.height = H * S;
+  cv.getContext('2d')!.drawImage(img, 0, 0, cv.width, cv.height);
+  const hMm = 38, wMm = (hMm * wU) / H;
+  return { url: cv.toDataURL('image/png'), w: Math.min(wMm, 64), h: Math.min(wMm, 64) < wMm ? hMm * (64 / wMm) : hMm };
 }
