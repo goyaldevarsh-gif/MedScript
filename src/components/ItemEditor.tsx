@@ -27,6 +27,8 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
   const presetDur = it.durationUnit === 'days' && DURATIONS.includes(it.duration) && !customDur;
   const doseIsPreset = it.doseQty != null && solidDoses.includes(it.doseQty) && !customDose;
   const dis = !!readOnly;
+  const pickFreq = (v: string) => { const f = FREQS.find((x) => x.v === v)!; set({ freq: f.v as Freq, timesPerDay: f.v === 'CUSTOM' ? it.timesPerDay || 2 : f.perDay || 1, timing: f.v === 'HS' ? 'bedtime' : f.v === 'SOS' ? 'asreq' : it.timing === 'bedtime' || it.timing === 'asreq' ? 'after' : it.timing }); };
+  const unitS = it.doseUnit === 'mL' ? 'mL' : it.doseUnit;
   const wd = warnings.filter((w) => w.level === 'danger').length;
 
   return (
@@ -55,7 +57,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
       </div>
 
       {open && (
-        <fieldset disabled={dis} className="space-y-4 border-t border-slate-100 p-3 pt-4">
+        <fieldset disabled={dis} className="space-y-3 border-t sm:space-y-4 border-slate-100 p-3 pt-4">
           {warnings.length > 0 && (
             <div className="space-y-1.5">
               {warnings.filter((w) => w.level !== 'info').map((w, i) => (
@@ -63,13 +65,56 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
               ))}
             </div>
           )}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {/* phone: everything stays editable, but as compact dropdowns in two columns */}
+          <div className="grid grid-cols-2 gap-2 sm:hidden">
+            <label className="col-span-2 block"><span className="lbl">Brand (from pack, optional)</span><input className="field" value={it.brand} onChange={(e) => set({ brand: e.target.value })} placeholder="Brand name" /></label>
+            <label className="block"><span className="lbl">Route</span><select className="field" value={it.route} onChange={(e) => set({ route: e.target.value })}>{ROUTES.map((r) => <option key={r}>{r}</option>)}</select></label>
+            <label className="block"><span className="lbl">Dose unit</span><select className="field" value={it.doseUnit} onChange={(e) => set({ doseUnit: e.target.value, doseQty: e.target.value === 'mL' ? 5 : it.doseQty })}>{UNITS.map((r) => <option key={r}>{r}</option>)}</select></label>
+            {solidDoses.length > 0 && (
+              <label className="block"><span className="lbl">Dose</span>
+                <select className="field" value={doseIsPreset ? String(it.doseQty) : 'custom'} onChange={(e) => { if (e.target.value === 'custom') setCustomDose(true); else { setCustomDose(false); set({ doseQty: Number(e.target.value), doseText: '' }); } }}>
+                  {solidDoses.map((d) => <option key={d} value={String(d)}>{d === 0.5 ? '½' : d} {unitS + (d > 1 && unitS !== 'mL' ? 's' : '')}</option>)}
+                  <option value="custom">Custom…</option>
+                </select>
+              </label>
+            )}
+            {!it.useTaper && (
+              <label className="block"><span className="lbl">Frequency</span>
+                <select className="field" value={it.freq} onChange={(e) => pickFreq(e.target.value)}>{FREQS.map((f) => <option key={f.v} value={f.v}>{f.label}</option>)}</select>
+              </label>
+            )}
+            {(!doseIsPreset || solidDoses.length === 0) && (
+              <div className="col-span-2 flex flex-wrap gap-2">
+                <input type="number" step="0.5" min="0" className="field w-24" value={it.doseQty ?? ''} placeholder="Qty" onChange={(e) => set({ doseQty: e.target.value === '' ? null : Number(e.target.value) })} />
+                <input className="field min-w-0 flex-1" value={it.doseText} placeholder="or text e.g. as directed" onChange={(e) => set({ doseText: e.target.value, doseQty: e.target.value ? null : it.doseQty })} />
+              </div>
+            )}
+            <label className="block"><span className="lbl">Timing</span>
+              <select className="field" value={it.timing} onChange={(e) => set({ timing: e.target.value as Timing })}><option value="">Not specified</option>{TIMINGS.map((t) => <option key={t.v} value={t.v}>{t.label}</option>)}</select>
+            </label>
+            {!it.useTaper && (
+              <label className="block"><span className="lbl">Duration</span>
+                <select className="field" value={presetDur ? String(it.duration) : it.freq === 'SOS' && !it.duration ? 'nolimit' : 'custom'} onChange={(e) => { const v = e.target.value; if (v === 'custom') setCustomDur(true); else if (v === 'nolimit') { setCustomDur(false); set({ duration: 0 }); } else { setCustomDur(false); set({ duration: Number(v), durationUnit: 'days' }); } }}>
+                  {DURATIONS.map((d) => <option key={d} value={String(d)}>{d} days</option>)}
+                  {it.freq === 'SOS' && <option value="nolimit">No limit</option>}
+                  <option value="custom">Custom…</option>
+                </select>
+              </label>
+            )}
+            {!it.useTaper && !presetDur && !(it.freq === 'SOS' && !it.duration) && (
+              <div className="col-span-2 flex gap-2">
+                <input type="number" min="1" className="field w-24" value={it.duration || ''} onChange={(e) => set({ duration: Number(e.target.value) })} />
+                <select className="field w-28" value={it.durationUnit} onChange={(e) => set({ durationUnit: e.target.value as any })}><option>days</option><option>weeks</option><option>months</option></select>
+              </div>
+            )}
+          </div>
+          <div className="hidden grid-cols-3 gap-3 sm:grid">
             <Field label="Brand (from pack, optional)"><input className="field" value={it.brand} onChange={(e) => set({ brand: e.target.value })} placeholder="Brand name" /></Field>
             <Field label="Route"><select className="field" value={it.route} onChange={(e) => set({ route: e.target.value })}>{ROUTES.map((r) => <option key={r}>{r}</option>)}</select></Field>
             <Field label="Dose unit"><select className="field" value={it.doseUnit} onChange={(e) => set({ doseUnit: e.target.value, doseQty: e.target.value === 'mL' ? 5 : it.doseQty })}>{UNITS.map((r) => <option key={r}>{r}</option>)}</select></Field>
           </div>
 
-          <div>
+          <div className="hidden sm:block">
             <span className="lbl">Dose {liquid && '(mL)'}</span>
             <div className="flex flex-wrap items-center gap-2">
               {solidDoses.map((d) => <Chip key={d} active={doseIsPreset && it.doseQty === d} onClick={() => { setCustomDose(false); set({ doseQty: d, doseText: '' }); }}>{d === 0.5 ? '½' : d} {it.doseUnit === 'mL' ? 'mL' : it.doseUnit + (d > 1 ? 's' : '')}</Chip>)}
@@ -84,12 +129,12 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
           </div>
 
           <div>
-            <div className="mb-1 flex items-center justify-between">
-              <span className="lbl !mb-0">Frequency</span>
+            <div className="mb-1 flex items-center justify-end sm:justify-between">
+              <span className="lbl !mb-0 hidden sm:block">Frequency</span>
               <label className="flex items-center gap-1.5 text-xs font-bold text-brand"><input type="checkbox" checked={it.useTaper} onChange={(e) => set({ useTaper: e.target.checked, taper: e.target.checked && !it.taper.length ? [{ id: uid(), dose: it.doseQty || 1, timesPerDay: 2, days: 3 }] : it.taper })} /> Tapering / custom schedule</label>
             </div>
             {!it.useTaper ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="hidden flex-wrap gap-2 sm:flex">
                 {FREQS.map((f) => <Chip key={f.v} tone={f.v === 'SOS' ? 'red' : 'brand'} active={it.freq === f.v} onClick={() => set({ freq: f.v as Freq, timesPerDay: f.v === 'CUSTOM' ? it.timesPerDay || 2 : f.perDay || 1, timing: f.v === 'HS' ? 'bedtime' : f.v === 'SOS' ? 'asreq' : it.timing === 'bedtime' || it.timing === 'asreq' ? 'after' : it.timing })}>{f.label}</Chip>)}
               </div>
             ) : (
@@ -124,7 +169,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
             )}
           </div>
 
-          <div>
+          <div className="hidden sm:block">
             <span className="lbl">Timing</span>
             <div className="flex flex-wrap gap-2">
               {TIMINGS.map((t) => <Chip key={t.v} tone="teal" active={it.timing === t.v} onClick={() => set({ timing: it.timing === t.v ? '' : (t.v as Timing) })}>{t.label}</Chip>)}
@@ -132,7 +177,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
           </div>
 
           {!it.useTaper && (
-            <div>
+            <div className="hidden sm:block">
               <span className="lbl">Duration</span>
               <div className="flex flex-wrap items-center gap-2">
                 {DURATIONS.map((d) => <Chip key={d} active={presetDur && it.duration === d} onClick={() => { setCustomDur(false); set({ duration: d, durationUnit: 'days' }); }}>{d} days</Chip>)}
@@ -148,7 +193,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <Field label={`Quantity ${qty.text && !it.qtyOverride ? '(auto: ' + qty.text + ')' : ''}`} hint="Leave blank to use the auto-calculated quantity.">
               <input className="field" value={it.qtyOverride} onChange={(e) => set({ qtyOverride: e.target.value })} placeholder={qty.text || 'e.g. 1 tube'} />
             </Field>
