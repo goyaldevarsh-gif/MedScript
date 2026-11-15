@@ -232,7 +232,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     const showIns = rx.showInstr !== false;
     /* few medicines: larger text so the page does not look empty */
     const nMed = rx.items.length;
-    const ms = nMed <= 3 ? 1.2 : nMed <= 5 ? 1.1 : nMed <= 7 ? 1.04 : 1;
+    const ms = nMed <= 3 ? 1.1 : nMed <= 5 ? 1.04 : 1;
     rx.items.forEach((it, idx) => {
       const t = itemTitle(it, L.nameDisplay, L.genericCaps);
       const indent = M + 7, w = CW - 7;
@@ -258,10 +258,11 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       let need = heightOf(`${idx + 1}. ` + nameFull, w, (brandFirst ? 11 : 10.2) * sc * ms, 'bold') + (compLine ? heightOf(compLine, w, 7.8 * sc * ms) : 0) + heightOf(partsLine, w, 8.6 * sc * ms, 'bold') + 2;
       if (insText) need += lang === 'hi' ? hiBlock(insText, w - 2, 8.8 * sc * ms, NAVY).h : heightOf(insText, w - 2, 8.5 * sc * ms, 'italic');
       ensure(Math.min(need + 1, 40));
+      const nb = (brandFirst ? 11 : 10.2) * sc * ms * 0.3528 * 0.9; // baseline offset scales with the font (stops overlap on crowded pages)
       font('bold', (brandFirst ? 11 : 10.2) * sc * ms, NAVY);
-      doc.text(`${idx + 1}.`, M, y + 3.5);
+      doc.text(`${idx + 1}.`, M, y + nb);
       const nameLines = wrap(t.main, w);
-      nameLines.forEach((l, i) => { font('bold', (brandFirst ? 11 : 10.2) * sc * ms, NAVY); ensure(lh(10.2 * sc * ms)); doc.text(l, indent, y + 3.5); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc * ms, GREY); doc.text(clean(t.sub), indent + tw, y + 3.5); } y += lh(10.2 * sc * ms); });
+      nameLines.forEach((l, i) => { font('bold', (brandFirst ? 11 : 10.2) * sc * ms, NAVY); ensure(lh(10.2 * sc * ms)); doc.text(l, indent, y + nb); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc * ms, GREY); doc.text(clean(t.sub), indent + tw, y + nb); } y += lh(10.2 * sc * ms); });
       if (compLine) para(compLine, indent, w, 'normal', brandFirst ? 7.2 * sc * ms : 7.8 * sc * ms, [128, 138, 152]);
       para(partsLine, indent, w, 'bold', 8.6 * sc * ms, [30, 64, 110]);
       if (it.useTaper && it.taper.length) {
@@ -269,7 +270,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
         para(steps, indent, w, 'normal', 8.4 * sc * ms, NAVY);
       }
       if (insText) { if (lang === 'hi') hiPara(insText, indent, w - 2, 8.8 * sc * ms, [70, 82, 100], false); else para(insText, indent, w - 2, 'italic', 8.5 * sc * ms, [70, 82, 100]); }
-      y += 1.7 + (ms - 1) * 6;
+      y += (1.7 + (ms - 1) * 6) * Math.min(1, 0.5 + fit / 2);
     });
     y += 0.5;
   }
@@ -372,7 +373,8 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
 export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts): Promise<{ blob: Blob; pages: number }> {
   const first = await renderPdf(rx, snap, opts, 1);
   if (first.pages === 1) return first;
-  for (const f of [0.94, 0.88]) { const t = await renderPdf(rx, snap, opts, f); if (t.pages === 1) return t; }
+  // keep the prescription on ONE page: shrink everything a little at a time until it fits
+  for (const f of [0.97, 0.94, 0.91, 0.88, 0.85, 0.82, 0.79, 0.76, 0.73, 0.7, 0.67, 0.64, 0.61, 0.58, 0.55]) { const t = await renderPdf(rx, snap, opts, f); if (t.pages === 1) return t; }
   return first;
 }
 
