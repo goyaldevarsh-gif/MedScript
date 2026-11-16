@@ -63,7 +63,7 @@ Myonal 50|Eperisone 50 mg|Tablet|Muscle relaxant
 Shelcal 500|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 250 IU|Tablet|Calcium + Vitamin D
 Cipcal 500|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 250 IU|Tablet|Calcium + Vitamin D
 Calcirol Sachet|Cholecalciferol (Vitamin D3) 60000 IU|Sachet|Vitamin D
-Uprise-D3 60K|Cholecalciferol (Vitamin D3) 60000 IU|Softgel capsule|Vitamin D
+Uprise-D3 60K|Cholecalciferol (Vitamin D3) 60000 IU|Capsule|Vitamin D
 Arachitol 6L|Cholecalciferol (Vitamin D3) 600000 IU/mL|Injection:IM|Vitamin D
 Rocaltrol|Calcitriol 0.25 mcg|Capsule|Vitamin D (active)
 Limcee 500|Vitamin C (Ascorbic acid) 500 mg|Tablet|Vitamin
@@ -185,13 +185,13 @@ Gemcal Capsule|Calcium carbonate + Calcitriol 0.25 mcg + Zinc|Capsule|Calcium + 
 Gemcal Plus|Calcium carbonate + Calcitriol + Vitamin K2-7 + Methylcobalamin + Magnesium + Boron + Zinc|Capsule|Calcium + Vitamin D
 Gemcal Suspension|Calcium citrate + Calcitriol|Suspension|Calcium + Vitamin D
 Gemcal-XT|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 2000 IU + L-Methylfolate calcium 1 mg + Methylcobalamin 1500 mcg + Pyridoxal-5-phosphate 20 mg|Tablet|Calcium + Vitamin D
-Tayo 60K|Cholecalciferol (Vitamin D3) 60000 IU|Chewable tablet|Vitamin D
-Tayo Soft 60K|Cholecalciferol (Vitamin D3) 60000 IU|Softgel capsule|Vitamin D
-Tayo Derm 60K|Cholecalciferol (Vitamin D3) 60000 IU|Softgel capsule|Vitamin D
+Tayo 60K|Cholecalciferol (Vitamin D3) 60000 IU|Tablet|Vitamin D
+Tayo Soft 60K|Cholecalciferol (Vitamin D3) 60000 IU|Capsule|Vitamin D
+Tayo Derm 60K|Cholecalciferol (Vitamin D3) 60000 IU|Capsule|Vitamin D
 Tayo Total|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 2000 IU + Methylcobalamin 1500 mcg + L-Methylfolate calcium 1 mg + Pyridoxal-5-phosphate 20 mg|Tablet|Calcium + Vitamin D
 Tayo-M|Calcium carbonate 1250 mg + Cholecalciferol (Vitamin D3) 2000 IU + Methylcobalamin 1500 mcg + L-Methylfolate calcium 1 mg + Pyridoxal-5-phosphate 20 mg|Tablet|Calcium + Vitamin D
-Uprise-D3 1K|Cholecalciferol (Vitamin D3) 1000 IU|Softgel capsule|Vitamin D
-Uprise-D3 2K|Cholecalciferol (Vitamin D3) 2000 IU|Softgel capsule|Vitamin D
+Uprise-D3 1K|Cholecalciferol (Vitamin D3) 1000 IU|Capsule|Vitamin D
+Uprise-D3 2K|Cholecalciferol (Vitamin D3) 2000 IU|Capsule|Vitamin D
 Uprise-D3 Sachet|Cholecalciferol (Vitamin D3) 60000 IU|Sachet|Vitamin D
 Uprise-D3 60K Syrup|Cholecalciferol (Vitamin D3) 60000 IU/5 mL|Syrup|Vitamin D
 Cifran 500|Ciprofloxacin 500 mg|Tablet|Antibiotic
@@ -397,6 +397,232 @@ Protinex|Protein supplement|Powder|Nutritional supplement
 Ensure|Nutritional formula|Powder|Nutritional supplement
 Betnovate-N|Betamethasone 0.1% + Neomycin 0.5%|Cream:Topical|Corticosteroid (topical)
 Dermovate Cream|Clobetasol 0.05% w/w|Cream:Topical|Corticosteroid (topical)
+Saridon|Paracetamol 250 mg + Propyphenazone 150 mg + Caffeine 50 mg|Tablet|Analgesic / Antipyretic
+Disprin|Aspirin 350 mg|Tablet|Analgesic / Antipyretic
+Loprin 75|Aspirin 75 mg|Tablet|Antiplatelet
+Tapadol 75|Tapentadol 75 mg|Tablet|Opioid analgesic
+Tapadol 100|Tapentadol 100 mg|Tablet|Opioid analgesic
+Folitrax 2.5|Methotrexate 2.5 mg|Tablet|DMARD
+Folitrax 5|Methotrexate 5 mg|Tablet|DMARD
+Folitrax 10|Methotrexate 10 mg|Tablet|DMARD
+HCQS 400|Hydroxychloroquine 400 mg|Tablet|DMARD
+Arava 10|Leflunomide 10 mg|Tablet|DMARD
+Clexane 80|Enoxaparin 80 mg/0.8 mL|Injection:SC|Anticoagulant
+Clexane 100|Enoxaparin 100 mg/1 mL|Injection:SC|Anticoagulant
+Pradaxa 75|Dabigatran 75 mg|Capsule|Anticoagulant
+Augmentin 375|Amoxicillin 250 mg + Clavulanic acid 125 mg|Tablet|Antibiotic
+Augmentin Duo Suspension|Amoxicillin 200 mg + Clavulanic acid 28.5 mg/5 mL|Suspension|Antibiotic
+Clavam 375|Amoxicillin 250 mg + Clavulanic acid 125 mg|Tablet|Antibiotic
+Mox 250|Amoxicillin 250 mg|Capsule|Antibiotic
+Novamox 250|Amoxicillin 250 mg|Capsule|Antibiotic
+Azithral 200 Liquid|Azithromycin 200 mg/5 mL|Suspension|Antibiotic
+Cifran 250|Ciprofloxacin 250 mg|Tablet|Antibiotic
+Cifran CT|Ciprofloxacin 500 mg + Tinidazole 600 mg|Tablet|Antibiotic
+Ciplox 250|Ciprofloxacin 250 mg|Tablet|Antibiotic
+Levoflox 750|Levofloxacin 750 mg|Tablet|Antibiotic
+Oflox 400|Ofloxacin 400 mg|Tablet|Antibiotic
+Ceftum 250|Cefuroxime 250 mg|Tablet|Antibiotic
+Zinacef 250|Cefuroxime 250 mg|Tablet|Antibiotic
+Cefakind 250|Cefuroxime 250 mg|Tablet|Antibiotic
+Cleocin 150|Clindamycin 150 mg|Capsule|Antibiotic
+Dalacin C 150|Clindamycin 150 mg|Capsule|Antibiotic
+Metrogyl 200|Metronidazole 200 mg|Tablet|Antibiotic
+Flagyl 200|Metronidazole 200 mg|Tablet|Antibiotic
+Fasigyn 500|Tinidazole 500 mg|Tablet|Antibiotic
+Bactrim DS|Trimethoprim 160 mg + Sulfamethoxazole 800 mg|Tablet|Antibiotic
+Monocef 500|Ceftriaxone 500 mg|Injection:IV|Antibiotic
+Metrogyl IV|Metronidazole 500 mg/100 mL|Injection:IV|Antibiotic
+Ciplox IV|Ciprofloxacin 200 mg/100 mL|Injection:IV|Antibiotic
+Levoflox IV|Levofloxacin 500 mg/100 mL|Injection:IV|Antibiotic
+Zocon 150|Fluconazole 150 mg|Tablet|Antifungal
+Lamisil 250|Terbinafine 250 mg|Tablet|Antifungal
+Sporanox 100|Itraconazole 100 mg|Capsule|Antifungal
+Zovirax 400|Acyclovir 400 mg|Tablet|Antiviral
+Zovirax 800|Acyclovir 800 mg|Tablet|Antiviral
+Zentel 400|Albendazole 400 mg|Tablet|Anthelmintic
+Perfalgan 1 g|Paracetamol 1 g/100 mL|Injection:IV|Analgesic / Antipyretic
+Kenadion 10 mg|Phytomenadione (Vitamin K1) 10 mg/mL|Injection:IV|Vitamin
+Lasix Injection|Furosemide 20 mg/2 mL|Injection:IV|Diuretic
+Normal Saline 500 mL|Sodium chloride 0.9% 500 mL|Injection:IV|IV fluid
+Ringer Lactate 500 mL|Ringer lactate 500 mL|Injection:IV|IV fluid
+Dextrose 5% 500 mL|Dextrose 5% 500 mL|Injection:IV|IV fluid
+DNS 500 mL|Dextrose 5% + Sodium chloride 0.9% 500 mL|Injection:IV|IV fluid
+Gelusil MPS|Aluminium hydroxide + Magnesium hydroxide + Simethicone|Tablet|Antacid
+Digene Tablet|Aluminium hydroxide + Magnesium hydroxide + Simethicone|Tablet|Antacid
+Eno|Sodium bicarbonate + Citric acid|Sachet|Antacid
+Mucaine Gel|Oxetacaine + Aluminium hydroxide + Magnesium hydroxide|Suspension|Antacid
+Normix 200|Rifaximin 200 mg|Tablet|Antibiotic (GI)
+Udiliv 300|Ursodeoxycholic acid 300 mg|Tablet|Hepatoprotective
+Liv 52|Herbal formulation|Tablet|Hepatoprotective
+Mesacol 800|Mesalamine 800 mg|Tablet|Anti-inflammatory (GI)
+Ecosprin-AV 75|Aspirin 75 mg + Atorvastatin 10 mg|Capsule|Antiplatelet
+Storvas 10|Atorvastatin 10 mg|Tablet|Statin
+Storvas 20|Atorvastatin 20 mg|Tablet|Statin
+Crestor 10|Rosuvastatin 10 mg|Tablet|Statin
+Clopitab 75|Clopidogrel 75 mg|Tablet|Antiplatelet
+Nebicard 5|Nebivolol 5 mg|Tablet|Antihypertensive
+Aten 50|Atenolol 50 mg|Tablet|Antihypertensive
+Amlokind 5|Amlodipine 5 mg|Tablet|Antihypertensive
+Stamlo 5|Amlodipine 5 mg|Tablet|Antihypertensive
+Telmikind 40|Telmisartan 40 mg|Tablet|Antihypertensive
+Telma 20|Telmisartan 20 mg|Tablet|Antihypertensive
+Telma 80|Telmisartan 80 mg|Tablet|Antihypertensive
+Repace 50|Losartan 50 mg|Tablet|Antihypertensive
+Losacar 50|Losartan 50 mg|Tablet|Antihypertensive
+Olmezest 20|Olmesartan 20 mg|Tablet|Antihypertensive
+Cardace 5|Ramipril 5 mg|Tablet|Antihypertensive
+Nikoran 5|Nicorandil 5 mg|Tablet|Anti-anginal
+Ranozex 500|Ranolazine 500 mg|Tablet (SR)|Anti-anginal
+Glycomet 850|Metformin 850 mg|Tablet|Antidiabetic
+Glycomet-GP 2|Metformin 500 mg + Glimepiride 2 mg|Tablet|Antidiabetic
+Janumet 50/500|Sitagliptin 50 mg + Metformin 500 mg|Tablet|Antidiabetic
+Istamet 50/500|Sitagliptin 50 mg + Metformin 500 mg|Tablet|Antidiabetic
+Tenepia 20|Teneligliptin 20 mg|Tablet|Antidiabetic
+Pioz 15|Pioglitazone 15 mg|Tablet|Antidiabetic
+Novomix 30|Insulin aspart 30/70 100 IU/mL|Injection:SC|Antidiabetic (insulin)
+Tresiba|Insulin degludec 100 IU/mL|Injection:SC|Antidiabetic (insulin)
+Basalog|Insulin glargine 100 IU/mL|Injection:SC|Antidiabetic (insulin)
+Neomercazole 5|Carbimazole 5 mg|Tablet|Thyroid
+Asthalin 4|Salbutamol 4 mg|Tablet|Bronchodilator
+Foracort 200 Inhaler|Formoterol 6 mcg + Budesonide 200 mcg|Inhaler:Inhalation|Bronchodilator combination
+Seroflo 250 Inhaler|Salmeterol 25 mcg + Fluticasone 250 mcg|Inhaler:Inhalation|Bronchodilator combination
+Duolin Inhaler|Levosalbutamol 50 mcg + Ipratropium 20 mcg|Inhaler:Inhalation|Bronchodilator combination
+Montair 4|Montelukast 4 mg|Tablet|Antiasthmatic
+Mucinac 600|Acetylcysteine 600 mg|Tablet|Mucolytic
+Xyzal 5|Levocetirizine 5 mg|Tablet|Antihistamine
+Cetzine Syrup|Cetirizine 5 mg/5 mL|Syrup|Antihistamine
+Revital H|Multivitamin + Multimineral + Ginseng|Capsule|Vitamin
+Venlor XR 75|Venlafaxine 75 mg|Capsule|Antidepressant
+Nexito 10|Escitalopram 10 mg|Tablet|Antidepressant
+Daxid 50|Sertraline 50 mg|Tablet|Antidepressant
+Keppra 500|Levetiracetam 500 mg|Tablet|Anticonvulsant
+Levipil 500|Levetiracetam 500 mg|Tablet|Anticonvulsant
+Encorate Chrono 500|Sodium valproate + Valproic acid 500 mg|Tablet (SR)|Anticonvulsant
+Urimax 0.4|Tamsulosin 0.4 mg|Capsule|Alpha blocker
+Finast 5|Finasteride 5 mg|Tablet|5-alpha reductase inhibitor
+Cital Syrup|Disodium hydrogen citrate 1.4 g/5 mL|Syrup|Urinary alkaliniser
+Tenovate Cream|Clobetasol 0.05% w/w|Cream:Topical|Corticosteroid (topical)
+Elocon Cream|Mometasone 0.1% w/w|Cream:Topical|Corticosteroid (topical)
+Cicatrin Powder|Neomycin + Bacitracin + Zinc bacitracin + Cysteine + Glycine|Other:Topical|Antibacterial (topical)
+Dolo Drops|Paracetamol 100 mg/mL|Drops|Analgesic / Antipyretic
+Crocin 650|Paracetamol 650 mg|Tablet|Analgesic / Antipyretic
+Cataflam 50|Diclofenac potassium 50 mg|Tablet|NSAID
+Celebrex 100|Celecoxib 100 mg|Capsule|NSAID (COX-2)
+Neurontin 400|Gabapentin 400 mg|Capsule|Neuropathic pain
+Meronem 500|Meropenem 500 mg|Injection:IV|Antibiotic
+Amicin 250|Amikacin 250 mg/2 mL|Injection:IV|Antibiotic
+Genticyn 80|Gentamicin 80 mg/2 mL|Injection:IM|Antibiotic
+Combutol 600|Ethambutol 600 mg|Tablet|Anti-tubercular
+Combutol 800|Ethambutol 800 mg|Tablet|Anti-tubercular
+R-Cin 450|Rifampicin 450 mg|Capsule|Anti-tubercular
+Singulair 10|Montelukast 10 mg|Tablet|Antiasthmatic
+Ambrodil 30|Ambroxol 30 mg|Tablet|Mucolytic
+Candid Cream|Clotrimazole 1% w/w|Cream:Topical|Antifungal (topical)
+Nizral Shampoo|Ketoconazole 2% w/v|Lotion:Topical|Antifungal (topical)
+Lacto Calamine Lotion|Calamine + Zinc oxide|Lotion:Topical|Soothing lotion
+Cobadex CZS|Vitamin B-complex + Vitamin C + Zinc|Capsule|Vitamin
+Polybion|Vitamin B-complex|Syrup|Vitamin
+Hyalgan|Sodium hyaluronate 20 mg/2 mL|Injection:Intra-articular|Viscosupplement (joint)
+Ostenil|Sodium hyaluronate 20 mg/2 mL|Injection:Intra-articular|Viscosupplement (joint)
+Kenalog-40|Triamcinolone 40 mg/mL|Injection:Intra-articular|Corticosteroid
+Depo-Medrol 80|Methylprednisolone acetate 80 mg/2 mL|Injection:Intra-articular|Corticosteroid
+Xylocaine 1%|Lignocaine 1%|Injection:Local infiltration|Local anaesthetic
+Xylocaine Heavy 5%|Lignocaine 5% + Dextrose 7.5%|Injection:Other|Local anaesthetic
+Bupivan Heavy 0.5%|Bupivacaine 0.5% + Dextrose 8%|Injection:Other|Local anaesthetic
+Telma-AM|Telmisartan 40 mg + Amlodipine 5 mg|Tablet|Antihypertensive
+Amlokind-AT|Amlodipine 5 mg + Atenolol 50 mg|Tablet|Antihypertensive
+Losar-H|Losartan 50 mg + Hydrochlorothiazide 12.5 mg|Tablet|Antihypertensive
+Sorbitrate 10|Isosorbide dinitrate 10 mg|Tablet|Anti-anginal
+Lanoxin 0.25|Digoxin 0.25 mg|Tablet|Cardiac glycoside
+Ivabrad 5|Ivabradine 5 mg|Tablet|Anti-anginal
+Dytor 10|Torsemide 10 mg|Tablet|Diuretic
+Brilinta 90|Ticagrelor 90 mg|Tablet|Antiplatelet
+Trental 400|Pentoxifylline 400 mg|Tablet (SR)|Vasodilator
+Glucobay 50|Acarbose 50 mg|Tablet|Antidiabetic
+Volix 0.2|Voglibose 0.2 mg|Tablet|Antidiabetic
+Glimestar 2|Glimepiride 2 mg|Tablet|Antidiabetic
+Trajenta 5|Linagliptin 5 mg|Tablet|Antidiabetic
+Onglyza 5|Saxagliptin 5 mg|Tablet|Antidiabetic
+NovoRapid|Insulin aspart 100 IU/mL|Injection:SC|Antidiabetic (insulin)
+Humalog|Insulin lispro 100 IU/mL|Injection:SC|Antidiabetic (insulin)
+Vertin 8|Betahistine 8 mg|Tablet|Anti-vertigo
+Stemetil 5|Prochlorperazine 5 mg|Tablet|Antiemetic
+Otrivin Nasal Drops|Xylometazoline 0.1% w/v|Drops:Nasal|Nasal decongestant
+Econorm|Saccharomyces boulardii 250 mg|Sachet|Probiotic
+Unienzyme|Digestive enzymes (fungal diastase + papain + simethicone)|Tablet|Digestive enzyme
+Shelcal HD|Calcium carbonate 500 mg + Vitamin D3 1000 IU|Tablet|Calcium / Vitamin D
+Calcirol 60K|Cholecalciferol 60000 IU|Sachet|Vitamin D
+D-Rise 60K|Cholecalciferol 60000 IU|Capsule|Vitamin D
+Nurokind-Plus|Methylcobalamin 1500 mcg + Alpha lipoic acid + Pyridoxine + Folic acid|Capsule|Neuropathic supplement
+Pregabid 75|Pregabalin 75 mg|Capsule|Neuropathic pain
+Pregalin M 75|Pregabalin 75 mg + Methylcobalamin 750 mcg|Capsule|Neuropathic pain
+Gabapin NT|Gabapentin 100 mg + Nortriptyline 10 mg|Tablet|Neuropathic pain
+Duvanta 20|Duloxetine 20 mg|Capsule|Neuropathic pain
+Thiocol 4|Thiocolchicoside 4 mg|Capsule|Muscle relaxant
+Baclof 10|Baclofen 10 mg|Tablet|Muscle relaxant
+Mobizox|Chlorzoxazone 250 mg + Paracetamol 325 mg|Tablet|Muscle relaxant
+Indocap 25|Indomethacin 25 mg|Capsule|NSAID
+Combiflam Suspension|Ibuprofen 100 mg + Paracetamol 162.5 mg/5 mL|Suspension|NSAID
+Dynapar Gel|Diclofenac diethylamine 1.16% w/w|Gel:Topical|NSAID (topical)
+Diclomax Gel|Diclofenac diethylamine 1.16% w/w|Gel:Topical|NSAID (topical)
+Volini Spray|Diclofenac + Methyl salicylate + Menthol + Linseed oil|Spray:Topical|NSAID (topical)
+Moov Ointment|Menthol + Methyl salicylate + Camphor + Eucalyptus oil|Ointment:Topical|Counter-irritant
+Iodex|Methyl salicylate + Iodine + Menthol|Ointment:Topical|Counter-irritant
+Zandu Balm|Menthol + Camphor + Methyl salicylate|Ointment:Topical|Counter-irritant
+Relispray|Diclofenac + Methyl salicylate + Menthol|Spray:Topical|NSAID (topical)
+Quadriderm RF|Betamethasone + Gentamicin + Tolnaftate + Iodochlorhydroxyquin|Cream:Topical|Corticosteroid combination (topical)
+Soframycin Cream|Framycetin 1% w/w|Cream:Topical|Antibacterial (topical)
+T-Bact Ointment|Mupirocin 2% w/w|Ointment:Topical|Antibacterial (topical)
+Bactroban|Mupirocin 2% w/w|Ointment:Topical|Antibacterial (topical)
+Silverex Cream|Silver sulfadiazine 1% w/w|Cream:Topical|Burn dressing
+Burnol Cream|Aminacrine + Cetrimide|Cream:Topical|Antiseptic (topical)
+Povidone Iodine 5%|Povidone iodine 5% w/v|Lotion:Topical|Antiseptic (topical)
+Hydrogen Peroxide 6%|Hydrogen peroxide 6% w/v|Lotion:Topical|Antiseptic (topical)
+Sofratulle|Framycetin impregnated gauze|Other:Topical|Wound dressing
+Gentamicin Collagen Sponge|Gentamicin 130 mg collagen implant|Other:Local infiltration|Antibiotic (local)
+Rabeprazole 20|Rabeprazole 20 mg|Tablet|PPI
+Pantocid DSR|Pantoprazole 40 mg + Domperidone 30 mg SR|Capsule|PPI combination
+Omez D|Omeprazole 20 mg + Domperidone 10 mg|Capsule|PPI combination
+Ranitidine 150|Ranitidine 150 mg|Tablet|H2 blocker
+Sucral O|Sucralfate 1 g + Oxetacaine 20 mg/10 mL|Suspension|Gastroprotective
+Meftal Spas|Mefenamic acid 250 mg + Dicyclomine 10 mg|Tablet|Antispasmodic
+Duphalac|Lactulose 10 g/15 mL|Syrup|Laxative
+Isabgol|Psyllium husk|Powder|Laxative
+Electral|ORS (WHO formula)|Powder|Rehydration
+Tab Zofer 4|Ondansetron 4 mg|Tablet|Antiemetic
+Vomikind 4|Ondansetron 4 mg|Tablet|Antiemetic
+Defcort 6|Deflazacort 6 mg|Tablet|Corticosteroid
+Decadron 4 mg Inj|Dexamethasone 4 mg/mL|Injection:IV|Corticosteroid
+Hydrocort 100|Hydrocortisone 100 mg|Injection:IV|Corticosteroid
+Febuxostat 40|Febuxostat 40 mg|Tablet|Anti-gout
+Zurig 40|Febuxostat 40 mg|Tablet|Anti-gout
+Colchicine 0.5|Colchicine 0.5 mg|Tablet|Anti-gout
+Osteofos 70|Alendronate 70 mg|Tablet|Bisphosphonate
+Zoledronic Acid 5 mg|Zoledronic acid 5 mg/100 mL|Injection:IV|Bisphosphonate
+Reclast 5 mg|Zoledronic acid 5 mg/100 mL|Injection:IV|Bisphosphonate
+Prolia 60|Denosumab 60 mg/mL|Injection:SC|Anti-resorptive (osteoporosis)
+Strontium Ranelate|Strontium ranelate 2 g|Sachet|Osteoporosis
+Calcitriol 0.25|Calcitriol 0.25 mcg|Capsule|Vitamin D
+Rocaltrol 0.25|Calcitriol 0.25 mcg|Capsule|Vitamin D
+Sandocal 1000|Calcium 1000 mg effervescent|Tablet|Calcium / Vitamin D
+Osteocare|Calcium + Magnesium + Zinc + Vitamin D3|Syrup|Calcium / Vitamin D
+Contramal 100|Tramadol 100 mg/2 mL|Injection:IM|Opioid analgesic
+Tidigesic 0.2|Buprenorphine 0.2 mg|Tablet|Opioid analgesic
+Pethidine 50|Pethidine 50 mg/mL|Injection:IM|Opioid analgesic
+Morphine 10|Morphine 10 mg/mL|Injection:IM|Opioid analgesic
+Ketorol 30|Ketorolac 30 mg/mL|Injection:IM|NSAID
+Dynapar QPS|Diclofenac 75 mg/3 mL|Injection:IM|NSAID
+Diclofenac Inj 75|Diclofenac 75 mg/3 mL|Injection:IM|NSAID
+Neurobion Inj|Vitamin B1 + B6 + B12|Injection:IM|Vitamin
+Methycobal Inj 500|Methylcobalamin 500 mcg/mL|Injection:IM|Vitamin
+Tranexa 500|Tranexamic acid 500 mg|Tablet|Antifibrinolytic
+Tranexa Inj 500|Tranexamic acid 500 mg/5 mL|Injection:IV|Antifibrinolytic
+Hemostat 500|Tranexamic acid 500 mg|Tablet|Antifibrinolytic
+Injection Tetanus Toxoid|Tetanus toxoid 0.5 mL|Injection:IM|Vaccine
+Tetglob 250|Human tetanus immunoglobulin 250 IU|Injection:IM|Immunoglobulin
+Anti-D 300|Anti-D immunoglobulin 300 mcg|Injection:IM|Immunoglobulin
+Dr Reckeweg Arnica 30|Arnica montana 30C|Drops|Homeopathic
+Thrombophob Ointment|Heparin + Benzyl nicotinate|Ointment:Topical|Topical heparinoid
 `.trim().split('\n');
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -415,7 +641,7 @@ export const BRANDS: Medicine[] = ROWS.map((line) => {
   const route = routeX || (['Gel', 'Cream', 'Ointment'].includes(form) ? 'Topical' : 'Oral');
   return {
     id: `brand-${slug(brand)}`, brand, generic: ingredients.map((i) => i.name).join(' + '),
-    ingredients, strength: ingredients.map((i) => i.strength).join(' + '), form, route,
+    ingredients, strength: ingredients.map((i) => i.strength).filter(Boolean).join(' + '), form, route,
     manufacturer: '', verified: false, source: 'brand' as const, category,
   };
 });
