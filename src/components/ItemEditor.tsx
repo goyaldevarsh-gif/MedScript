@@ -70,29 +70,30 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
             </div>
           )}
           {/* phone: everything stays editable, but as compact dropdowns in two columns */}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-6">
-            <label className="col-span-2 block"><span className="lbl">Brand (from pack, optional)</span><input className="field" value={it.brand} onChange={(e) => set({ brand: e.target.value })} placeholder="Brand name" /></label>
-            <label className="order-last block sm:order-none sm:col-span-2"><span className="lbl">Quantity</span>
-              <select className="field" value={customQty ? 'custom' : it.qtyOverride === '' ? 'auto' : QTY_PRESETS.includes(it.qtyOverride) ? it.qtyOverride : 'custom'} onChange={(e) => { const v = e.target.value; if (v === 'custom') setCustomQty(true); else { setCustomQty(false); set({ qtyOverride: v === 'auto' ? '' : v }); } }}>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-end">
+            <label className="col-span-2 block sm:min-w-[150px] sm:flex-1"><span className="lbl">Brand (from pack, optional)</span><input className="field" value={it.brand} onChange={(e) => set({ brand: e.target.value })} placeholder="Brand name" /></label>
+            <label className="order-last block sm:order-none"><span className="lbl">Quantity</span>
+              <select className="field sm:!w-auto sm:!px-2 sm:!py-2" value={customQty ? 'custom' : it.qtyOverride === '' ? 'auto' : QTY_PRESETS.includes(it.qtyOverride) ? it.qtyOverride : 'custom'} onChange={(e) => { const v = e.target.value; if (v === 'custom') setCustomQty(true); else { setCustomQty(false); set({ qtyOverride: v === 'auto' ? '' : v }); } }}>
                 <option value="auto">Auto{qty.text ? ` (${qty.text})` : ''}</option>
                 {QTY_PRESETS.map((q) => <option key={q} value={q}>{q}</option>)}
                 <option value="custom">Custom…</option>
               </select>
             </label>
-            <label className="order-last block sm:order-none sm:col-span-2"><span className="lbl">Extra note</span>
-              <select className="field" value={customNote ? 'custom' : it.notes === '' ? 'none' : NOTE_PRESETS.includes(it.notes) ? it.notes : 'custom'} onChange={(e) => { const v = e.target.value; if (v === 'custom') setCustomNote(true); else { setCustomNote(false); set({ notes: v === 'none' ? '' : v }); } }}>
+            <label className="order-last block sm:order-none"><span className="lbl">Extra note</span>
+              <select className="field sm:!w-auto sm:!px-2 sm:!py-2" value={customNote ? 'custom' : it.notes === '' ? 'none' : NOTE_PRESETS.includes(it.notes) ? it.notes : 'custom'} onChange={(e) => { const v = e.target.value; if (v === 'custom') setCustomNote(true); else { setCustomNote(false); set({ notes: v === 'none' ? '' : v }); } }}>
                 <option value="none">None</option>
                 {NOTE_PRESETS.map((q) => <option key={q} value={q}>{q}</option>)}
                 <option value="custom">Custom…</option>
               </select>
             </label>
-            {(customQty || (it.qtyOverride !== '' && !QTY_PRESETS.includes(it.qtyOverride))) && <input className="field order-last col-span-2 sm:order-none sm:col-span-3" value={it.qtyOverride} onChange={(e) => set({ qtyOverride: e.target.value })} placeholder="e.g. 1 tube" />}
-            {(customNote || (it.notes !== '' && !NOTE_PRESETS.includes(it.notes))) && <input className="field order-last col-span-2 sm:order-none sm:col-span-3" value={it.notes} onChange={(e) => set({ notes: e.target.value })} placeholder="Type your note" />}
-            <label className="block"><span className="lbl">Route</span><select className="field" value={it.route} onChange={(e) => set({ route: e.target.value })}>{ROUTES.map((r) => <option key={r}>{r}</option>)}</select></label>
-            <label className="block"><span className="lbl">Dose unit</span><select className="field" value={it.doseUnit} onChange={(e) => set({ doseUnit: e.target.value, doseQty: e.target.value === 'mL' ? 5 : it.doseQty })}>{UNITS.map((r) => <option key={r}>{r}</option>)}</select></label>
+            {(customQty || (it.qtyOverride !== '' && !QTY_PRESETS.includes(it.qtyOverride))) && <input className="field order-last col-span-2 sm:order-none sm:w-full" value={it.qtyOverride} onChange={(e) => set({ qtyOverride: e.target.value })} placeholder="e.g. 1 tube" />}
+            {(customNote || (it.notes !== '' && !NOTE_PRESETS.includes(it.notes))) && <input className="field order-last col-span-2 sm:order-none sm:w-full" value={it.notes} onChange={(e) => set({ notes: e.target.value })} placeholder="Type your note" />}
+            <div className="hidden sm:block sm:basis-full" />
+            <label className="block"><span className="lbl">Route</span><select className="field sm:!w-auto sm:!px-2 sm:!py-2" value={it.route} onChange={(e) => set({ route: e.target.value })}>{ROUTES.map((r) => <option key={r}>{r}</option>)}</select></label>
+            <label className="block"><span className="lbl">Dose unit</span><select className="field sm:!w-auto sm:!px-2 sm:!py-2" value={it.doseUnit} onChange={(e) => set({ doseUnit: e.target.value, doseQty: e.target.value === 'mL' ? 5 : it.doseQty })}>{UNITS.map((r) => <option key={r}>{r}</option>)}</select></label>
             {solidDoses.length > 0 && (
               <label className="block"><span className="lbl">Dose</span>
-                <select className="field" value={doseIsPreset ? String(it.doseQty) : 'custom'} onChange={(e) => { if (e.target.value === 'custom') setCustomDose(true); else { setCustomDose(false); set({ doseQty: Number(e.target.value), doseText: '' }); } }}>
+                <select className="field sm:!w-auto sm:!px-2 sm:!py-2" value={doseIsPreset ? String(it.doseQty) : 'custom'} onChange={(e) => { if (e.target.value === 'custom') setCustomDose(true); else { setCustomDose(false); set({ doseQty: Number(e.target.value), doseText: '' }); } }}>
                   {solidDoses.map((d) => <option key={d} value={String(d)}>{d === 0.5 ? '½' : d} {unitS + (d > 1 && unitS !== 'mL' ? 's' : '')}</option>)}
                   <option value="custom">Custom…</option>
                 </select>
@@ -100,21 +101,21 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
             )}
             {!it.useTaper && (
               <label className="block"><span className="lbl">Frequency</span>
-                <select className="field" value={it.freq} onChange={(e) => pickFreq(e.target.value)}>{FREQS.map((f) => <option key={f.v} value={f.v}>{f.label}</option>)}</select>
+                <select className="field sm:!w-auto sm:!px-2 sm:!py-2" value={it.freq} onChange={(e) => pickFreq(e.target.value)}>{FREQS.map((f) => <option key={f.v} value={f.v}>{f.label}</option>)}</select>
               </label>
             )}
             {(!doseIsPreset || solidDoses.length === 0) && (
-              <div className="col-span-2 flex flex-wrap gap-2 sm:col-span-6">
+              <div className="col-span-2 flex flex-wrap gap-2 sm:w-full">
                 <input type="number" step="0.5" min="0" className="field w-24" value={it.doseQty ?? ''} placeholder="Qty" onChange={(e) => set({ doseQty: e.target.value === '' ? null : Number(e.target.value) })} />
                 <input className="field min-w-0 flex-1" value={it.doseText} placeholder="or text e.g. as directed" onChange={(e) => set({ doseText: e.target.value, doseQty: e.target.value ? null : it.doseQty })} />
               </div>
             )}
             <label className="block"><span className="lbl">Timing</span>
-              <select className="field" value={it.timing} onChange={(e) => set({ timing: e.target.value as Timing })}><option value="">Not specified</option>{TIMINGS.map((t) => <option key={t.v} value={t.v}>{t.label}</option>)}</select>
+              <select className="field sm:!w-auto sm:!px-2 sm:!py-2" value={it.timing} onChange={(e) => set({ timing: e.target.value as Timing })}><option value="">Not specified</option>{TIMINGS.map((t) => <option key={t.v} value={t.v}>{t.label}</option>)}</select>
             </label>
             {!it.useTaper && (
               <label className="block"><span className="lbl">Duration</span>
-                <select className="field" value={presetDur ? String(it.duration) : it.freq === 'SOS' && !it.duration ? 'nolimit' : 'custom'} onChange={(e) => { const v = e.target.value; if (v === 'custom') setCustomDur(true); else if (v === 'nolimit') { setCustomDur(false); set({ duration: 0 }); } else { setCustomDur(false); set({ duration: Number(v), durationUnit: 'days' }); } }}>
+                <select className="field sm:!w-auto sm:!px-2 sm:!py-2" value={presetDur ? String(it.duration) : it.freq === 'SOS' && !it.duration ? 'nolimit' : 'custom'} onChange={(e) => { const v = e.target.value; if (v === 'custom') setCustomDur(true); else if (v === 'nolimit') { setCustomDur(false); set({ duration: 0 }); } else { setCustomDur(false); set({ duration: Number(v), durationUnit: 'days' }); } }}>
                   {DURATIONS.map((d) => <option key={d} value={String(d)}>{d} days</option>)}
                   {it.freq === 'SOS' && <option value="nolimit">No limit</option>}
                   <option value="custom">Custom…</option>
@@ -122,7 +123,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
               </label>
             )}
             {!it.useTaper && !presetDur && !(it.freq === 'SOS' && !it.duration) && (
-              <div className="col-span-2 flex gap-2 sm:col-span-6">
+              <div className="col-span-2 flex gap-2 sm:w-full">
                 <input type="number" min="1" className="field w-24" value={it.duration || ''} onChange={(e) => set({ duration: Number(e.target.value) })} />
                 <select className="field w-28" value={it.durationUnit} onChange={(e) => set({ durationUnit: e.target.value as any })}><option>days</option><option>weeks</option><option>months</option></select>
               </div>
@@ -171,7 +172,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
               <span className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-teal-700"><Sparkles size={14} /> Patient instruction · review before approving</span>
               {it.instructionOverride && <button className="flex items-center gap-1 text-xs font-bold text-brand" onClick={() => set({ instructionOverride: '' })}><RotateCcw size={12} /> Reset to auto</button>}
             </div>
-            <textarea className="field min-h-[56px] bg-white" value={it.instructionOverride || auto} onChange={(e) => set({ instructionOverride: e.target.value === auto ? '' : e.target.value })} />
+            <textarea className="field min-h-[44px] bg-white" rows={2} value={it.instructionOverride || auto} onChange={(e) => set({ instructionOverride: e.target.value === auto ? '' : e.target.value })} />
             {lang !== 'en' && (
               <div className="mt-2 text-sm font-medium text-teal-900">
                 <b>Hindi:</b> {instructionHi(it).sentence}
