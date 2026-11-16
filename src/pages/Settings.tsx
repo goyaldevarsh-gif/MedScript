@@ -89,6 +89,7 @@ function DoctorCard({ s }: { s: AppSettings }) {
         <PhonesField label="Your mobile number(s)" primary={d.phone} more={d.morePhones} onChange={(p, m) => set({ phone: p, morePhones: m })} /><E k="phone" />
         <Field label="Email (optional)"><input type="email" className="field" value={d.email} onChange={(e) => set({ email: e.target.value })} /><E k="email" /></Field>
         <Field label="QR link for all prescriptions (optional)" hint="Printed as a small QR on every Rx. A clinic-specific or per-Rx link overrides it." className="sm:col-span-2"><input className="field" value={d.qrUrl || ''} onChange={(e) => set({ qrUrl: e.target.value.trim() })} placeholder="https://… (website, WhatsApp, Google review, patient guide)" /></Field>
+        <Field label="Condition-wise guide site (optional)" hint="Link of your own patient-guide site. When the diagnosis matches a page, the QR opens that page; otherwise the link above is used. Leave empty to turn off." className="sm:col-span-2"><input className="field" value={d.eduBase || ''} onChange={(e) => set({ eduBase: e.target.value.trim() })} placeholder="https://yourname.github.io/your-guide-site" /></Field>
       </div>
       <div className="flex items-center justify-between">
         <div className="text-xs font-semibold text-slate-500">{!d.regNo.trim() && <span className="flex items-center gap-1 text-amber-700"><AlertTriangle size={13} /> Registration number is needed before you can authorise prescriptions.</span>}</div>

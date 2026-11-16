@@ -40,6 +40,8 @@ export interface PdfToggles { signature: boolean; stamp: boolean; logo: boolean 
 export interface Doctor {
   fullName: string; qualifications: string; specialty: string; regNo: string; regCouncil: string;
   phone: string; email: string; morePhones?: string[]; qrUrl?: string;
+  /** base link of the doctor's own patient-guide site; when set, the Rx QR opens the page matching the diagnosis (falls back to qrUrl) */
+  eduBase?: string;
 }
 export interface Letterhead { on: boolean; top: number; bottom: number }
 export interface Clinic { letterhead?: Letterhead; logoSize?: 'S' | 'M' | 'L'; id: string; name: string; address: string; phone: string; email: string; timings: string; logo: string; whatsapp?: string; appointmentNote?: string; morePhones?: string[]; qrUrl?: string }

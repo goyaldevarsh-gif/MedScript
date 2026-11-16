@@ -5,6 +5,7 @@ import { figuresPng, partLabel } from './body';
 import { detailOf } from './detail';
 import { woundLine } from './wound';
 import QRCode from 'qrcode';
+import { eduUrl } from '../data/eduMap';
 import { dosePattern, computeQty, doseLabel, durationLabel, freqLabel, freqMeta, itemInstructions, timingMeta } from './dosage';
 import { addDays, fmtDate, fmtDateTime } from './util';
 
@@ -95,7 +96,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const logoSize = clinic.logo ? await imageSize(clinic.logo) : null;
   const c = rx.clinical;
   const body = await figuresPng(c.bodyParts || [], rx.wound?.on ? rx.wound.pins || [] : []).catch(() => null);
-  const qrText = (rx.qrUrl ?? (clinic.qrUrl || snap.doctor.qrUrl) ?? '').trim();
+  const qrText = (rx.qrUrl ?? (eduUrl(rx, snap.doctor.eduBase) || clinic.qrUrl || snap.doctor.qrUrl) ?? '').trim();
   const qrUrl = qrText ? await QRCode.toDataURL(qrText, { margin: 0, width: 240, errorCorrectionLevel: 'M', color: { dark: '#3b4a5e', light: '#ffffff' } }).catch(() => '') : '';
   const lang: 'en' | 'hi' = rx.lang === 'en' ? 'en' : 'hi';
   const T = (en: string, hi: string) => (lang === 'hi' ? hi : en);
