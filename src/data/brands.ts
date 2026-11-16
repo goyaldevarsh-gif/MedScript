@@ -210,6 +210,98 @@ Tendocare Forte|L-Arginine (SR) 500 mg + Chondroitin sulphate 200 mg + Collagen 
 Tendocare|Collagen peptide + Sodium hyaluronate + Chondroitin sulphate + Vitamin C|Tablet|Collagen / tendon support
 T-Heal|Collagen peptide type I + Mucopolysaccharides + Vitamin C|Capsule|Collagen / tendon support
 T-Heal Forte|L-Arginine + Collagen peptide type I + Sodium hyaluronate + Chondroitin sulphate + Vitamin C|Tablet|Collagen / tendon support
+Ketorol 10|Ketorolac 10 mg|Tablet|NSAID
+Ketorol 30 Injection|Ketorolac 30 mg/mL|Injection:IM|NSAID
+Dynapar AQ Injection|Diclofenac 75 mg/3 mL|Injection:IM|NSAID
+Dolokind Plus|Diclofenac 50 mg + Paracetamol 325 mg|Tablet|NSAID combination
+Dolo-Neurobion Forte|Diclofenac + Thiamine + Pyridoxine + Cyanocobalamin|Tablet|NSAID combination
+Sumo|Nimesulide 100 mg + Paracetamol 325 mg|Tablet|NSAID combination
+Nise 100|Nimesulide 100 mg|Tablet|NSAID
+Melflam 7.5|Meloxicam 7.5 mg|Tablet|NSAID
+Melflam 15|Meloxicam 15 mg|Tablet|NSAID
+Xefo 8|Lornoxicam 8 mg|Tablet|NSAID
+Etova 400|Etodolac 400 mg|Tablet|NSAID
+Dolonex 20|Piroxicam 20 mg|Capsule|NSAID
+Flexon-MR|Ibuprofen 400 mg + Paracetamol 325 mg + Chlorzoxazone 250 mg|Tablet|NSAID + muscle relaxant
+Myospaz Forte|Paracetamol 325 mg + Chlorzoxazone 250 mg|Tablet|Muscle relaxant
+Epry 50|Eperisone 50 mg|Tablet|Muscle relaxant
+Omnigel|Diclofenac diethylamine 1.16% w/w|Gel:Topical|NSAID (topical)
+Thrombophob Gel|Heparin sodium 0.2% w/w|Gel:Topical|Topical (anti-oedema)
+Hirudoid Cream|Mucopolysaccharide polysulfate 0.3% w/w|Cream:Topical|Topical (anti-oedema)
+Pregalin-M 75|Pregabalin 75 mg + Methylcobalamin 750 mcg|Capsule|Neuropathic combination
+Lyrica 50|Pregabalin 50 mg|Capsule|Neuropathic pain
+Gabapin 100|Gabapentin 100 mg|Capsule|Neuropathic pain
+Gabapin 400|Gabapentin 400 mg|Capsule|Neuropathic pain
+Neurobion Forte|Vitamin B1 + Vitamin B6 + Vitamin B12|Tablet|Vitamin B12 / Neuropathic
+Tapadol 50|Tapentadol 50 mg|Tablet|Opioid analgesic
+Transtec 35|Buprenorphine 35 mcg/h|Patch:Topical|Opioid analgesic
+Fortwin 30|Pentazocine 30 mg/mL|Injection:IM|Opioid analgesic
+Bonviva 150|Ibandronate 150 mg|Tablet|Bisphosphonate
+Saaz 500|Sulfasalazine 500 mg|Tablet|DMARD
+Zycolchin 0.5|Colchicine 0.5 mg|Tablet|Anti-gout
+Calcort 6|Deflazacort 6 mg|Tablet|Corticosteroid
+Calcort 30|Deflazacort 30 mg|Tablet|Corticosteroid
+Efcorlin 100|Hydrocortisone 100 mg|Injection:IV|Corticosteroid
+Xylocaine 2% with Adrenaline|Lignocaine 2% + Adrenaline 1:200000|Injection:Local infiltration|Local anaesthetic
+Naropin 0.75%|Ropivacaine 0.75%|Injection:Local infiltration|Local anaesthetic
+Chymoral Forte|Trypsin + Chymotrypsin 100000 AU|Tablet|Enzyme (anti-oedema)
+Warf 5|Warfarin 5 mg|Tablet|Anticoagulant
+Acitrom 2|Acenocoumarol 2 mg|Tablet|Anticoagulant
+Arixtra 2.5|Fondaparinux 2.5 mg/0.5 mL|Injection:SC|Anticoagulant
+Fragmin 5000|Dalteparin 5000 IU/0.2 mL|Injection:SC|Anticoagulant
+Cepodem XP 200|Cefpodoxime 200 mg|Tablet|Antibiotic
+Droxyl 500|Cefadroxil 500 mg|Capsule|Antibiotic
+Phexin 500|Cephalexin 500 mg|Capsule|Antibiotic
+Doxt-SL 100|Doxycycline 100 mg|Capsule|Antibiotic
+Ampiclox 500|Ampicillin 250 mg + Cloxacillin 250 mg|Capsule|Antibiotic
+Moxikind-CV 625|Amoxicillin 500 mg + Clavulanic acid 125 mg|Tablet|Antibiotic
+Clavam 1.2 g Injection|Amoxicillin 1000 mg + Clavulanic acid 200 mg|Injection:IV|Antibiotic
+Zinacef 750 Injection|Cefuroxime 750 mg|Injection:IV|Antibiotic
+Zosyn 4.5 g|Piperacillin 4 g + Tazobactam 0.5 g|Injection:IV|Antibiotic
+Magnex Forte|Cefoperazone 1 g + Sulbactam 0.5 g|Injection:IV|Antibiotic
+Amicin 500|Amikacin 500 mg/2 mL|Injection:IV|Antibiotic
+Targocid 400|Teicoplanin 400 mg|Injection:IV|Antibiotic
+Tienam 500|Imipenem 500 mg + Cilastatin 500 mg|Injection:IV|Antibiotic
+Invanz 1 g|Ertapenem 1 g|Injection:IV|Antibiotic
+Avelox 400|Moxifloxacin 400 mg|Tablet|Antibiotic
+Septran DS|Trimethoprim 160 mg + Sulfamethoxazole 800 mg|Tablet|Antibiotic
+Forcan 150|Fluconazole 150 mg|Tablet|Antifungal
+Fucidin Cream|Fusidic acid 2% w/w|Cream:Topical|Antibacterial (topical)
+Neosporin Powder|Neomycin + Polymyxin B + Bacitracin|Other:Topical|Antibacterial (topical)
+Betadine Solution 5%|Povidone-iodine 5% w/v|Lotion:Topical|Antiseptic
+Savlon Liquid|Chlorhexidine 1.5% + Cetrimide 3%|Lotion:Topical|Antiseptic
+Famocid 20|Famotidine 20 mg|Tablet|Acid suppressant
+Razo-D|Rabeprazole 20 mg + Domperidone 30 mg|Capsule|PPI combination
+Nexpro-RD|Esomeprazole 40 mg + Domperidone 30 mg|Capsule|PPI combination
+Pantocid IV 40|Pantoprazole 40 mg|Injection:IV|PPI
+Nexpro IV 40|Esomeprazole 40 mg|Injection:IV|PPI
+Sucral Suspension|Sucralfate 1 g/10 mL|Suspension|Gastroprotective
+Digene Gel|Aluminium hydroxide + Magnesium hydroxide + Simethicone|Suspension|Antacid
+Ondem 4|Ondansetron 4 mg|Tablet|Antiemetic
+Cremaffin|Milk of magnesia + Liquid paraffin|Suspension|Laxative
+Duphalac Syrup|Lactulose 10 g/15 mL|Syrup|Laxative
+Dulcolax 5|Bisacodyl 5 mg|Tablet|Laxative
+Electral Powder|Oral rehydration salts (WHO)|Sachet|Rehydration
+Cetzine 10|Cetirizine 10 mg|Tablet|Antihistamine
+Levocet 5|Levocetirizine 5 mg|Tablet|Antihistamine
+Allegra 120|Fexofenadine 120 mg|Tablet|Antihistamine
+Avil 25|Pheniramine 25 mg|Tablet|Antihistamine
+Avil Injection|Pheniramine 22.75 mg/2 mL|Injection:IM|Antihistamine
+Montair-LC|Montelukast 10 mg + Levocetirizine 5 mg|Tablet|Antihistamine combination
+Ascoril LS|Ambroxol + Levosalbutamol + Guaifenesin|Syrup|Cough / respiratory
+Montair 10|Montelukast 10 mg|Tablet|Antiasthmatic
+Folvite 5|Folic acid 5 mg|Tablet|Vitamin
+Autrin|Ferrous fumarate + Folic acid + Vitamin B12|Capsule|Iron supplement (haematinic)
+Livogen|Ferrous fumarate + Folic acid|Capsule|Iron supplement (haematinic)
+Zincovit|Multivitamin + Multimineral + Zinc|Tablet|Vitamin
+Becosules|Vitamin B-complex + Vitamin C|Capsule|Vitamin
+Glycomet 500|Metformin 500 mg|Tablet|Antidiabetic
+Glycomet-GP 1|Metformin 500 mg + Glimepiride 1 mg|Tablet|Antidiabetic
+Amlong 5|Amlodipine 5 mg|Tablet|Antihypertensive
+Telma 40|Telmisartan 40 mg|Tablet|Antihypertensive
+Atorva 10|Atorvastatin 10 mg|Tablet|Statin
+Rosuvas 10|Rosuvastatin 10 mg|Tablet|Statin
+Thyronorm 50|Levothyroxine 50 mcg|Tablet|Thyroid
 `.trim().split('\n');
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
