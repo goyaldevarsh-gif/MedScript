@@ -5,6 +5,8 @@ import OvInbox from '../components/OvInbox';
 import { decodeOvIn, ovSaveUrl, ovSex, ovSide } from '../lib/orthovault';
 import BodyPicker from '../components/BodyPicker';
 import WoundCard from '../components/WoundCard';
+import FollowUpCard from '../components/FollowUpCard';
+import { medKey, shortDate, visitTs } from '../lib/followup';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Check, Eye, FilePlus2, Layers, Save, ShieldCheck, Copy, FileEdit, Lock, Search, X, UserPlus, Loader2, ExternalLink } from 'lucide-react';
@@ -138,6 +140,21 @@ function Builder() {
   }
   const setPatient = (p: Partial<Patient>) => update((r) => ({ ...r, patient: { ...r.patient, ...p } }));
   const setClin = (c: Partial<Clinical>) => update((r) => ({ ...r, clinical: { ...r.clinical, ...c } }));
+  /** follow-up: bring over the chosen medicines (and, for 'full', the diagnosis, site, wound site and advice) from the last visit */
+  const continueFrom = (prev: Prescription, picked: RxItem[], full: boolean) => update((r) => {
+    const have = new Set(r.items.map(medKey)); const tag = shortDate(visitTs(prev));
+    const add = picked.filter((i) => !have.has(medKey(i))).map((i) => ({ ...JSON.parse(JSON.stringify(i)), id: uid(), carried: tag } as RxItem));
+    let next: Prescription = { ...r, items: [...r.items, ...add] };
+    if (full) {
+      const c = r.clinical; const pc = prev.clinical;
+      next = { ...next, clinical: { ...c,
+        diagnosis: c.diagnosis.trim() ? c.diagnosis : pc.diagnosis, side: c.side && c.side !== 'N/A' ? c.side : pc.side,
+        comorbidities: c.comorbidities?.trim() ? c.comorbidities : pc.comorbidities, injury: c.injury || pc.injury,
+        bodyParts: c.bodyParts?.length ? c.bodyParts : pc.bodyParts, advice: c.advice.length ? c.advice : pc.advice } };
+      if (!r.wound?.on && prev.wound?.on) next.wound = { ...JSON.parse(JSON.stringify(prev.wound)), status: undefined, sutureDays: undefined, note: undefined };
+    }
+    return next;
+  });
   const warnings = useMemo(() => (rx ? checkRx(rx) : []), [rx]);
   /* meds the doctor usually prescribes for this diagnosis (from own past prescriptions) */
   const usual = useMemo(() => {
@@ -234,6 +251,7 @@ function Builder() {
       )}
 
       {!readOnly && !rx.patient.name.trim() && !rx.items.length && <div className="mb-3"><OvInbox compact /></div>}
+      {!readOnly && rx.patientId && <FollowUpCard patientId={rx.patientId} curId={rx.id} hasItems={rx.items.length > 0} clinicName={(cid) => settings.clinics.find((c) => c.id === cid)?.name || ''} onApply={continueFrom} />}
       {!readOnly && !rx.items.length && !rx.clinical.diagnosis.trim() && quickTpls.length > 0 && (
         <div className="mb-3 flex items-center gap-2 overflow-x-auto pb-1 scroll-thin" aria-label="Quick start">
           <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-slate-500">Quick start</span>

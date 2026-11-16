@@ -25,6 +25,8 @@ export interface RxItem {
   timing: Timing; duration: number; durationUnit: 'days' | 'weeks' | 'months';
   sosMax: number | null; useTaper: boolean; taper: TaperStep[];
   qtyOverride: string; instructionOverride: string; notes: string;
+  /** set when copied from an earlier visit, e.g. '12 Nov' (shown as a review badge) */
+  carried?: string;
 }
 export interface Clinical {
   complaint: string; diagnosis: string; side: Side; notes: string;

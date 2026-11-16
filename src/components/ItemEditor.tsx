@@ -47,6 +47,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
           </div>
           {!open && <div className="mt-1 line-clamp-2 text-xs italic text-slate-500">{preview.en || preview.hi}</div>}
           <div className="mt-1 flex flex-wrap gap-1.5">
+            {it.carried && <Badge tone="blue">From {it.carried}</Badge>}
             {issues.map((e) => <Badge key={e} tone="amber">{e}</Badge>)}
             {wd > 0 && <Badge tone="red">{wd} warning{wd > 1 ? 's' : ''}</Badge>}
           </div>
