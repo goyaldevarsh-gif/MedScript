@@ -302,6 +302,101 @@ Telma 40|Telmisartan 40 mg|Tablet|Antihypertensive
 Atorva 10|Atorvastatin 10 mg|Tablet|Statin
 Rosuvas 10|Rosuvastatin 10 mg|Tablet|Statin
 Thyronorm 50|Levothyroxine 50 mcg|Tablet|Thyroid
+Meftal-500|Mefenamic acid 500 mg|Tablet|NSAID
+Meftal-Spas|Mefenamic acid 250 mg + Dicyclomine 10 mg|Tablet|NSAID combination
+Hifenac-SP|Aceclofenac 100 mg + Serratiopeptidase 15 mg|Tablet|NSAID combination
+Ibugesic 100 Suspension|Ibuprofen 100 mg/5 mL|Suspension|NSAID
+Ibugesic Plus Suspension|Ibuprofen 100 mg + Paracetamol 162.5 mg/5 mL|Suspension|NSAID combination
+Calpol 120 Suspension|Paracetamol 120 mg/5 mL|Suspension|Analgesic / Antipyretic
+Fastum Gel|Ketoprofen 2.5% w/w|Gel:Topical|NSAID (topical)
+Nise Gel|Nimesulide 1% w/w|Gel:Topical|NSAID (topical)
+Dolonex Gel|Piroxicam 0.5% w/w|Gel:Topical|NSAID (topical)
+Voveran 100 Suppository|Diclofenac 100 mg|Other:Rectal|NSAID
+Contramal Injection|Tramadol 100 mg/2 mL|Injection:IM|Opioid analgesic
+Pregalin 75|Pregabalin 75 mg|Capsule|Neuropathic pain
+Pregalin 150|Pregabalin 150 mg|Capsule|Neuropathic pain
+Lyrica 300|Pregabalin 300 mg|Capsule|Neuropathic pain
+Tegretol 200|Carbamazepine 200 mg|Tablet|Neuropathic pain
+Eptoin 100|Phenytoin 100 mg|Tablet|Anticonvulsant
+Neurobion Injection|Vitamin B1 + Vitamin B6 + Vitamin B12|Injection:IM|Vitamin B12 / Neuropathic
+Vertin 16|Betahistine 16 mg|Tablet|Anti-vertigo
+Stugeron 25|Cinnarizine 25 mg|Tablet|Anti-vertigo
+Aclasta 5 mg|Zoledronic acid 5 mg/100 mL|Injection:IV|Bisphosphonate
+Fosamax Plus|Alendronate 70 mg + Cholecalciferol 2800 IU|Tablet|Bisphosphonate
+Miacalcic 100 IU|Calcitonin salmon 100 IU/mL|Injection:SC|Anti-resorptive
+Synvisc-One|Hylan G-F20 48 mg/6 mL|Injection:Intra-articular|Viscosupplement (joint)
+Durolane|Hyaluronic acid (NASHA) 60 mg/3 mL|Injection:Intra-articular|Viscosupplement (joint)
+Orthovisc|Sodium hyaluronate 30 mg/2 mL|Injection:Intra-articular|Viscosupplement (joint)
+Diprospan|Betamethasone dipropionate 5 mg + Betamethasone sodium phosphate 2 mg/mL|Injection:Intra-articular|Corticosteroid
+Rumalaya Forte|Herbal formulation|Tablet|Herbal joint support
+Yograj Guggulu|Herbal formulation|Tablet|Herbal joint support
+Febugood 80|Febuxostat 80 mg|Tablet|Anti-gout
+HCQS 300|Hydroxychloroquine 300 mg|Tablet|DMARD
+Imuran 50|Azathioprine 50 mg|Tablet|DMARD
+Olumiant 4|Baricitinib 4 mg|Tablet|DMARD
+Exemptia 40|Adalimumab 40 mg/0.8 mL|Injection:SC|DMARD (biologic)
+Pause 500|Tranexamic acid 500 mg|Tablet|Antifibrinolytic
+Monocef-SB 1.5 g|Ceftriaxone 1 g + Sulbactam 0.5 g|Injection:IV|Antibiotic
+Taxim 1 g Injection|Cefotaxime 1 g|Injection:IV|Antibiotic
+Cepime 1 g|Cefepime 1 g|Injection:IV|Antibiotic
+Fortum 1 g|Ceftazidime 1 g|Injection:IV|Antibiotic
+Azithral 250|Azithromycin 250 mg|Tablet|Antibiotic
+Claribid 500|Clarithromycin 500 mg|Tablet|Antibiotic
+Akurit-4|Rifampicin 150 mg + Isoniazid 75 mg + Pyrazinamide 400 mg + Ethambutol 275 mg|Tablet|Anti-tubercular
+R-Cinex 450|Rifampicin 450 mg + Isoniazid 300 mg|Capsule|Anti-tubercular
+Benadon 40|Pyridoxine 40 mg|Tablet|Vitamin
+Bactroban Ointment|Mupirocin 2% w/w|Ointment:Topical|Antibacterial (topical)
+TT (Tetanus Toxoid)|Tetanus toxoid adsorbed 5 Lf/0.5 mL|Injection:IM|Vaccine
+Tetagam-P 250 IU|Human tetanus immunoglobulin 250 IU|Injection:IM|Immunoglobulin
+Omez-D|Omeprazole 20 mg + Domperidone 10 mg|Capsule|PPI combination
+Levopraid 25|Levosulpiride 25 mg|Tablet|Prokinetic
+Ganaton 50|Itopride 50 mg|Tablet|Prokinetic
+Perinorm 10|Metoclopramide 10 mg|Tablet|Antiemetic
+Cyclopam|Dicyclomine 20 mg + Paracetamol 500 mg|Tablet|Antispasmodic
+Buscopan 10|Hyoscine butylbromide 10 mg|Tablet|Antispasmodic
+Drotin 40|Drotaverine 40 mg|Tablet|Antispasmodic
+Colospa 135|Mebeverine 135 mg|Tablet|Antispasmodic
+Eldoper 2|Loperamide 2 mg|Capsule|Antidiarrhoeal
+Redotil 100|Racecadotril 100 mg|Capsule|Antidiarrhoeal
+Enterogermina|Bacillus clausii 2 billion spores/5 mL|Suspension|Probiotic
+Asthalin Inhaler|Salbutamol 100 mcg/dose|Inhaler:Inhalation|Bronchodilator
+Allegra-M|Fexofenadine 120 mg + Montelukast 10 mg|Tablet|Antihistamine combination
+Montair-FX|Montelukast 10 mg + Fexofenadine 120 mg|Tablet|Antihistamine combination
+Telekast-L|Montelukast 10 mg + Levocetirizine 5 mg|Tablet|Antihistamine combination
+Okacet 10|Cetirizine 10 mg|Tablet|Antihistamine
+Atarax 25|Hydroxyzine 25 mg|Tablet|Antihistamine
+Sinarest|Paracetamol + Phenylephrine + Chlorpheniramine|Tablet|Cold / flu
+Glycomet SR 500|Metformin 500 mg|Tablet (SR)|Antidiabetic
+Amaryl 1|Glimepiride 1 mg|Tablet|Antidiabetic
+Amaryl 2|Glimepiride 2 mg|Tablet|Antidiabetic
+Diamicron MR 60|Gliclazide 60 mg|Tablet (SR)|Antidiabetic
+Januvia 100|Sitagliptin 100 mg|Tablet|Antidiabetic
+Galvus 50|Vildagliptin 50 mg|Tablet|Antidiabetic
+Forxiga 10|Dapagliflozin 10 mg|Tablet|Antidiabetic
+Jardiance 10|Empagliflozin 10 mg|Tablet|Antidiabetic
+Mixtard 30|Human insulin 30/70 100 IU/mL|Injection:SC|Antidiabetic (insulin)
+Huminsulin R|Human insulin regular 100 IU/mL|Injection:SC|Antidiabetic (insulin)
+Lantus|Insulin glargine 100 IU/mL|Injection:SC|Antidiabetic (insulin)
+Telma-H|Telmisartan 40 mg + Hydrochlorothiazide 12.5 mg|Tablet|Antihypertensive
+Concor 5|Bisoprolol 5 mg|Tablet|Antihypertensive
+Metolar XR 50|Metoprolol succinate 50 mg|Tablet (SR)|Antihypertensive
+Losar 50|Losartan 50 mg|Tablet|Antihypertensive
+Lasix 40|Furosemide 40 mg|Tablet|Diuretic
+Aldactone 25|Spironolactone 25 mg|Tablet|Diuretic
+Atorva 20|Atorvastatin 20 mg|Tablet|Statin
+Atorva 40|Atorvastatin 40 mg|Tablet|Statin
+Rosuvas 20|Rosuvastatin 20 mg|Tablet|Statin
+Thyronorm 25|Levothyroxine 25 mcg|Tablet|Thyroid
+Thyronorm 75|Levothyroxine 75 mcg|Tablet|Thyroid
+Thyronorm 100|Levothyroxine 100 mcg|Tablet|Thyroid
+Eltroxin 50|Levothyroxine 50 mcg|Tablet|Thyroid
+Supradyn|Multivitamin + Multimineral|Tablet|Vitamin
+Venofer|Iron sucrose 100 mg/5 mL|Injection:IV|Iron supplement (haematinic)
+Dexorange Syrup|Ferric ammonium citrate + Folic acid + Vitamin B12|Syrup|Iron supplement (haematinic)
+Protinex|Protein supplement|Powder|Nutritional supplement
+Ensure|Nutritional formula|Powder|Nutritional supplement
+Betnovate-N|Betamethasone 0.1% + Neomycin 0.5%|Cream:Topical|Corticosteroid (topical)
+Dermovate Cream|Clobetasol 0.05% w/w|Cream:Topical|Corticosteroid (topical)
 `.trim().split('\n');
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
