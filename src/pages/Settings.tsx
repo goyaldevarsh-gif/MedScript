@@ -88,12 +88,25 @@ function DoctorCard({ s }: { s: AppSettings }) {
         <Field label="Registering council" hint="e.g. State Medical Council name"><input className="field" value={d.regCouncil} onChange={(e) => set({ regCouncil: e.target.value })} /></Field>
         <PhonesField label="Your mobile number(s)" primary={d.phone} more={d.morePhones} onChange={(p, m) => set({ phone: p, morePhones: m })} /><E k="phone" />
         <Field label="Email (optional)"><input type="email" className="field" value={d.email} onChange={(e) => set({ email: e.target.value })} /><E k="email" /></Field>
-        <div className="sm:col-span-2 -mb-1 mt-1 border-t border-slate-200 pt-3"><div className="text-sm font-extrabold text-navy">QR on prescription (optional)</div><p className="text-xs text-slate-500">Small QR codes printed on the Rx. Leave empty for no QR.</p></div>
-        <Field label="1. Patient-guide site link" hint="Paste your guide site's main link once. The QR then opens the page for that patient's diagnosis automatically; if no page matches, it opens the site home." className="sm:col-span-2"><input className="field" value={d.eduBase || ''} onChange={(e) => set({ eduBase: e.target.value.trim() })} placeholder="https://yourname.github.io/your-guide-site" /></Field>
-        <Field label="2. Other QR link (only if you have no guide site)" hint="Website, WhatsApp, Google review, etc. Not needed when link 1 is filled." className="sm:col-span-2"><input className="field" value={d.qrUrl || ''} onChange={(e) => set({ qrUrl: e.target.value.trim() })} placeholder="https://…" /></Field>
-        <div className="sm:col-span-2"><span className="lbl">Print these QR codes on the Rx</span><div className="flex flex-wrap gap-x-5 gap-y-1.5">
-          {([['guide', 'Patient guide (links above)', true], ['map', 'Clinic location (from clinic address)', false], ['wa', 'WhatsApp: appointment / emergency (clinic WhatsApp number)', false]] as const).map(([k, l, def]) => <label key={k} className="flex items-center gap-1.5 text-sm font-semibold"><input type="checkbox" checked={d.qrShow?.[k] ?? def} onChange={(e) => set({ qrShow: { ...d.qrShow, [k]: e.target.checked } })} /> {l}</label>)}
-        </div><p className="mt-1 text-xs text-slate-500">Location and WhatsApp use each clinic's address and WhatsApp number from Clinic profile. Up to 3 QR codes print side by side.</p></div>
+        <div className="sm:col-span-2 -mb-1 mt-1 border-t border-slate-200 pt-3"><div className="text-sm font-extrabold text-navy">QR codes on the prescription (optional)</div><p className="text-xs text-slate-500">Up to 3 small QR codes print side by side, each with a caption. Tick the ones you want.</p></div>
+        {(() => {
+          const row = (k: 'guide' | 'map' | 'wa', def: boolean, title: string, desc: string, body: React.ReactNode) => (
+            <div key={k} className="rounded-xl border border-slate-200 p-3 sm:col-span-2">
+              <label className="flex items-start gap-2 text-sm font-bold"><input type="checkbox" className="mt-1" checked={d.qrShow?.[k] ?? def} onChange={(e) => set({ qrShow: { ...d.qrShow, [k]: e.target.checked } })} /><span>{title}<span className="block text-xs font-medium text-slate-500">{desc}</span></span></label>
+              {body && <div className="mt-2 pl-6">{body}</div>}
+            </div>
+          );
+          const hasAddr = s.clinics.some((c) => c.address.trim()), hasWa = s.clinics.some((c) => (c.whatsapp || '').replace(/\D/g, '').length >= 10);
+          const status = (ok: boolean, okT: string, noT: string) => ok ? <span className="text-xs font-semibold text-teal-700">✓ {okT}</span> : <span className="text-xs font-semibold text-amber-700">Not set yet: {noT} <a className="underline" href="#/settings?tab=clinic">Open Clinic profile</a></span>;
+          return <>
+            {row('guide', true, 'Patient guide QR', 'Opens the page about the patient\'s condition.', <div className="space-y-2">
+              <Field label="Your guide site link" hint="Paste the main link once. The QR opens the page for the diagnosis automatically; if no page matches, it opens the site home."><input className="field" value={d.eduBase || ''} onChange={(e) => set({ eduBase: e.target.value.trim() })} placeholder="https://yourname.github.io/your-guide-site" /></Field>
+              <Field label="No guide site? Use any other link" hint="Website, Google review, etc. Ignored when the guide site link above is filled."><input className="field" value={d.qrUrl || ''} onChange={(e) => set({ qrUrl: e.target.value.trim() })} placeholder="https://…" /></Field>
+            </div>)}
+            {row('map', false, 'Clinic location QR', 'Opens the clinic on Google Maps.', status(hasAddr, 'Made from the address in Clinic profile (add a Google Maps link there for an exact pin).', 'add the clinic address.'))}
+            {row('wa', false, 'WhatsApp QR: appointment / emergency', 'Opens a WhatsApp chat with the clinic.', status(hasWa, 'Uses the WhatsApp number in Clinic profile.', 'add the clinic WhatsApp number.'))}
+          </>;
+        })()}
       </div>
       <div className="flex items-center justify-between">
         <div className="text-xs font-semibold text-slate-500">{!d.regNo.trim() && <span className="flex items-center gap-1 text-amber-700"><AlertTriangle size={13} /> Registration number is needed before you can authorise prescriptions.</span>}</div>
