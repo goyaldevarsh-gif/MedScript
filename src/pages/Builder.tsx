@@ -1,4 +1,5 @@
 import { ADVICE_CHIPS, shortAdvice } from '../data/advice';
+import { eduUrl } from '../data/eduMap';
 import { isOrtho } from '../lib/defaults';
 import { markSent, ovMsg, sendRx } from '../lib/ovcloud';
 import OvInbox from '../components/OvInbox';
@@ -328,7 +329,7 @@ function Builder() {
                   <input type="number" min="0" className="field w-24" value={rx.followUpDays || ''} placeholder="days" onChange={(e) => update((r) => ({ ...r, followUpDays: Number(e.target.value) || 0, followUpManual: true }))} aria-label="Custom follow-up days" />
                 </div>
               </div>
-              <Field label="QR on prescription: patient education link (optional)"><input className="field" value={rx.qrUrl ?? (settings?.clinics.find((c) => c.id === rx.clinicId)?.qrUrl || settings?.doctor.qrUrl) ?? ''} onChange={(e) => update((r) => ({ ...r, qrUrl: e.target.value }))} placeholder="Paste a condition-guide link, leave empty for no QR" /></Field>
+              <Field label="QR on prescription: patient education link (optional)" hint="Filled automatically from the diagnosis if your guide site is set. Edit to use a different link for this Rx; clear it for no QR."><input className="field" value={rx.qrUrl ?? (eduUrl(rx, settings?.doctor.eduBase) || settings?.clinics.find((c) => c.id === rx.clinicId)?.qrUrl || settings?.doctor.qrUrl) ?? ''} onChange={(e) => update((r) => ({ ...r, qrUrl: e.target.value }))} placeholder="Paste a condition-guide link, leave empty for no QR" /></Field>
             </fieldset>
           </Card>
         </div>
