@@ -101,7 +101,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const guideText = rx.qrUrl !== undefined && rx.qrUrl !== null ? rx.qrUrl.trim() : (qs3.guide === false ? '' : (eduUrl(rx, snap.doctor.eduBase) || snap.doctor.eduBase || clinic.qrUrl || snap.doctor.qrUrl || '').trim());
   const mapText = qs3.map && clinic.address?.trim() ? ((clinic.mapsUrl || '').trim() || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([clinic.name, clinic.address].filter(Boolean).join(', '))) : '';
   const waDigits = (clinic.whatsapp || '').replace(/\D/g, '').replace(/^0+/, '');
-  const waText = qs3.wa && waDigits.length >= 10 ? `https://wa.me/${waDigits.length === 10 ? '91' + waDigits : waDigits}?text=` + encodeURIComponent('Hello, I would like to book an appointment / emergency consultation.') : '';
+  const waText = (qs3.wa ?? true) && waDigits.length >= 10 ? `https://wa.me/${waDigits.length === 10 ? '91' + waDigits : waDigits}?text=` + encodeURIComponent('Hello, I would like to book an appointment / emergency consultation.') : '';
   const qrList = (await Promise.all([
     { text: guideText, kind: 'guide' as const }, { text: mapText, kind: 'map' as const }, { text: waText, kind: 'wa' as const },
   ].filter((q) => q.text).map(async (q) => ({ kind: q.kind, url: await QRCode.toDataURL(q.text, { margin: 0, width: 240, errorCorrectionLevel: 'M', color: { dark: '#3b4a5e', light: '#ffffff' } }).catch(() => '') })))).filter((q) => q.url);

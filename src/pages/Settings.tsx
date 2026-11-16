@@ -67,11 +67,12 @@ function DoctorCard({ s }: { s: AppSettings }) {
     if (!d.fullName.trim()) e.fullName = 'Full name is required';
     if (d.email && !/^\S+@\S+\.\S+$/.test(d.email)) e.email = 'Enter a valid email';
     if (d.phone && d.phone.replace(/\D/g, '').length < 10) e.phone = 'Enter a valid phone number';
-    setErr(e); if (Object.keys(e).length) return;
+    setErr(e);
+    if (Object.keys(e).length) { toast('Not saved: ' + Object.values(e)[0]); document.querySelector('[data-err]')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     await updateSettings((x) => { x.doctor = { ...d, fullName: d.fullName.trim(), regNo: d.regNo.trim() }; });
-    toast('Doctor profile saved');
+    toast(dirty ? 'Doctor profile saved' : 'Already saved');
   }
-  const E = ({ k }: { k: string }) => (err[k] ? <span className="mt-1 block text-xs font-semibold text-danger">{err[k]}</span> : null);
+  const E = ({ k }: { k: string }) => (err[k] ? <span data-err className="mt-1 block text-xs font-semibold text-danger">{err[k]}</span> : null);
   return (
     <Card className="space-y-4 p-5">
       <div><h2 className="text-lg font-extrabold">Doctor profile</h2><p className="text-sm text-slate-600">Printed on every prescription. Enter exactly as registered. MedScript never fills registration details for you.</p></div>
@@ -92,7 +93,7 @@ function DoctorCard({ s }: { s: AppSettings }) {
         {(() => {
           const row = (k: 'guide' | 'map' | 'wa', def: boolean, title: string, desc: string, body: React.ReactNode) => (
             <div key={k} className="rounded-xl border border-slate-200 p-3 sm:col-span-2">
-              <label className="flex items-start gap-2 text-sm font-bold"><input type="checkbox" className="mt-1" checked={d.qrShow?.[k] ?? def} onChange={(e) => set({ qrShow: { ...d.qrShow, [k]: e.target.checked } })} /><span>{title}<span className="block text-xs font-medium text-slate-500">{desc}</span></span></label>
+              <label className="flex items-start gap-2 text-sm font-bold"><input type="checkbox" className="mt-1" checked={d.qrShow?.[k] ?? (k === 'wa' ? s.clinics.some((c) => (c.whatsapp || '').replace(/\D/g, '').length >= 10) : def)} onChange={(e) => set({ qrShow: { ...d.qrShow, [k]: e.target.checked } })} /><span>{title}<span className="block text-xs font-medium text-slate-500">{desc}</span></span></label>
               {body && <div className="mt-2 pl-6">{body}</div>}
             </div>
           );
@@ -108,7 +109,7 @@ function DoctorCard({ s }: { s: AppSettings }) {
       </div>
       <div className="flex items-center justify-between">
         <div className="text-xs font-semibold text-slate-500">{!d.regNo.trim() && <span className="flex items-center gap-1 text-amber-700"><AlertTriangle size={13} /> Registration number is needed before you can authorise prescriptions.</span>}</div>
-        <Btn onClick={save} disabled={!dirty}>Save profile</Btn>
+        <Btn onClick={save}>Save profile</Btn>
       </div>
     </Card>
   );
@@ -142,7 +143,17 @@ function ClinicQrFields({ s, kind }: { s: AppSettings; kind: 'map' | 'wa' }) {
 }
 function ClinicQrOne({ c, kind, multi }: { c: Clinic; kind: 'map' | 'wa'; multi: boolean }) {
   const [addr, setAddr] = useState(c.address), [maps, setMaps] = useState(c.mapsUrl || ''), [wa, setWa] = useState(c.whatsapp || '');
+  const [saved, setSaved] = useState(false);
   const save = (patch: Partial<Clinic>) => updateSettings((x) => { const k = x.clinics.find((z) => z.id === c.id); if (k) Object.assign(k, patch); });
+  /* saves by itself ~0.6s after you stop typing, so there is nothing else to press */
+  useEffect(() => {
+    const patch: Partial<Clinic> = kind === 'map' ? { address: addr, mapsUrl: maps } : { whatsapp: wa.trim() };
+    const same = kind === 'map' ? addr === c.address && maps === (c.mapsUrl || '') : wa.trim() === (c.whatsapp || '');
+    if (same) return;
+    const h = setTimeout(() => { save(patch).then(() => { setSaved(true); setTimeout(() => setSaved(false), 1800); }); }, 600);
+    return () => clearTimeout(h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addr, maps, wa]);
   return (
     <div className="space-y-2">
       {multi && <div className="text-xs font-extrabold uppercase tracking-wide text-slate-500">{c.name || 'Clinic'}</div>}
@@ -152,6 +163,7 @@ function ClinicQrOne({ c, kind, multi }: { c: Clinic; kind: 'map' | 'wa'; multi:
       </> : (
         <Field label="Clinic WhatsApp number" hint="10-digit number patients can message for appointment or emergency."><input className="field" type="tel" value={wa} onChange={(e) => setWa(e.target.value)} onBlur={() => wa !== (c.whatsapp || '') && save({ whatsapp: wa.trim() })} placeholder="e.g. 9876543210" /></Field>
       )}
+      {saved && <div className="text-xs font-bold text-teal-700">Saved ✓</div>}
     </div>
   );
 }
