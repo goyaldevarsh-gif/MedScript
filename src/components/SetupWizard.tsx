@@ -11,15 +11,17 @@ import SampleRx from './SampleRx';
 import { Btn, Field, useToast } from './ui';
 import { cx } from '../lib/util';
 
-/** Decides ONCE per app start whether the first-run setup shows. It never shows for a doctor who already has
- *  prescriptions, or has finished/skipped it, or has a complete profile. Latched so it doesn't vanish mid-way. */
+/** Decides ONCE per app start whether the first-run setup shows. ONLY for a brand-new, completely empty profile: never for a doctor who has
+ *  any prescription, any saved profile detail (name, registration, phone, clinic, signature), or has finished/skipped it. Latched so it doesn't vanish mid-way. */
 export function useWizardGate() {
   const s = useSettings();
   const n = useLiveQuery(() => db.prescriptions.count(), []);
   const [on, setOn] = useState<boolean | undefined>();
   useEffect(() => {
     if (on !== undefined || !s || n === undefined) return;
-    setOn(!s.setupDone && n === 0 && (!s.doctor.fullName.trim() || !s.doctor.regNo.trim()));
+    const cl = s.clinics[0];
+    const untouched = !s.doctor.fullName.trim() && !s.doctor.regNo.trim() && !s.doctor.phone.trim() && !(cl?.name || '').trim() && !s.signature.dataUrl;
+    setOn(!s.setupDone && n === 0 && untouched);
   }, [s, n, on]);
   return [on, () => setOn(false)] as const;
 }
