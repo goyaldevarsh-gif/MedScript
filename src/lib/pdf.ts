@@ -21,7 +21,7 @@ const DEV = /[\u0900-\u097F]/;
 const FORM_PREFIX: Record<string, string> = { Tablet: 'TAB.', Capsule: 'CAP.', Syrup: 'SYP.', Suspension: 'SUSP.', Injection: 'INJ.', Gel: 'GEL', Cream: 'CREAM', Ointment: 'OINT.', Drops: 'DROPS', Sachet: 'SACHET', Powder: 'POWDER', Lotion: 'LOTION', Spray: 'SPRAY', Patch: 'PATCH', Inhaler: 'INHALER' };
 const drName = (n: string) => (!n.trim() ? '' : /^dr\.?\s/i.test(n) ? n.trim() : 'Dr. ' + n.trim());
 
-export interface PdfOpts { draft: boolean; showSignature: boolean; showStamp: boolean; showLogo: boolean }
+export interface PdfOpts { draft: boolean; showSignature: boolean; showStamp: boolean; showLogo: boolean; /** override the clinic's letterhead setting for this one PDF */ letterhead?: boolean }
 export const pdfName = (rx: Prescription) => `Rx_${(rx.patient.name || 'patient').replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'patient'}_${new Date(rx.authorizedAt || rx.updatedAt).toISOString().slice(0, 10)}${rx.rxNo ? '_' + rx.rxNo : '_DRAFT'}.pdf`;
 
 export function itemTitle(it: RxItem, mode: 'generic' | 'brand', caps: boolean): { main: string; sub: string } {
@@ -40,6 +40,11 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const L = snap.layout;
   const sc = (L.fontScale === 'large' ? 1.1 : 1) * fit;
   const clinic = snap.clinic;
+  /* printing on the clinic's own pre-printed letterhead: leave the header and footer areas blank */
+  const lhCfg = clinic.letterhead;
+  const LH = (opts.letterhead ?? lhCfg?.on) && lhCfg ? { top: Math.min(90, Math.max(0, lhCfg.top)), bottom: Math.min(60, Math.max(0, lhCfg.bottom)) } : null;
+  const FB = LH ? Math.max(8, LH.bottom) : 12;
+  const FOOT = LH ? FB + 8 : 16;
   let y = 0;
   const lh = (pt: number) => pt * 0.3528 * 1.28;
   const font = (style: 'normal' | 'bold' | 'italic' | 'bolditalic', size: number, color: [number, number, number] = NAVY) => {
@@ -100,6 +105,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const cPhones = phoneList(clinic.phone, clinic.morePhones);
   const hasClinic = !!(clinic.name || clinic.address || cPhones.length || clinic.email || clinic.timings || clinic.logo);
   const drawHeader = () => {
+    if (LH) { y = LH.top + 1; return; }
     const top = 11;
     const rule = (yy: number) => { doc.setDrawColor(...BLUE); doc.setLineWidth(0.7); doc.line(M, yy, PW - M, yy); doc.setDrawColor(...TEAL); doc.setLineWidth(0.3); doc.line(M, yy + 0.9, PW - M, yy + 0.9); };
     // doctor lines
@@ -142,7 +148,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     rule(y); y += 4.2;
   };
   const drawContHeader = () => {
-    y = 10;
+    y = LH ? LH.top + 1 : 10;
     font('bold', 9, NAVY); doc.text(clean(drName(snap.doctor.fullName)), M, y + 3);
     font('normal', 8.5, GREY); doc.text(clean(`Patient: ${rx.patient.name} ${rx.patient.pid ? '(' + rx.patient.pid + ')' : ''} - continued`), PW - M, y + 3, { align: 'right' });
     doc.setDrawColor(...BLUE); doc.setLineWidth(0.5); doc.line(M, y + 6, PW - M, y + 6);
@@ -156,7 +162,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const sealW = showSeal ? snap.seal.widthMm : 0;
   const sealH = showSeal && sealSize ? sealW * (sealSize.h / sealSize.w) : 0;
   const BLOCK_H = Math.max(42, sealH + 12, qrUrl ? 30 : 0);
-  const limitNormal = () => PH - 16;
+  const limitNormal = () => PH - FOOT;
   function ensure(h: number) {
     if (y + h > limitNormal()) { doc.addPage(); drawContHeader(); }
   }
@@ -311,8 +317,8 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   if (an) para(an, M, CW, 'normal', 8 * sc, GREY, 0.4);
 
   /* ---------- authorisation block: QR (left) | stamp | signature (right) - never overlapping ---------- */
-  if (y > PH - 16 - BLOCK_H) { doc.addPage(); drawContHeader(); }
-  const sigBottom = PH - 16;
+  if (y > PH - FOOT - BLOCK_H) { doc.addPage(); drawContHeader(); }
+  const sigBottom = PH - FOOT;
   const lineY = sigBottom - 11;
   const colW = 60, gap = 9;
   let sigLeft = PW - M - colW, sealX = 0;
@@ -361,9 +367,16 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
         (doc as any).setGState(new (doc as any).GState({ opacity: 1 }));
       } catch { /* watermark is cosmetic */ }
     }
-    doc.setDrawColor(210, 218, 228); doc.setLineWidth(0.25); doc.line(M, PH - 12, PW - M, PH - 12);
     font('normal', 7.5, GREY);
     const left = opts.draft ? 'DRAFT - not authorised by the doctor' : `Rx ${rx.rxNo}  |  Authorised ${fmtDateTime(rx.authorizedAt || Date.now())}`;
+    if (LH) {
+      /* the letterhead prints its own footer: only a small Rx / page line just above that area */
+      const fy = PH - FB - 1.5;
+      doc.text(clean(left), M, fy);
+      if (total > 1) doc.text(`Page ${i} of ${total}`, PW - M, fy, { align: 'right' });
+      continue;
+    }
+    doc.setDrawColor(210, 218, 228); doc.setLineWidth(0.25); doc.line(M, PH - 12, PW - M, PH - 12);
     doc.text(clean(left), M, PH - 8);
     if (total > 1) doc.text(`Page ${i} of ${total}`, PW - M, PH - 8, { align: 'right' });
     if (L.footerNote.trim()) { font('italic', 7.5, GREY); doc.text(clean(L.footerNote), PW / 2, PH - 4.5, { align: 'center', maxWidth: CW }); }
@@ -384,3 +397,26 @@ export async function sealFor(snap: DoctorSnapshot) {
   return snap.seal.mode === 'generated' ? renderSeal(snap.seal, snap.doctor, snap.clinic) : '';
 }
 export { freqMeta };
+
+/** One calibration page: print it on the pre-printed letterhead and check that the shaded areas cover the printed header and footer. */
+export async function letterheadTestPdf(top: number, bottom: number, clinicName = ''): Promise<Blob> {
+  const { jsPDF } = await import('jspdf');
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const PW = 210, PH = 297, fb = Math.max(8, bottom), foot = fb + 8;
+  doc.setFillColor(254, 226, 226); doc.rect(0, 0, PW, top + 1, 'F'); doc.rect(0, PH - fb, PW, fb, 'F');
+  doc.setDrawColor(220, 38, 38); doc.setLineWidth(0.4); doc.line(0, top + 1, PW, top + 1); doc.line(0, PH - fb, PW, PH - fb);
+  doc.setDrawColor(37, 99, 235); doc.setLineWidth(0.25); doc.setLineDashPattern([1.5, 1.5], 0); doc.line(0, PH - foot, PW, PH - foot); doc.setLineDashPattern([], 0);
+  doc.setTextColor(185, 28, 28); doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+  doc.text(`Header space: ${top} mm (your printed header must end above the red line)`, PW / 2, top - 3, { align: 'center' });
+  doc.text(`Footer space: ${fb} mm (your printed footer must start below this red line)`, PW / 2, PH - fb + 5, { align: 'center' });
+  doc.setTextColor(30, 64, 175); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+  doc.text('Blue dashed line: the signature and stamp end here', PW / 2, PH - foot - 1.5, { align: 'center' });
+  doc.setTextColor(15, 23, 42); doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+  doc.text('Letterhead test page' + (clinicName ? ' - ' + clinicName : ''), PW / 2, top + 14, { align: 'center' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+  const lines = ['1. Print this page at 100% (Actual size), not "Fit to page".', '2. Print it on your letterhead, or hold it against the letterhead and a light.', '3. The prescription is written between the two red lines.', '4. If the printed header or footer crosses a red line, change the mm value in Settings and print again.'];
+  lines.forEach((l, i) => doc.text(l, 20, top + 26 + i * 7));
+  doc.setDrawColor(100, 116, 139); doc.setLineWidth(0.2); doc.setFontSize(7); doc.setTextColor(100, 116, 139);
+  for (let mm = 0; mm <= PH; mm += 10) { doc.line(0, mm, mm % 50 === 0 ? 8 : 4, mm); if (mm % 50 === 0) doc.text(String(mm), 9, mm + 1); }
+  return doc.output('blob');
+}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { BadgeCheck, Building2, Cloud, Download, Eye, FileSignature, Layout as LayoutIcon, Pill, Plus, Smartphone, Star, Trash2, Upload, User, Stamp, Languages, Check, AlertTriangle, ShieldAlert } from 'lucide-react';
+import { BadgeCheck, Building2, Cloud, Download, Eye, FileSignature, Layout as LayoutIcon, Pill, Plus, Smartphone, Star, Trash2, Upload, User, Stamp, Languages, Check, AlertTriangle, ShieldAlert, Printer } from 'lucide-react';
 import type { AppSettings, Clinic, Doctor, Lang, Prescription } from '../lib/types';
 import { db, exportAll, importAll, toggleFavourite, updateSettings, useMedicineIndex, useSettings, wipeAll } from '../lib/db';
 import OvLinkCard from '../components/OvLinkCard';
@@ -165,6 +165,22 @@ function ClinicEditor({ c, isDefault, canDelete }: { c: Clinic; isDefault: boole
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-extrabold uppercase tracking-wide text-slate-500">Logo size on prescription</span>
         {([['S', 'Small'], ['M', 'Medium'], ['L', 'Large']] as const).map(([v, l]) => <Chip key={v} active={(d.logoSize || 'M') === v} onClick={() => set({ logoSize: v })}>{l}</Chip>)}
+      </div>
+      <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+        <label className="flex items-start gap-2 text-sm font-bold"><input type="checkbox" className="mt-1" checked={!!d.letterhead?.on} onChange={(e) => set({ letterhead: { top: 45, bottom: 25, ...d.letterhead, on: e.target.checked } })} />
+          <span>Print on my own letterhead<span className="block text-xs font-medium text-slate-600">For clinics with a pre-printed pad. The clinic header, logo and footer are left blank so nothing prints over your letterhead. Doctor name, qualification and registration number still print above the signature.</span></span></label>
+        {d.letterhead?.on && (
+          <>
+            <div className="grid grid-cols-2 gap-3 sm:max-w-md">
+              <Field label="Blank space at top (mm)"><select className="field" value={d.letterhead.top} onChange={(e) => set({ letterhead: { ...d.letterhead!, top: Number(e.target.value) } })}>{Array.from({ length: 19 }, (_, i) => 10 + i * 5).map((n) => <option key={n} value={n}>{n} mm</option>)}</select></Field>
+              <Field label="Blank space at bottom (mm)"><select className="field" value={d.letterhead.bottom} onChange={(e) => set({ letterhead: { ...d.letterhead!, bottom: Number(e.target.value) } })}>{Array.from({ length: 13 }, (_, i) => i * 5).map((n) => <option key={n} value={n}>{n} mm</option>)}</select></Field>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Btn variant="secondary" size="sm" onClick={async () => { const { letterheadTestPdf } = await import('../lib/pdf'); const b = await letterheadTestPdf(d.letterhead!.top, d.letterhead!.bottom, d.name); const { printBlob } = await import('../lib/share'); printBlob(b); }}><Printer size={15} /> Print test page</Btn>
+              <span className="text-xs font-medium text-slate-600">Measure your printed header with a ruler, or print the test page on your pad and adjust until the red lines sit just outside your printed header and footer. Typical: 40-55 mm top, 15-25 mm bottom.</span>
+            </div>
+          </>
+        )}
       </div>
       <div className="flex flex-wrap justify-between gap-2 border-t border-slate-100 pt-3">
         <div className="flex gap-2">

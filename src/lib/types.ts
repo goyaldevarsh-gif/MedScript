@@ -39,7 +39,8 @@ export interface Doctor {
   fullName: string; qualifications: string; specialty: string; regNo: string; regCouncil: string;
   phone: string; email: string; morePhones?: string[]; qrUrl?: string;
 }
-export interface Clinic { logoSize?: 'S' | 'M' | 'L'; id: string; name: string; address: string; phone: string; email: string; timings: string; logo: string; whatsapp?: string; appointmentNote?: string; morePhones?: string[]; qrUrl?: string }
+export interface Letterhead { on: boolean; top: number; bottom: number }
+export interface Clinic { letterhead?: Letterhead; logoSize?: 'S' | 'M' | 'L'; id: string; name: string; address: string; phone: string; email: string; timings: string; logo: string; whatsapp?: string; appointmentNote?: string; morePhones?: string[]; qrUrl?: string }
 export interface SignatureCfg { dataUrl: string; source: 'upload' | 'draw' | ''; widthMm: number; offsetX: number; offsetY: number }
 export interface SealCfg {
   mode: 'none' | 'generated' | 'uploaded'; style: 'circle' | 'rect' | 'classic'; ink: 'blue' | 'black' | 'red';
