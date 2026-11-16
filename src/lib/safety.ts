@@ -115,6 +115,7 @@ export function checkRx(rx: Prescription): Warning[] {
   items.forEach((it) => {
     if (it.freq === 'SOS' && !it.sosMax) w.push({ level: 'warn', itemId: it.id, text: `${it.generic}: SOS without a maximum daily limit. Set "max per day".` });
     if (it.src === 'brand') w.push({ level: 'info', itemId: it.id, text: `${it.brand}: brand entry from the reference list. Confirm composition and strength on the pack.` });
+    else if (it.src === 'import' && !it.generic.trim()) w.push({ level: 'warn', itemId: it.id, text: `${it.brand}: composition not known (shop stock list), so allergy, duplicate and interaction checks cannot run for it. Add the composition (edit it in the Drug Library) or confirm from the pack.` });
     else if (!it.verified) w.push({ level: 'info', itemId: it.id, text: `${it.brand || it.generic}: doctor-entered (unverified) medicine. Confirm composition and strength from the pack.` });
   });
   return w;

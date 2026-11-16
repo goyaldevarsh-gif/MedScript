@@ -1,5 +1,6 @@
 import type { Medicine } from '../lib/types';
 import { BRANDS, SUPPLEMENTS } from './brands';
+import { CORE_IDS } from './core500';
 
 /**
  * MedScript generic reference catalogue.
@@ -304,7 +305,7 @@ const combos: Medicine[] = [
 
 const _all: Medicine[] = [...singles.flatMap(single), ...combos, ...SUPPLEMENTS, ...BRANDS];
 const _seen = new Set<string>();
-export const CATALOGUE: Medicine[] = _all.filter((m) => (_seen.has(m.id) ? false : (_seen.add(m.id), true)));
+export const CATALOGUE: Medicine[] = _all.filter((m) => CORE_IDS.has(m.id) && (_seen.has(m.id) ? false : (_seen.add(m.id), true)));
 
 export const GROUPS = ['Pain killers', 'Calcium', 'Vitamins', 'Bone health', 'Muscle relaxants', 'Neuropathic', 'Antibiotics', 'Supplements', 'Tendon & cartilage', 'Steroids & injections', 'Gastro', 'Anticoagulants', 'Topicals', 'Gout & RA'] as const;
 export type Group = (typeof GROUPS)[number];

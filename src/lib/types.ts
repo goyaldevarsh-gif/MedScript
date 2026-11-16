@@ -14,6 +14,8 @@ export interface Medicine {
   id: string; brand: string; generic: string; ingredients: Ingredient[];
   strength: string; form: string; route: string; manufacturer: string;
   verified: boolean; source: 'catalogue' | 'brand' | 'custom' | 'import'; category?: string;
+  /** set for medicines imported from a medical shop's stock list */
+  shop?: string;
 }
 export interface MedMeta { id: string; favourite: boolean; lastUsedAt: number; useCount: number; reg?: Partial<RxItem> }
 export interface TaperStep { id: string; dose: number; timesPerDay: number; days: number }

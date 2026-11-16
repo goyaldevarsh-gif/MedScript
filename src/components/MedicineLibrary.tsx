@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from 'react';
-import { Search, Star, Plus, Library, Trash2, Upload, Pencil } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Search, Star, Plus, Library, Trash2, Pencil, Store } from 'lucide-react';
 import type { Medicine } from '../lib/types';
 import { Badge, Btn, Chip, Empty, Field, Modal, useDebounced, useToast } from './ui';
 import { GROUPS, groupsOf, searchBlob, type Group } from '../data/catalogue';
 import { parseComp } from '../data/brands';
+import InventoryImport from './InventoryImport';
 import { deleteCustomMedicine, saveCustomMedicine, toggleFavourite, useMedicineIndex } from '../lib/db';
 import { FORMS, ROUTES, routeForForm } from '../lib/defaults';
 import { cx, norm } from '../lib/util';
@@ -13,6 +14,7 @@ export const compositionOf = (m: Medicine) => m.ingredients.map((i) => `${i.name
 export function SourceBadge({ m }: { m: Medicine }) {
   if (m.source === 'catalogue') return <Badge tone="green">Catalogue</Badge>;
   if (m.source === 'brand') return <Badge tone="amber">Brand · check pack</Badge>;
+  if (m.source === 'import') return <Badge tone="blue">Shop stock{m.shop ? ` · ${m.shop}` : ''}</Badge>;
   return <Badge tone="slate">Doctor-entered · unverified</Badge>;
 }
 
@@ -25,6 +27,7 @@ function rank(m: Medicine, q: string, meta: Map<string, { favourite: boolean; la
   if (mm?.favourite) s += 40;
   if (mm?.useCount) s += Math.min(30, mm.useCount * 3);
   if (m.source === 'custom') s += 8;
+  if (m.source === 'import') s += 12; // in stock at the shop: show first
   return s;
 }
 
@@ -37,6 +40,7 @@ export function useMedicineSearch(query: string, group: string = 'All', limit = 
     let pool = idx.all;
     if (group === 'Favourites') pool = pool.filter((m) => idx.meta.get(m.id)?.favourite);
     else if (group === 'Recent') pool = pool.filter((m) => (idx.meta.get(m.id)?.lastUsedAt || 0) > 0).sort((a, b) => (idx.meta.get(b.id)!.lastUsedAt) - (idx.meta.get(a.id)!.lastUsedAt));
+    else if (group === 'Shop stock') pool = pool.filter((m) => !!m.shop);
     else if (group === 'Mine') pool = pool.filter((m) => m.source === 'custom' || m.source === 'import');
     else if (group !== 'All') pool = pool.filter((m) => groupsOf(m).includes(group as Group));
     let res = toks.length ? pool.filter((m) => { const b = searchBlob(m); return toks.every((t) => b.includes(t)); }) : pool;
@@ -59,7 +63,7 @@ export function MedRow({ m, onAdd, fav, onFav, onEdit, compact }: { m: Medicine;
         <div className="mt-0.5 text-[13px] text-slate-600">
           <b className="text-navy">{m.strength || 'strength: set on pack'}</b> · {m.form} · {m.route}{m.manufacturer ? ` · ${m.manufacturer}` : ''}
         </div>
-        {(m.ingredients.length > 1 || m.brand) && <div className="mt-0.5 text-xs text-slate-500">Composition: {comp}</div>}
+        {(m.ingredients.length > 1 || m.brand) && <div className="mt-0.5 text-xs text-slate-500">Composition: {comp || 'not known'}</div>}
         {m.category && <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-teal">{m.category}</div>}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-2">
@@ -167,16 +171,15 @@ export function DrugLibrary({ onClose, onPick }: { onClose: () => void; onPick?:
   const [group, setGroup] = useState<string>('All');
   const [limit, setLimit] = useState(40);
   const [custom, setCustom] = useState<Partial<Medicine> | null>(null);
-  const file = useRef<HTMLInputElement>(null);
   const { list, total, idx } = useMedicineSearch(q, group, limit);
-  const tabs = ['All', 'Favourites', 'Recent', 'Mine', ...GROUPS];
+  const tabs = ['All', 'Favourites', 'Recent', 'Shop stock', 'Mine', ...GROUPS];
+  const [inv, setInv] = useState(false);
   return (
     <Modal full title={<span className="flex items-center gap-2"><Library size={18} /> Drug Library</span>} onClose={onClose}
       footer={<div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-xs text-slate-600">{total} medicines · brand entries come from a reference list: always confirm on the pack</div>
         <div className="flex gap-2">
-          <input ref={file} type="file" accept=".csv,text/csv" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { const n = await importCsvMedicines(f); toast(`${n} medicines imported`); } catch (er: any) { toast(er.message, { tone: 'err', ms: 6000 }); } e.target.value = ''; }} />
-          <Btn variant="secondary" size="sm" onClick={() => file.current?.click()}><Upload size={15} /> Import CSV</Btn>
+          <Btn variant="secondary" size="sm" onClick={() => setInv(true)}><Store size={15} /> Import shop stock</Btn>
           <Btn size="sm" onClick={() => setCustom({ generic: q.trim() })}><Plus size={15} /> Add custom medicine</Btn>
         </div>
       </div>}>
@@ -203,6 +206,7 @@ export function DrugLibrary({ onClose, onPick }: { onClose: () => void; onPick?:
       )}
       {total > list.length && <div className="mt-3 text-center"><Btn variant="secondary" onClick={() => setLimit(limit + 60)}>Show more ({total - list.length} left)</Btn></div>}
       {custom && <CustomMedicineForm initial={custom} onClose={() => setCustom(null)} onSaved={(m) => { setCustom(null); onPick?.(m); }} />}
+      {inv && <InventoryImport onClose={() => setInv(false)} />}
     </Modal>
   );
 }
