@@ -96,8 +96,15 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const logoSize = clinic.logo ? await imageSize(clinic.logo) : null;
   const c = rx.clinical;
   const body = await figuresPng(c.bodyParts || [], rx.wound?.on ? rx.wound.pins || [] : []).catch(() => null);
-  const qrText = (rx.qrUrl ?? (eduUrl(rx, snap.doctor.eduBase) || clinic.qrUrl || snap.doctor.qrUrl) ?? '').trim();
-  const qrUrl = qrText ? await QRCode.toDataURL(qrText, { margin: 0, width: 240, errorCorrectionLevel: 'M', color: { dark: '#3b4a5e', light: '#ffffff' } }).catch(() => '') : '';
+  /* up to three QR codes: condition guide | clinic location | WhatsApp (each switched on in Settings) */
+  const qs3 = snap.doctor.qrShow || {};
+  const guideText = rx.qrUrl !== undefined && rx.qrUrl !== null ? rx.qrUrl.trim() : (qs3.guide === false ? '' : (eduUrl(rx, snap.doctor.eduBase) || snap.doctor.eduBase || clinic.qrUrl || snap.doctor.qrUrl || '').trim());
+  const mapText = qs3.map && clinic.address?.trim() ? ((clinic.mapsUrl || '').trim() || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([clinic.name, clinic.address].filter(Boolean).join(', '))) : '';
+  const waDigits = (clinic.whatsapp || '').replace(/\D/g, '').replace(/^0+/, '');
+  const waText = qs3.wa && waDigits.length >= 10 ? `https://wa.me/${waDigits.length === 10 ? '91' + waDigits : waDigits}?text=` + encodeURIComponent('Hello, I would like to book an appointment / emergency consultation.') : '';
+  const qrList = (await Promise.all([
+    { text: guideText, kind: 'guide' as const }, { text: mapText, kind: 'map' as const }, { text: waText, kind: 'wa' as const },
+  ].filter((q) => q.text).map(async (q) => ({ kind: q.kind, url: await QRCode.toDataURL(q.text, { margin: 0, width: 240, errorCorrectionLevel: 'M', color: { dark: '#3b4a5e', light: '#ffffff' } }).catch(() => '') })))).filter((q) => q.url);
   const lang: 'en' | 'hi' = rx.lang === 'en' ? 'en' : 'hi';
   const T = (en: string, hi: string) => (lang === 'hi' ? hi : en);
 
@@ -162,7 +169,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const showSeal = !opts.draft && opts.showStamp && sealUrl && sealSize;
   const sealW = showSeal ? snap.seal.widthMm : 0;
   const sealH = showSeal && sealSize ? sealW * (sealSize.h / sealSize.w) : 0;
-  const BLOCK_H = Math.max(42, sealH + 12, qrUrl ? 30 : 0);
+  const BLOCK_H = Math.max(42, sealH + 12, qrList.length ? 30 : 0);
   const limitNormal = () => PH - FOOT;
   function ensure(h: number) {
     if (y + h > limitNormal()) { doc.addPage(); drawContHeader(); }
@@ -346,14 +353,24 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     doc.text(clean('Reg. No.: ' + snap.doctor.regNo + (snap.doctor.regCouncil ? ' (' + snap.doctor.regCouncil + ')' : '')), cx, imgTop - 2, { align: 'center' });
   }
   if (showSeal && sealSize) doc.addImage(sealUrl, 'PNG', sealX + snap.seal.offsetX, sealBottom - sealH + snap.seal.offsetY, sealW, sealH, undefined, 'FAST');
-  if (qrUrl) {
-    const qs = 16, qx = M, qy = sigBottom - qs - 7;
-    doc.addImage(qrUrl, 'PNG', qx, qy, qs, qs, undefined, 'FAST');
-    const avail = Math.max(24, Math.min(showSeal ? sealX : sigLeft, sigLeft) - M - 3);
-    const cap = T('Scan to learn about your condition', 'अपनी बीमारी के बारे में जानने के लिए स्कैन करें');
-    const yy0 = y; y = qy + qs + 1.2;
-    if (lang === 'hi') { const b = hiBlock(cap, avail, 6.6, GREY); doc.addImage(b.url, 'PNG', qx, y, b.w, b.h, undefined, 'FAST'); }
-    else { font('normal', 6.6, GREY); wrap(cap, avail).forEach((l, i) => doc.text(l, qx, y + 2.2 + i * 2.7)); }
+  if (qrList.length) {
+    const n = qrList.length, qs = n > 1 ? 15 : 16, qy = sigBottom - qs - 7;
+    const avail0 = Math.max(24, Math.min(showSeal ? sealX : sigLeft, sigLeft) - M - 3);
+    const cw = n > 1 ? Math.min(27, avail0 / n) : avail0;
+    const caps = {
+      guide: n > 1 ? T('Scan: your condition guide', 'स्कैन करें: बीमारी की जानकारी') : T('Scan to learn about your condition', 'अपनी बीमारी के बारे में जानने के लिए स्कैन करें'),
+      map: T('Scan: clinic location', 'स्कैन करें: क्लिनिक का पता'),
+      wa: T('Scan: WhatsApp for appointment / emergency', 'स्कैन करें: WhatsApp अपॉइंटमेंट / इमरजेंसी'),
+    };
+    const yy0 = y;
+    qrList.forEach((q, i) => {
+      const qx = M + i * cw;
+      doc.addImage(q.url, 'PNG', qx, qy, qs, qs, undefined, 'FAST');
+      const cap = caps[q.kind], w = cw - 1.5;
+      const cy = qy + qs + 1.2;
+      if (lang === 'hi') { const b = hiBlock(cap, w, 6.4, GREY); doc.addImage(b.url, 'PNG', qx, cy, b.w, b.h, undefined, 'FAST'); }
+      else { font('normal', 6.4, GREY); wrap(cap, w).slice(0, 3).forEach((l, k) => doc.text(l, qx, cy + 2.2 + k * 2.6)); }
+    });
     y = yy0;
   }
 

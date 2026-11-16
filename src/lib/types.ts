@@ -42,9 +42,11 @@ export interface Doctor {
   phone: string; email: string; morePhones?: string[]; qrUrl?: string;
   /** base link of the doctor's own patient-guide site; when set, the Rx QR opens the page matching the diagnosis (falls back to qrUrl) */
   eduBase?: string;
+  /** which QR codes to print on the Rx (guide defaults on, location and WhatsApp default off) */
+  qrShow?: { guide?: boolean; map?: boolean; wa?: boolean };
 }
 export interface Letterhead { on: boolean; top: number; bottom: number }
-export interface Clinic { letterhead?: Letterhead; logoSize?: 'S' | 'M' | 'L'; id: string; name: string; address: string; phone: string; email: string; timings: string; logo: string; whatsapp?: string; appointmentNote?: string; morePhones?: string[]; qrUrl?: string }
+export interface Clinic { letterhead?: Letterhead; logoSize?: 'S' | 'M' | 'L'; id: string; name: string; address: string; phone: string; email: string; timings: string; logo: string; whatsapp?: string; appointmentNote?: string; morePhones?: string[]; qrUrl?: string; /** optional Google Maps link; otherwise made from the address */ mapsUrl?: string }
 export interface SignatureCfg { dataUrl: string; source: 'upload' | 'draw' | ''; widthMm: number; offsetX: number; offsetY: number }
 export interface SealCfg {
   mode: 'none' | 'generated' | 'uploaded'; style: 'circle' | 'rect' | 'classic'; ink: 'blue' | 'black' | 'red';
