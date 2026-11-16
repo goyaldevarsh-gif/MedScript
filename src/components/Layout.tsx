@@ -5,6 +5,7 @@ import { cx } from '../lib/util';
 import { useOnline, useUpdate } from '../lib/pwa';
 import { useSettings } from '../lib/db';
 import SpecialtyPrompt from './SpecialtyPicker';
+import SetupWizard, { useWizardGate } from './SetupWizard';
 import { useEffect } from 'react';
 import { flushOv } from '../lib/ovsync';
 import { startSync, stopSync } from '../lib/sync';
@@ -28,6 +29,7 @@ export default function Layout() {
   const online = useOnline();
   const upd = useUpdate();
   const s = useSettings();
+  const [wizard, closeWizard] = useWizardGate();
   const doc = s?.doctor.fullName;
   const ovEmail = s?.ovEmail;
   useEffect(() => { // one-off tidy: drop empty drafts (no medicines) left behind by older versions
@@ -43,7 +45,8 @@ export default function Layout() {
   }, [ovEmail, online]);
   return (
     <div className="flex h-full">
-      <SpecialtyPrompt />
+      {wizard === false && <SpecialtyPrompt />}
+      {wizard === true && <SetupWizard onClose={closeWizard} />}
       {upd.available && (
         <div className="fixed inset-x-3 top-3 z-[100] mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-navy px-4 py-3 text-white shadow-2xl">
           <div className="flex-1 text-sm"><div className="font-extrabold">New version available</div><div className="text-xs text-slate-300">Your data and drafts stay safe.</div></div>

@@ -77,11 +77,11 @@ const SCENARIOS: { key: string; title: string; sub: string; patient: { name: str
   },
 ];
 
-export default function SampleRx({ label = 'See a sample prescription', className }: { label?: string; className?: string }) {
+export default function SampleRx({ label = 'See a sample prescription', className, defaultOwn, autoKey }: { label?: string; className?: string; defaultOwn?: boolean; autoKey?: string }) {
   const s = useSettings();
   const [open, setOpen] = useState(false);
   const [lang, setLang] = useState<Lang>('hi');
-  const [own, setOwn] = useState(false);
+  const [own, setOwn] = useState(!!defaultOwn);
   const [rx, setRx] = useState<Prescription | null>(null);
   if (!s) return null;
 
@@ -98,7 +98,7 @@ export default function SampleRx({ label = 'See a sample prescription', classNam
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className={className || 'inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 hover:border-brand hover:text-brand'}>
+      <button onClick={() => (autoKey ? build(autoKey) : setOpen(true))} className={className || 'inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 hover:border-brand hover:text-brand'}>
         <Eye size={16} /> {label}
       </button>
       {open && (
