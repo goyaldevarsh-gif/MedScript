@@ -96,15 +96,13 @@ function DoctorCard({ s }: { s: AppSettings }) {
               {body && <div className="mt-2 pl-6">{body}</div>}
             </div>
           );
-          const hasAddr = s.clinics.some((c) => c.address.trim()), hasWa = s.clinics.some((c) => (c.whatsapp || '').replace(/\D/g, '').length >= 10);
-          const status = (ok: boolean, okT: string, noT: string) => ok ? <span className="text-xs font-semibold text-teal-700">✓ {okT}</span> : <span className="text-xs font-semibold text-amber-700">Not set yet: {noT} <a className="underline" href="#/settings?tab=clinic">Open Clinic profile</a></span>;
           return <>
             {row('guide', true, 'Patient guide QR', 'Opens the page about the patient\'s condition.', <div className="space-y-2">
               <Field label="Your guide site link" hint="Paste the main link once. The QR opens the page for the diagnosis automatically; if no page matches, it opens the site home."><input className="field" value={d.eduBase || ''} onChange={(e) => set({ eduBase: e.target.value.trim() })} placeholder="https://yourname.github.io/your-guide-site" /></Field>
               <Field label="No guide site? Use any other link" hint="Website, Google review, etc. Ignored when the guide site link above is filled."><input className="field" value={d.qrUrl || ''} onChange={(e) => set({ qrUrl: e.target.value.trim() })} placeholder="https://…" /></Field>
             </div>)}
-            {row('map', false, 'Clinic location QR', 'Opens the clinic on Google Maps.', status(hasAddr, 'Made from the address in Clinic profile (add a Google Maps link there for an exact pin).', 'add the clinic address.'))}
-            {row('wa', false, 'WhatsApp QR: appointment / emergency', 'Opens a WhatsApp chat with the clinic.', status(hasWa, 'Uses the WhatsApp number in Clinic profile.', 'add the clinic WhatsApp number.'))}
+            {row('map', false, 'Clinic location QR', 'Opens the clinic on Google Maps.', <ClinicQrFields s={s} kind="map" />)}
+            {row('wa', false, 'WhatsApp QR: appointment / emergency', 'Opens a WhatsApp chat with the clinic.', <ClinicQrFields s={s} kind="wa" />)}
           </>;
         })()}
       </div>
@@ -134,6 +132,26 @@ function PhonesField({ label, primary, more, onChange }: { label: string; primar
         <button className="text-sm font-bold text-brand underline" onClick={() => onChange(list[0], [...list.slice(1), ''])}>+ Add another number</button>
       </div>
       <p className="mt-1 text-xs text-slate-500">Prints as +91-XXXXXXXXXX. Landline numbers print as you type them (with STD code).</p>
+    </div>
+  );
+}
+
+/* location / WhatsApp details for the QR cards, edited here so you don't have to open Clinic profile (same data, saved when you leave the box) */
+function ClinicQrFields({ s, kind }: { s: AppSettings; kind: 'map' | 'wa' }) {
+  return <div className="space-y-3">{s.clinics.map((c) => <ClinicQrOne key={c.id} c={c} kind={kind} multi={s.clinics.length > 1} />)}</div>;
+}
+function ClinicQrOne({ c, kind, multi }: { c: Clinic; kind: 'map' | 'wa'; multi: boolean }) {
+  const [addr, setAddr] = useState(c.address), [maps, setMaps] = useState(c.mapsUrl || ''), [wa, setWa] = useState(c.whatsapp || '');
+  const save = (patch: Partial<Clinic>) => updateSettings((x) => { const k = x.clinics.find((z) => z.id === c.id); if (k) Object.assign(k, patch); });
+  return (
+    <div className="space-y-2">
+      {multi && <div className="text-xs font-extrabold uppercase tracking-wide text-slate-500">{c.name || 'Clinic'}</div>}
+      {kind === 'map' ? <>
+        <Field label="Clinic address" hint="Same address that prints on your Rx. The QR is made from it."><textarea className="field" rows={2} value={addr} onChange={(e) => setAddr(e.target.value)} onBlur={() => addr !== c.address && save({ address: addr })} /></Field>
+        <Field label="Google Maps link (optional)" hint="Paste the Share link from Google Maps for an exact pin. If empty, the address is used."><input className="field" value={maps} onChange={(e) => setMaps(e.target.value.trim())} onBlur={() => maps !== (c.mapsUrl || '') && save({ mapsUrl: maps })} placeholder="https://maps.app.goo.gl/…" /></Field>
+      </> : (
+        <Field label="Clinic WhatsApp number" hint="10-digit number patients can message for appointment or emergency."><input className="field" type="tel" value={wa} onChange={(e) => setWa(e.target.value)} onBlur={() => wa !== (c.whatsapp || '') && save({ whatsapp: wa.trim() })} placeholder="e.g. 9876543210" /></Field>
+      )}
     </div>
   );
 }
@@ -423,6 +441,7 @@ function AppCard() {
   const inst = useInstall();
   const upd = useUpdate();
   const toast = useToast();
+  const [checking, setChecking] = useState(false);
   const [persist, setPersist] = useState<boolean | null>(null);
   useEffect(() => { navigator.storage?.persisted?.().then(setPersist).catch(() => setPersist(null)); }, []);
   return (
@@ -435,7 +454,21 @@ function AppCard() {
       </div>
       <div className="rounded-xl bg-slate-50 p-4">
         <div className="font-bold">App updates</div>
-        {upd.available ? <Btn className="mt-2" onClick={upd.apply}>Update now</Btn> : <><p className="mt-1 text-sm text-slate-600">New versions appear automatically as an “Update now” banner.</p><Btn variant="secondary" className="mt-2" onClick={async () => { await upd.check(); toast('Checked. You will see a banner if an update is found.'); }}>Check for updates</Btn></>}
+        {upd.available ? <><p className="mt-1 text-sm font-semibold text-teal-700">A new version is ready.</p><Btn className="mt-2" onClick={upd.apply}>Update now</Btn></> : <>
+          <p className="mt-1 text-sm text-slate-600">New versions appear as an “Update now” banner. You can also check by hand.</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Btn variant="secondary" disabled={checking} onClick={async () => {
+              setChecking(true);
+              const r = await upd.check();
+              setChecking(false);
+              if (r === 'available') toast('New version found. Tap “Update now”.');
+              else if (r === 'latest') toast('You already have the latest version.');
+              else if (r === 'offline') toast('You are offline. Connect to the internet and try again.', { tone: 'err' });
+              else toast('Could not check right now. Try “Still old? Force refresh”.', { tone: 'err', ms: 6000 });
+            }}>{checking ? 'Checking…' : 'Check for updates'}</Btn>
+            <button className="text-xs font-semibold text-slate-500 underline" onClick={() => { if (confirm('Reload the newest app files now? Your prescriptions and patients are not deleted.')) upd.forceRefresh(); }}>Still old? Force refresh</button>
+          </div></>}
+        <p className="mt-2 text-[11px] text-slate-400">This version: {__BUILD__}</p>
       </div>
       <ul className="space-y-1.5 text-sm font-medium text-slate-700">
         <li>• Works offline after the first load. Your data is stored on this device (IndexedDB).</li>
