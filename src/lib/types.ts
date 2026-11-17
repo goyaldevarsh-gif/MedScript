@@ -59,10 +59,7 @@ export interface LayoutCfg {
   footerNote: string; sealLeft: boolean;
 }
 export type SpecialtyKey = 'ortho' | 'general' | 'other';
-/** A named shortlist of medicines (e.g. a trip kit) with remembered quantity and frequency. Stays on this device. */
-export interface Kit { id: string; name: string; items: { medId: string; qty: string; freq: Freq }[] }
 export interface AppSettings {
-  kits?: Kit[];
   doctor: Doctor; clinics: Clinic[]; defaultClinicId: string;
   signature: SignatureCfg; seal: SealCfg; layout: LayoutCfg;
   defaultLang: Lang; defaultFollowUpDays: number; lastBackupAt: number;
