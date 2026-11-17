@@ -57,7 +57,6 @@ export interface LayoutCfg {
   nameDisplay: 'generic' | 'brand'; nameV2?: boolean; genericCaps: boolean; fontScale: 'normal' | 'large';
   showPhone: boolean; showComposition: boolean; footerBranding: boolean; headerBrand: boolean;
   footerNote: string; sealLeft: boolean;
-  /** Hindi advice printed in Rajasthani (draft wording) */ hindiStyle?: 'raj';
 }
 export type SpecialtyKey = 'ortho' | 'general' | 'other';
 export interface IxCustom { id: string; a: string; b: string; level: 'danger' | 'warn' | 'info'; note: string }
