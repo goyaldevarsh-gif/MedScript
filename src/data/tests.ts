@@ -58,7 +58,7 @@ R.forEach((r) => r.parts.forEach((p) => { BODY_REGION[p] = r.key; }));
 export function sideWord(side?: string) { return side === 'Left' ? 'left ' : side === 'Right' ? 'right ' : side === 'Bilateral' ? 'bilateral ' : ''; }
 const fill = (t: string, side?: string) => t.replace('{s}', sideWord(side)).replace('bilateral knee standing', 'both knees standing').replace(/\s+/g, ' ').trim();
 /** loose key so "X-ray right knee AP/lateral" and "X-ray knee AP and lateral" count as the same test */
-export const testKey = (t: string) => t.toLowerCase().replace(/\b(right|left|bilateral|both|rt|lt)\b/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+export const testKey = (t: string) => t.toLowerCase().replace(/\b(right|left|bilateral|both|rt|lt|standing|weight[- ]bearing|oblique|and|views?)\b/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
 
 export function splitTests(v: string): string[] { return (v || '').split(/\s*[;\n]\s*/).map((x) => x.trim()).filter(Boolean); }
 export const joinTests = (a: string[]) => a.join('; ');
@@ -79,10 +79,24 @@ export function suggestTests(c: Pick<Clinical, 'diagnosis' | 'complaint' | 'side
     if (k) hit.set(k, (hit.get(k) || 0) + 2);
   }
   const regions = [...hit.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([k]) => R.find((r) => r.key === k)!);
+  // injuries and fractures: plain films first, then CT, then MRI. Wear-and-tear and soft tissue: X-ray, USG, MRI, CT.
+  const trauma = c.injury === 'trauma' || /fractur|dislocat|injur|rupture|tear|post.?op|sprain|ligament|\bacl\b|\bpcl\b|plating|nailing|\bcast\b|follow.?up of/i.test(text);
+  // a fracture already treated (post-op / in cast): films only
+  const fxFollow = /fractur/i.test(text) && /post.?op|plating|nailing|\bcast\b|follow.?up|union/i.test(text);
+  const rank = (t: string) => { const x = t.toLowerCase();
+    if (/^x-ray|^chest x-ray/.test(x)) return 0;
+    if (/^ct\b/.test(x)) return trauma ? 1 : 3;
+    if (/^mri/.test(x)) return 2;
+    if (/^usg/.test(x)) return trauma ? 3 : 1;
+    return 4; };
   const out: string[] = [];
   const seen = new Set<string>();
   const push = (t: string) => { const f = fill(t, c.side); const k = testKey(f); if (!seen.has(k)) { seen.add(k); out.push(f); } };
-  for (const r of regions) r.tests.forEach(push);
+  for (const r of regions) {
+    // "standing" and plain versions of one film are the same test: keep the one that suits the problem
+    const keep = r.tests.filter((t) => { const std = /standing|weight[- ]bearing/i.test(t); const twin = r.tests.some((o) => o !== t && testKey(o) === testKey(t) && /standing|weight[- ]bearing/i.test(o) !== std); if (trauma) return !std; return !twin || std; });
+    keep.filter((t) => !(fxFollow && /^(mri|usg)/i.test(t))).map((t, i) => ({ t, i })).sort((a, b) => rank(a.t) - rank(b.t) || a.i - b.i).forEach((x) => push(x.t));
+  }
   const labs = L.filter((l) => l.re.test(text));
   labs.slice(0, 2).forEach((l) => l.tests.forEach(push));
   return out;
