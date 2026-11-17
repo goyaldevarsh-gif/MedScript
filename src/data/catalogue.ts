@@ -69,6 +69,8 @@ const singles: Row[] = [
   ['Domperidone', ['10 mg'], 'Tablet', 'Oral', 'Antiemetic'],
   ['Ondansetron', ['4 mg', '8 mg'], 'Tablet', 'Oral', 'Antiemetic'],
   ['Ondansetron', ['4 mg/2 mL'], 'Injection', 'IV', 'Antiemetic'],
+  ['Clonazepam', ['0.5 mg'], 'Tablet', 'Oral', 'Benzodiazepine (Schedule H1)'],
+  ['Betahistine', ['8 mg', '16 mg'], 'Tablet', 'Oral', 'Anti-vertigo'],
   ['Sucralfate', ['1 g/10 mL'], 'Suspension', 'Oral', 'Gastroprotective'],
   // Bone health / supplements
   ['Cholecalciferol (Vitamin D3)', ['60000 IU'], 'Capsule', 'Oral', 'Vitamin D'],

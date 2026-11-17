@@ -1,4 +1,4 @@
-/** The built-in library is limited to this curated set (most-used generics + brands).
+/** The built-in library is limited to this curated set (500 core + brands/generics added on request).
  *  Everything else stays in brands.ts as a reserve and can be re-enabled by adding its id here. */
 export const CORE_IDS = new Set<string>([
 "cat-paracetamol-500-mg-tablet",
@@ -500,5 +500,19 @@ export const CORE_IDS = new Set<string>([
 "brand-volini-spray",
 "brand-kenalog-40",
 "brand-hyalgan",
-"brand-xylocaine-heavy-5"
+"brand-xylocaine-heavy-5",
+"brand-flexon",
+"brand-oflox-oz",
+"brand-montec-lc",
+"brand-cheston-cold",
+"brand-tussin-dmr",
+"brand-ridol-2",
+"brand-ondem-md-4",
+"brand-partysmart",
+"brand-band-aid",
+"brand-zerodol-th-max-4",
+"brand-digene-tablet",
+"cat-clonazepam-0-5-mg-tablet",
+"cat-betahistine-8-mg-tablet",
+"cat-betahistine-16-mg-tablet"
 ]);

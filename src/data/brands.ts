@@ -448,7 +448,7 @@ Ringer Lactate 500 mL|Ringer lactate 500 mL|Injection:IV|IV fluid
 Dextrose 5% 500 mL|Dextrose 5% 500 mL|Injection:IV|IV fluid
 DNS 500 mL|Dextrose 5% + Sodium chloride 0.9% 500 mL|Injection:IV|IV fluid
 Gelusil MPS|Aluminium hydroxide + Magnesium hydroxide + Simethicone|Tablet|Antacid
-Digene Tablet|Aluminium hydroxide + Magnesium hydroxide + Simethicone|Tablet|Antacid
+Digene Tablet|Aluminium hydroxide + Magnesium hydroxide + Magnesium silicate + Simethicone|Tablet|Antacid
 Eno|Sodium bicarbonate + Citric acid|Sachet|Antacid
 Mucaine Gel|Oxetacaine + Aluminium hydroxide + Magnesium hydroxide|Suspension|Antacid
 Normix 200|Rifaximin 200 mg|Tablet|Antibiotic (GI)
@@ -623,6 +623,15 @@ Tetglob 250|Human tetanus immunoglobulin 250 IU|Injection:IM|Immunoglobulin
 Anti-D 300|Anti-D immunoglobulin 300 mcg|Injection:IM|Immunoglobulin
 Dr Reckeweg Arnica 30|Arnica montana 30C|Drops|Homeopathic
 Thrombophob Ointment|Heparin + Benzyl nicotinate|Ointment:Topical|Topical heparinoid
+Flexon|Ibuprofen 400 mg + Paracetamol 325 mg|Tablet|NSAID combination
+Oflox-OZ|Ofloxacin 200 mg + Ornidazole 500 mg|Tablet|Antibiotic
+Montec-LC|Montelukast 10 mg + Levocetirizine 5 mg|Tablet|Antihistamine combination
+Cheston Cold|Cetirizine 5 mg + Paracetamol 325 mg + Phenylephrine 5 mg|Tablet|Cough / cold combination
+Tussin-DMR|Ambroxol 30 mg + Cetirizine 5 mg + Dextromethorphan 15 mg + Guaifenesin 100 mg + Phenylephrine|Tablet|Cough / cold combination
+Ridol 2|Loperamide 2 mg|Tablet|Anti-diarrhoeal
+Ondem-MD 4|Ondansetron 4 mg|Tablet|Antiemetic
+Band-Aid|Adhesive bandage strip|Other:Topical|Wound dressing
+PartySmart|Chicory extract + Dates extract + Andrographis extract + Grape extract|Capsule|Herbal hangover / liver support
 `.trim().split('\n');
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
