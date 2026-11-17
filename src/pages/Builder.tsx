@@ -19,6 +19,8 @@ import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../comp
 import { MedicineSearch } from '../components/MedicineLibrary';
 import ItemEditor from '../components/ItemEditor';
 import TemplatePicker from '../components/TemplatePicker';
+import TestPicker from '../components/TestPicker';
+import { splitTests, testKey } from '../data/tests';
 import PreviewModal from '../components/PreviewModal';
 import ReviewModal from '../components/ReviewModal';
 import { checkRx, disclaimer } from '../lib/safety';
@@ -172,6 +174,19 @@ function Builder() {
     return [...tally.values()].sort((a, b) => b.n - a.n).slice(0, 6);
   }, [rx, pastRx]);
 
+  /* tests the doctor usually orders for this diagnosis (from own past prescriptions) */
+  const usualTests = useMemo(() => {
+    const dx = norm(rx?.clinical.diagnosis || '');
+    if (!rx || dx.length < 3) return [] as string[];
+    const tally = new Map<string, { t: string; n: number }>();
+    for (const p of pastRx) {
+      if (p.id === rx.id || p.status !== 'final') continue;
+      const pd = norm(p.clinical.diagnosis || ''); if (!pd || !(pd.includes(dx) || dx.includes(pd))) continue;
+      for (const t of splitTests(p.clinical.investigations || '')) { const k = testKey(t); const e = tally.get(k); if (e) e.n++; else tally.set(k, { t, n: 1 }); }
+    }
+    return [...tally.values()].filter((x) => x.n >= 2).sort((a, b) => b.n - a.n).slice(0, 4).map((x) => x.t);
+  }, [rx?.clinical.diagnosis, pastRx]); // eslint-disable-line
+
   async function addMedicine(m: Medicine) {
     const it = itemFromMedicine(m);
     let remembered = false;
@@ -280,6 +295,7 @@ function Builder() {
               </div>}
               <PrintField label="Examination findings" value={rx.clinical.examination} onChange={(v) => setClin({ examination: v })} on={rx.print.examination} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, examination: b } }))} />
               <PrintField label="Investigations" value={rx.clinical.investigations} onChange={(v) => setClin({ investigations: v })} on={rx.print.investigations} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, investigations: b } }))} />
+              {!readOnly && <TestPicker clin={rx.clinical} value={rx.clinical.investigations} onChange={(v) => setClin({ investigations: v })} usual={usualTests} />}
               <PrintField label="Clinical notes (private by default)" value={rx.clinical.notes} onChange={(v) => setClin({ notes: v })} on={rx.print.notes} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, notes: b } }))} />
               <label className="flex items-center gap-2 text-xs font-semibold text-slate-600"><input type="checkbox" checked={rx.print.complaint} onChange={(e) => update((r) => ({ ...r, print: { ...r.print, complaint: e.target.checked } }))} /> Print chief complaint on prescription</label>
             </fieldset>
