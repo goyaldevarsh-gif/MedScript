@@ -13,7 +13,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain in knee on walking / climbing stairs, morning stiffness',
     diagnosis: 'Osteoarthritis knee',
     examination: 'Gait: \nDeformity (varus/valgus): \nEffusion: \nJoint line tenderness: \nCrepitus: \nROM: \nLigament stability: ',
-    investigations: 'X-ray knee standing AP and lateral (Kellgren-Lawrence grading)',
+    investigations: "X-ray knee standing AP and lateral",
     advice: [
       'Quadriceps strengthening and knee range-of-motion exercises daily',
       'Reduce body weight if overweight',
@@ -27,7 +27,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Low back pain',
     diagnosis: 'Mechanical low back pain',
     examination: 'Posture: \nParaspinal spasm/tenderness: \nROM: \nSLRT: \nNeurology (power, sensation, reflexes): ',
-    investigations: 'X-ray LS spine AP and lateral (MRI only if red flags / persistent radiculopathy)',
+    investigations: "X-ray LS spine AP and lateral",
     advice: [
       'Stay active; avoid prolonged bed rest',
       'Avoid heavy lifting and forward bending; lift with knees bent',
@@ -41,7 +41,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Neck pain / stiffness, pain radiating to arm',
     diagnosis: 'Cervical spondylosis',
     examination: 'Neck ROM: \nSpurling test: \nNeurology of upper limb: \nReflexes: ',
-    investigations: 'X-ray cervical spine AP and lateral (MRI if neurological deficit)',
+    investigations: "X-ray cervical spine AP and lateral",
     advice: [
       'Neck isometric and chin-tuck exercises as shown',
       'Maintain good posture; keep mobile / laptop at eye level',
@@ -55,7 +55,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain and swelling of ankle after twisting injury',
     diagnosis: 'Ankle sprain',
     examination: 'Swelling: \nBruising: \nTenderness (ATFL / malleoli / base of 5th metatarsal): \nAnterior drawer: \nDistal neurovascular status: ',
-    investigations: 'X-ray ankle AP / lateral / mortise if Ottawa criteria positive',
+    investigations: "",
     advice: [
       'Rest, Ice (15-20 minutes, 3-4 times a day), Compression bandage, Elevation (RICE)',
       'Use ankle brace / crepe bandage as advised',
@@ -69,7 +69,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Heel pain, worst with first steps in the morning',
     diagnosis: 'Plantar fasciitis',
     examination: 'Tenderness at medial calcaneal tubercle: \nWindlass test: \nAnkle dorsiflexion / calf tightness: ',
-    investigations: 'X-ray foot lateral view (only if atypical)',
+    investigations: "",
     advice: [
       'Plantar fascia and calf stretching exercises, several times a day',
       'Use a silicone heel cup / cushioned footwear; avoid walking barefoot',
@@ -82,7 +82,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Shoulder pain with progressive stiffness, difficulty combing hair / reaching back',
     diagnosis: 'Adhesive capsulitis (frozen shoulder)',
     examination: 'Active and passive ROM (flexion / abduction / external rotation / internal rotation): \nPainful arc: \nCuff strength: ',
-    investigations: 'X-ray shoulder AP and axillary view',
+    investigations: "X-ray shoulder AP and axillary view",
     advice: [
       'Codman pendulum exercises, wall-climbing and stick exercises daily',
       'Hot fomentation before exercises',
@@ -96,7 +96,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain on outer side of elbow on gripping / lifting',
     diagnosis: 'Lateral epicondylitis (tennis elbow)',
     examination: 'Tenderness at lateral epicondyle: \nCozen test: \nMill test: \nGrip strength: ',
-    investigations: 'X-ray elbow (only if atypical)',
+    investigations: "",
     advice: [
       'Avoid repetitive gripping, wrist extension and heavy lifting',
       'Use a counterforce elbow strap during activity',
@@ -106,9 +106,9 @@ export const STARTERS: StarterTemplate[] = [
   }),
   t('shoulder-pain', 'Shoulder pain', 'shoulder', 14, {
     complaint: 'Shoulder pain, worse with overhead activity',
-    diagnosis: 'Shoulder pain (rotator cuff / subacromial pathology to be confirmed)',
+    diagnosis: "Shoulder pain",
     examination: 'ROM: \nPainful arc: \nNeer / Hawkins: \nEmpty can / Jobe: \nCuff strength: \nCervical spine screen: ',
-    investigations: 'X-ray shoulder AP / Grashey / axillary; USG or MRI shoulder if cuff tear suspected',
+    investigations: "X-ray shoulder AP, Grashey and axillary views",
     advice: [
       'Avoid overhead activity and lifting heavy weights',
       'Do not sleep on the affected side',
@@ -118,10 +118,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }),
   t('osteoporosis', 'Osteoporosis', 'bone', 90, {
-    complaint: 'Generalised bone pain / low-trauma fracture / screening',
+    complaint: "Generalised bone pain; bone health assessment",
     diagnosis: 'Osteoporosis',
     examination: 'Height / weight: \nSpinal tenderness / kyphosis: \nGait and balance: ',
-    investigations: 'DEXA scan; serum calcium, phosphorus, 25-OH vitamin D, ALP, creatinine, TSH',
+    investigations: "DEXA scan; serum calcium, phosphorus, 25-OH vitamin D, ALP, creatinine, TSH",
     advice: [
       'Adequate sun exposure daily and calcium-rich diet (milk, curd, ragi, green leafy vegetables)',
       'Regular weight-bearing exercise such as walking',
@@ -135,7 +135,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Post-operative review after ACL reconstruction',
     diagnosis: 'Status post ACL reconstruction',
     examination: 'Wound: \nEffusion: \nROM: \nQuadriceps control / SLR: \nCalf tenderness / swelling: \nDistal neurovascular status: ',
-    investigations: 'X-ray knee AP and lateral at follow-up if advised',
+    investigations: "X-ray knee AP and lateral",
     advice: [
       'Keep the wound clean and dry; suture removal as advised',
       'Use knee brace and crutches as advised',
@@ -149,7 +149,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Post-operative review after total knee replacement',
     diagnosis: 'Status post total knee replacement',
     examination: 'Wound: \nEffusion: \nROM (flexion / extension lag): \nQuadriceps control: \nCalf tenderness / swelling: \nDistal neurovascular status: ',
-    investigations: 'X-ray knee AP and lateral at follow-up',
+    investigations: "X-ray knee AP and lateral",
     advice: [
       'Keep the wound clean and dry; suture removal as advised',
       'Walk with a walker / support as advised; follow the physiotherapy protocol',
@@ -164,7 +164,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Post-operative review after total hip replacement',
     diagnosis: 'Status post total hip replacement',
     examination: 'Wound: \nLimb length: \nAbductor function / Trendelenburg: \nCalf tenderness / swelling: \nDistal neurovascular status: ',
-    investigations: 'X-ray pelvis with both hips AP at follow-up',
+    investigations: "X-ray pelvis with both hips AP",
     advice: [
       'Follow the hip precautions explained to you (as per surgical approach)',
       'Do not cross your legs; sleep on your back with a pillow between the legs if advised',
@@ -178,7 +178,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up of fracture',
     diagnosis: 'Fracture - follow-up',
     examination: 'Cast / splint condition: \nSwelling: \nSkin: \nTenderness at fracture site: \nDistal neurovascular status: \nJoint ROM above and below: ',
-    investigations: 'X-ray of the part (AP and lateral) at follow-up',
+    investigations: "X-ray of the part, AP and lateral",
     advice: [
       'Keep the cast / splint dry and intact; do not insert objects inside it',
       'Keep the limb elevated; move fingers / toes frequently',
@@ -190,7 +190,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Post-operative review after fracture fixation',
     diagnosis: 'Status post fracture fixation',
     examination: 'Wound: \nSwelling / collection: \nImplant site tenderness: \nROM of adjacent joints: \nDistal neurovascular status: ',
-    investigations: 'X-ray of the part (AP and lateral) at follow-up',
+    investigations: "X-ray of the part, AP and lateral",
     advice: [
       'Keep the wound clean and dry; suture removal as advised',
       'Keep the limb elevated; active movement of adjacent joints as shown',
@@ -203,7 +203,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up of congenital talipes equinovarus (clubfoot)',
     diagnosis: 'Congenital talipes equinovarus (CTEV) - follow-up',
     examination: 'Cast / brace fit: \nFoot abduction: \nDorsiflexion: \nSkin condition: \nPirani score: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Bring the child on the scheduled dates; treatment works only with regular follow-up',
       'Keep the cast dry; do not remove it at home',
@@ -215,7 +215,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Tingling / numbness in thumb, index and middle fingers, worse at night',
     diagnosis: 'Carpal tunnel syndrome',
     examination: 'Phalen test: \nTinel sign: \nThenar wasting: \nAPB power: \nSensation (median nerve): ',
-    investigations: 'Nerve conduction study (NCS) of median nerve if diagnosis uncertain or severe',
+    investigations: "",
     advice: [
       'Wear the wrist splint in neutral position at night',
       'Avoid prolonged wrist flexion and repetitive gripping',
@@ -227,7 +227,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain at the thumb side of the wrist on gripping / lifting',
     diagnosis: "De Quervain's tenosynovitis",
     examination: 'Tenderness over first dorsal compartment: \nFinkelstein test: \nSwelling: \nThumb ROM: ',
-    investigations: 'Clinical diagnosis; X-ray wrist only if trauma or doubt',
+    investigations: "",
     advice: [
       'Wear the thumb spica splint as advised',
       'Avoid repetitive thumb and wrist movements, and lifting with the thumb',
@@ -238,7 +238,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Finger catches / locks on bending, worse in the morning',
     diagnosis: 'Trigger finger (stenosing tenosynovitis)',
     examination: 'Finger involved: \nNodule at A1 pulley: \nLocking / triggering: \nPassive extension possible: ',
-    investigations: 'Clinical diagnosis',
+    investigations: "",
     advice: [
       'Avoid prolonged tight gripping and repetitive finger movements',
       'Warm water soak and gentle finger stretching, twice daily',
@@ -249,7 +249,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain on the inner side of the elbow, worse on gripping / wrist flexion',
     diagnosis: "Golfer's elbow (medial epicondylitis)",
     examination: 'Medial epicondyle tenderness: \nResisted wrist flexion pain: \nElbow ROM: \nUlnar nerve symptoms: ',
-    investigations: 'Clinical diagnosis; X-ray elbow if trauma or persistent pain',
+    investigations: "",
     advice: [
       'Rest the arm from repetitive gripping and heavy lifting',
       'Wear the elbow strap just below the elbow during activity',
@@ -261,7 +261,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Shoulder pain on lifting the arm, night pain, difficulty reaching overhead',
     diagnosis: 'Rotator cuff tendinopathy / subacromial impingement',
     examination: 'Painful arc: \nNeer / Hawkins test: \nEmpty can / Jobe test: \nExternal rotation lag: \nPassive ROM: \nCervical spine: ',
-    investigations: 'X-ray shoulder AP / Y-view; MRI shoulder if weakness, suspected tear or no improvement in 6 weeks',
+    investigations: "X-ray shoulder AP and Y-view",
     advice: [
       'Avoid overhead activity and lifting heavy weights with the affected arm',
       'Sleep with a pillow supporting the arm',
@@ -274,7 +274,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Knee pain with twisting, catching / locking, swelling',
     diagnosis: 'Meniscus tear',
     examination: 'Effusion: \nJoint line tenderness (medial / lateral): \nMcMurray test: \nThessaly test: \nLocked knee: \nLigament stability: ',
-    investigations: 'X-ray knee standing AP and lateral; MRI knee',
+    investigations: "X-ray knee standing AP and lateral; MRI knee",
     advice: [
       'Avoid squatting, twisting and pivoting on the knee',
       'Use a knee brace or crutches as advised',
@@ -287,7 +287,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Twisting injury to the knee with pop, swelling, feeling of giving way',
     diagnosis: 'ACL tear',
     examination: 'Effusion: \nLachman test: \nAnterior drawer: \nPivot shift: \nMeniscal signs: \nCollateral ligaments: \nROM: ',
-    investigations: 'X-ray knee AP / lateral; MRI knee',
+    investigations: "X-ray knee AP and lateral; MRI knee",
     advice: [
       'Use crutches and a knee brace; avoid twisting, running and sports',
       'Ice, compression and elevation for the first 2 weeks',
@@ -300,7 +300,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain around the front of the knee on stairs, squatting and prolonged sitting',
     diagnosis: 'Patellofemoral pain syndrome',
     examination: 'Patellar tracking: \nPatellar compression / grind test: \nQ angle: \nQuadriceps / VMO bulk: \nHamstring and ITB tightness: ',
-    investigations: 'X-ray knee AP / lateral / skyline (Merchant) view if persistent',
+    investigations: "",
     advice: [
       'Quadriceps, hip abductor and core strengthening as shown',
       'Avoid deep squatting, kneeling and prolonged stair climbing for now',
@@ -312,7 +312,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain and stiffness at the back of the heel / above the heel, worse in the morning and on running',
     diagnosis: 'Achilles tendinopathy',
     examination: 'Tendon thickening / nodule: \nTenderness (mid-portion / insertional): \nThompson test: \nSingle-leg heel raise: \nDorsiflexion: ',
-    investigations: 'Ultrasound / MRI ankle if partial tear suspected; X-ray ankle lateral view',
+    investigations: "X-ray ankle lateral view",
     advice: [
       'Avoid running, jumping and hill walking until pain settles',
       'Use a heel raise in the shoe as advised',
@@ -325,7 +325,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain in groin / hip on walking, stiffness, difficulty with socks and squatting',
     diagnosis: 'Osteoarthritis hip',
     examination: 'Gait (antalgic / Trendelenburg): \nROM (flexion, internal rotation): \nFABER / FADIR: \nThomas test: \nLimb length: ',
-    investigations: 'X-ray pelvis with both hips AP and lateral view of the affected hip',
+    investigations: "X-ray pelvis with both hips AP and lateral view of the affected hip",
     advice: [
       'Use a walking stick in the opposite hand',
       'Avoid squatting, sitting cross-legged and Indian-style toilet; use a commode',
@@ -338,7 +338,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain on the outer side of the hip, worse on lying on that side and climbing stairs',
     diagnosis: 'Greater trochanteric pain syndrome (trochanteric bursitis)',
     examination: 'Trochanter tenderness: \nTrendelenburg sign: \nOber test: \nFABER: \nLumbar spine: ',
-    investigations: 'X-ray pelvis AP; ultrasound / MRI if persistent',
+    investigations: "X-ray pelvis AP",
     advice: [
       'Avoid lying on the affected side; place a pillow between the knees while sleeping',
       'Avoid crossing the legs and sitting on low seats',
@@ -349,7 +349,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Low back pain radiating down the leg, with tingling / numbness',
     diagnosis: 'Lumbar disc prolapse with radiculopathy (sciatica)',
     examination: 'SLRT (angle): \nCrossed SLRT: \nPower (EHL, ankle dorsiflexion, plantar flexion): \nSensation (dermatome): \nReflexes (knee, ankle): \nBladder / bowel: ',
-    investigations: 'MRI lumbosacral spine; X-ray LS spine AP and lateral',
+    investigations: "MRI lumbosacral spine; X-ray LS spine AP and lateral",
     advice: [
       'Avoid heavy lifting, forward bending and prolonged sitting',
       'Sleep on a firm bed; keep a pillow under the knees when lying on the back',
@@ -362,7 +362,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Sudden severe pain, redness and swelling of a joint (often the big toe)',
     diagnosis: 'Acute gouty arthritis',
     examination: 'Joint involved: \nWarmth / erythema: \nSwelling: \nTophi: \nFever: ',
-    investigations: 'Serum uric acid, CBC, ESR, creatinine; X-ray of the joint; joint aspiration if diagnosis uncertain',
+    investigations: "Serum uric acid, CBC, ESR, creatinine; X-ray of the joint",
     advice: [
       'Rest and elevate the affected joint; ice pack for 10 minutes',
       'Drink plenty of water (2.5 to 3 litres a day)',
@@ -375,7 +375,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain, swelling or tightness after exertion / awkward movement',
     diagnosis: 'Muscle strain',
     examination: 'Site: \nTenderness: \nSwelling / bruising: \nPain on resisted contraction and stretch: \nPalpable gap: \nJoint ROM: ',
-    investigations: 'X-ray if bony tenderness; ultrasound if significant tear suspected',
+    investigations: "",
     advice: [
       'Rest, ice for 10 minutes every 3 to 4 hours for the first 2 days, compression, elevation',
       'Avoid strenuous activity and stretching into pain for now',
@@ -387,7 +387,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Fracture treated in plaster cast / splint',
     diagnosis: 'Fracture treated conservatively in plaster',
     examination: 'Cast fit: \nSwelling: \nCapillary refill: \nSensation / movement of fingers or toes: \nSkin around the cast: ',
-    investigations: 'X-ray in cast (check alignment) as advised',
+    investigations: "X-ray of the part in cast",
     advice: [
       'Keep the limb elevated above heart level for the first 2 to 3 days',
       'Keep the cast completely dry; do not insert objects inside it or remove it',
@@ -397,10 +397,10 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   /* ---------- added: fractures, spine, sports, medical-ortho ---------- */
   t('distal-radius', 'Distal radius fracture', 'hand', 14, {
-    complaint: 'Wrist pain and swelling after fall on outstretched hand / follow-up of distal radius fracture',
-    diagnosis: 'Distal radius fracture (cast / post-operative)',
+    complaint: 'Wrist pain and swelling after fall on outstretched hand; follow-up of distal radius fracture',
+    diagnosis: "Distal radius fracture",
     examination: 'Swelling: \nDeformity: \nSkin / wound: \nFinger movements: \nCapillary refill and sensation (median nerve): \nCast / splint status: ',
-    investigations: 'X-ray wrist AP and lateral (radial height, inclination, volar tilt, articular step)',
+    investigations: "X-ray wrist AP and lateral",
     advice: [
       'Keep the hand elevated above heart level; move fingers, elbow and shoulder fully, many times a day',
       'Keep the cast or dressing clean and dry; do not insert objects inside the cast',
@@ -413,7 +413,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Neck pain radiating to arm / hand with tingling or numbness',
     diagnosis: 'Cervical radiculopathy',
     examination: 'Neck ROM: \nSpurling test: \nShoulder abduction relief sign: \nDermatomal sensation: \nMyotome power (C5-T1): \nReflexes (biceps / triceps / brachioradialis): \nHoffmann sign: ',
-    investigations: 'X-ray cervical spine AP / lateral; MRI cervical spine if deficit or persistent symptoms beyond 6 weeks',
+    investigations: "X-ray cervical spine AP and lateral",
     advice: [
       'Neck isometric and chin-tuck exercises as shown; avoid sudden neck movements',
       'Keep mobile / laptop at eye level; avoid looking down for long',
@@ -426,7 +426,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Back pain with leg pain / heaviness on walking, relieved by sitting or bending forward',
     diagnosis: 'Lumbar canal stenosis (neurogenic claudication)',
     examination: 'Claudication distance: \nPosture / lumbar extension test: \nSLRT: \nNeurology (power, sensation, reflexes): \nPeripheral pulses: ',
-    investigations: 'MRI lumbosacral spine; X-ray LS spine AP / lateral (flexion-extension if instability suspected)',
+    investigations: "MRI lumbosacral spine; X-ray LS spine AP and lateral",
     advice: [
       'Walk in short bouts; sit and bend forward to rest when leg symptoms start',
       'Flexion-based back and core exercises as shown; a stationary cycle is usually comfortable',
@@ -439,7 +439,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Knee pain and swelling after twisting / valgus-varus injury',
     diagnosis: 'Knee collateral ligament sprain (MCL / LCL)',
     examination: 'Swelling / effusion: \nTenderness along ligament: \nValgus / varus stress at 0 and 30 degrees: \nLachman / posterior drawer: \nROM: \nNeurovascular status: ',
-    investigations: 'X-ray knee AP / lateral to exclude fracture; MRI knee if instability or associated injury suspected',
+    investigations: "X-ray knee AP and lateral",
     advice: [
       'Rest, ice (15-20 minutes, 3-4 times a day), compression and elevation in the first week',
       'Use a knee brace / support and walk with support as advised',
@@ -452,7 +452,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain and bump below the knee cap in a growing child / adolescent, worse with running and jumping',
     diagnosis: 'Osgood-Schlatter disease',
     examination: 'Tibial tuberosity prominence and tenderness: \nPain on resisted knee extension: \nQuadriceps / hamstring tightness: \nKnee effusion: \nHip examination: ',
-    investigations: 'Usually clinical; X-ray knee lateral only if atypical or unilateral severe pain',
+    investigations: "",
     advice: [
       'This is a growth-related condition and settles on its own once growth is complete',
       'Reduce running, jumping and kneeling sports during pain; swimming and cycling are fine',
@@ -465,7 +465,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Localised swelling and pain over a joint (olecranon / prepatellar / trochanteric)',
     diagnosis: 'Bursitis',
     examination: 'Site and size of swelling: \nWarmth / redness: \nTenderness: \nJoint ROM (should be full and painless): \nSkin break / wound: \nFever: ',
-    investigations: 'Usually clinical; X-ray if trauma or bony cause suspected; aspiration and culture if septic bursitis suspected',
+    investigations: "",
     advice: [
       'Avoid leaning or kneeling on the affected area; use a soft pad',
       'Ice for 15 minutes, 3-4 times a day; keep the part rested',
@@ -477,7 +477,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Chest wall pain after fall / blow, pain on deep breathing or coughing',
     diagnosis: 'Rib fracture / chest wall contusion',
     examination: 'Respiratory rate and SpO2: \nChest wall tenderness / crepitus: \nParadoxical movement: \nAir entry bilateral: \nAbdominal tenderness: ',
-    investigations: 'Chest X-ray PA (check pneumothorax / haemothorax); CT chest if multiple ribs or suspicion of complications',
+    investigations: "Chest X-ray PA view",
     advice: [
       'Take slow deep breaths and cough gently every hour while awake to prevent chest infection; hold a pillow against the chest',
       'Do not strap or bind the chest tightly',
@@ -488,9 +488,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('it-fracture', 'Intertrochanteric fracture - post-operative', 'hip', 14, {
     complaint: 'Follow-up after fixation of intertrochanteric fracture of femur',
-    diagnosis: 'Intertrochanteric fracture femur - post-operative (PFN / DHS)',
+    diagnosis: "Intertrochanteric fracture femur - post-operative",
     examination: 'Wound: \nSwelling: \nLimb length / rotation: \nHip and knee ROM: \nWeight-bearing status: \nDistal neurovascular status: ',
-    investigations: 'X-ray pelvis with both hips AP and hip lateral (reduction, implant position, union)',
+    investigations: "X-ray pelvis with both hips AP and hip lateral",
     advice: [
       'Walk with a walker as advised; weight bearing only as instructed by the doctor',
       'Do ankle pumps, quadriceps and hip exercises daily as shown',
@@ -504,7 +504,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after surgery for femoral neck fracture (cannulated screws / hemiarthroplasty / THR)',
     diagnosis: 'Neck of femur fracture - post-operative',
     examination: 'Wound: \nSwelling: \nLimb length / rotation: \nHip and knee ROM: \nWeight-bearing status: \nDistal neurovascular status: ',
-    investigations: 'X-ray pelvis with both hips AP and hip lateral (implant position, reduction, union / loosening)',
+    investigations: "X-ray pelvis with both hips AP and hip lateral",
     advice: [
       'Walk with a walker as advised; weight bearing only as instructed by the doctor',
       'For hemiarthroplasty / THR: do not cross legs, do not bend the hip beyond 90 degrees, do not twist on the operated leg, and use a raised seat and commode',
@@ -515,10 +515,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('prox-humerus', 'Proximal humerus fracture', 'shoulder', 14, {
-    complaint: 'Shoulder pain and swelling after fall / follow-up of proximal humerus fracture',
-    diagnosis: 'Proximal humerus fracture (conservative / post-operative)',
+    complaint: 'Shoulder pain and swelling after fall; follow-up of proximal humerus fracture',
+    diagnosis: "Proximal humerus fracture",
     examination: 'Swelling / bruising: \nWound: \nElbow, wrist and finger movement: \nAxillary nerve (deltoid sensation and contraction): \nRadial pulse and capillary refill: ',
-    investigations: 'X-ray shoulder AP (Grashey) / scapular Y / axillary view',
+    investigations: "X-ray shoulder AP (Grashey), scapular Y and axillary views",
     advice: [
       'Wear the arm sling as advised; remove only for exercises',
       'Move fingers, wrist and elbow many times a day; do pendulum exercises only when the doctor allows',
@@ -528,10 +528,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('clavicle', 'Clavicle fracture', 'shoulder', 14, {
-    complaint: 'Pain and swelling over the collar bone after fall / follow-up of clavicle fracture',
-    diagnosis: 'Clavicle fracture (conservative / post-operative)',
+    complaint: 'Pain and swelling over the collar bone after fall; follow-up of clavicle fracture',
+    diagnosis: "Clavicle fracture",
     examination: 'Deformity / skin tenting: \nWound: \nShoulder ROM: \nNeurovascular status of upper limb: \nChest examination: ',
-    investigations: 'X-ray clavicle AP and cephalic tilt view',
+    investigations: "X-ray clavicle AP and cephalic tilt view",
     advice: [
       'Wear the arm sling for comfort for 2 to 3 weeks; move elbow, wrist and fingers freely',
       'Do not lift weight or push / pull with the arm and avoid contact sports until the bone unites',
@@ -540,10 +540,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('both-bone', 'Forearm both bone fracture', 'hand', 14, {
-    complaint: 'Forearm pain, swelling and deformity / follow-up of both bone forearm fracture',
-    diagnosis: 'Both bone forearm fracture (cast / post-operative plating)',
+    complaint: 'Forearm pain, swelling and deformity; follow-up of both bone forearm fracture',
+    diagnosis: "Both bone forearm fracture",
     examination: 'Swelling: \nWound: \nElbow, wrist and finger movements: \nForearm rotation (pronation / supination): \nRadial pulse, capillary refill, nerve function: \nCompartment signs: ',
-    investigations: 'X-ray forearm with elbow and wrist AP and lateral (alignment, union)',
+    investigations: "X-ray forearm with elbow and wrist, AP and lateral",
     advice: [
       'Keep the arm elevated above heart level; move fingers, elbow and shoulder fully',
       'Keep the cast or wound dressing dry and clean',
@@ -553,10 +553,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('tibia-fx', 'Tibia fracture', 'fracture', 14, {
-    complaint: 'Leg pain and swelling after injury / follow-up of tibia fracture',
-    diagnosis: 'Tibia fracture (conservative / post-operative nailing or plating)',
+    complaint: 'Leg pain and swelling after injury; follow-up of tibia fracture',
+    diagnosis: "Tibia fracture",
     examination: 'Swelling: \nWound: \nLimb alignment: \nKnee and ankle ROM: \nCompartment signs (pain on passive toe stretch, tense swelling): \nDorsalis pedis / posterior tibial pulses and sensation: ',
-    investigations: 'X-ray tibia with knee and ankle AP and lateral (alignment, union)',
+    investigations: "X-ray tibia with knee and ankle, AP and lateral",
     advice: [
       'Keep the leg elevated when sitting or lying; walk with crutches / walker as advised',
       'Weight bearing only as instructed by the doctor',
@@ -567,10 +567,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('ankle-fx', 'Ankle fracture', 'ankle', 14, {
-    complaint: 'Ankle pain and swelling after twisting injury / follow-up of ankle fracture',
-    diagnosis: 'Ankle fracture (cast / post-operative fixation)',
+    complaint: 'Ankle pain and swelling after twisting injury; follow-up of ankle fracture',
+    diagnosis: "Ankle fracture",
     examination: 'Swelling and skin condition (blisters / wrinkling): \nWound: \nDeformity: \nToe movements: \nDorsalis pedis / posterior tibial pulses and sensation: \nCast / splint status: ',
-    investigations: 'X-ray ankle AP / lateral / mortise (alignment, syndesmosis, union)',
+    investigations: "X-ray ankle AP, lateral and mortise views",
     advice: [
       'Keep the leg elevated above heart level as much as possible to reduce swelling',
       'Do not put weight on the operated leg until the doctor allows; use crutches / walker',
@@ -581,9 +581,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('open-fx', 'Open fracture / wound care', 'fracture', 7, {
     complaint: 'Open (compound) fracture with wound - follow-up after debridement / fixation',
-    diagnosis: 'Open fracture (Gustilo-Anderson grade ___) - post-debridement / fixation',
+    diagnosis: "Open fracture - post-debridement and fixation",
     examination: 'Wound size and condition (clean / discharge / necrosis / exposed bone or implant): \nSurrounding skin: \nSwelling: \nLimb alignment: \nDistal neurovascular status: \nSigns of infection (fever, warmth, odour): ',
-    investigations: 'X-ray involved bone with adjacent joints; CBC, CRP / ESR if infection suspected; wound swab / culture if discharge',
+    investigations: "X-ray of the involved bone with adjacent joints",
     advice: [
       'Keep the dressing clean and dry; get it changed as advised only by a doctor or trained nurse',
       'Take the full antibiotic course as prescribed; do not stop early',
@@ -596,7 +596,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Back pain after fall / injury, treated with brace and rest',
     diagnosis: 'Thoracolumbar vertebral fracture (conservative)',
     examination: 'Local tenderness / deformity: \nNeurology (power, sensation, reflexes): \nPerianal sensation / bladder-bowel: \nBrace fit: ',
-    investigations: 'X-ray dorsolumbar spine standing AP / lateral (kyphosis, height loss); MRI / CT as advised',
+    investigations: "X-ray dorsolumbar spine standing AP and lateral",
     advice: [
       'Wear the brace whenever standing or walking as advised; remove only while lying flat',
       'Log-roll in bed; do not bend forward, twist or lift weight',
@@ -609,7 +609,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain at the lower end of the knee cap on jumping / running / stairs',
     diagnosis: 'Patellar tendinopathy',
     examination: 'Inferior pole of patella tenderness: \nPain on resisted knee extension / single leg decline squat: \nQuadriceps and hamstring tightness: \nKnee effusion: ',
-    investigations: 'Usually clinical; ultrasound or MRI knee if refractory',
+    investigations: "",
     advice: [
       'Reduce jumping, running and deep squats; keep daily activity',
       'Slow heavy-load strengthening (isometric, then eccentric / heavy slow resistance) as shown - progress over 12 weeks',
@@ -620,9 +620,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('meniscus-postop', 'Arthroscopic meniscus surgery - post-operative', 'postop', 14, {
     complaint: 'Follow-up after arthroscopic meniscus repair / meniscectomy',
-    diagnosis: 'Post-operative arthroscopic meniscus surgery (repair / partial meniscectomy)',
+    diagnosis: "Post-operative arthroscopic meniscus surgery",
     examination: 'Portal wounds: \nEffusion: \nCalf tenderness: \nKnee ROM: \nQuadriceps control (straight leg raise): \nGait / weight-bearing status: ',
-    investigations: 'No routine imaging; X-ray / MRI only if complications suspected',
+    investigations: "",
     advice: [
       'Do knee ROM and quadriceps exercises daily as shown by the physiotherapist',
       'After meniscus repair: follow the brace and weight-bearing protocol exactly; avoid deep squatting and twisting for the period advised',
@@ -636,7 +636,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after arthroscopic rotator cuff repair',
     diagnosis: 'Post-operative rotator cuff repair',
     examination: 'Portal wounds: \nSwelling: \nElbow, wrist and hand movement: \nDeltoid contraction and sensation: \nSling status: ',
-    investigations: 'No routine imaging; ultrasound / MRI only if re-tear is suspected',
+    investigations: "",
     advice: [
       'Wear the shoulder abduction sling at all times, including sleep, for the period advised (usually 4 to 6 weeks)',
       'Do elbow, wrist and hand movements daily; do passive shoulder exercises only as taught by the physiotherapist',
@@ -649,7 +649,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after arthroscopic shoulder stabilisation for recurrent dislocation',
     diagnosis: 'Post-operative Bankart repair / shoulder stabilisation',
     examination: 'Portal wounds: \nSwelling: \nApprehension / stability: \nDeltoid contraction and sensation: \nElbow, wrist and hand movement: ',
-    investigations: 'No routine imaging; X-ray shoulder if a new injury occurs',
+    investigations: "",
     advice: [
       'Wear the sling for the period advised (usually 3 to 4 weeks); remove only for hygiene and exercises',
       'Do not rotate the arm outward or lift it above shoulder level until the doctor allows',
@@ -660,9 +660,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('shoulder-instab', 'Shoulder dislocation / recurrent instability', 'shoulder', 14, {
     complaint: 'Shoulder dislocation / feeling of the shoulder slipping out',
-    diagnosis: 'Anterior shoulder dislocation (first episode / recurrent instability)',
+    diagnosis: "Anterior shoulder dislocation",
     examination: 'Apprehension / relocation test: \nSulcus sign: \nGeneralised laxity (Beighton): \nShoulder ROM: \nAxillary nerve (deltoid sensation and contraction): \nNeurovascular status: ',
-    investigations: 'X-ray shoulder AP / scapular Y / axillary view (post-reduction); MRI / MR arthrogram for recurrent instability',
+    investigations: "X-ray shoulder AP, scapular Y and axillary views",
     advice: [
       'Wear the sling for comfort for 1 to 3 weeks, then start movement as taught by the physiotherapist',
       'Rotator cuff and scapular strengthening exercises as shown',
@@ -673,9 +673,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('ra-flare', 'Rheumatoid arthritis - flare', 'hand', 14, {
     complaint: 'Multiple joint pain and swelling with prolonged morning stiffness',
-    diagnosis: 'Rheumatoid arthritis (flare) / inflammatory arthritis',
+    diagnosis: "Rheumatoid arthritis - flare",
     examination: 'Joints involved (small joints of hands, wrists, feet): \nSwelling and tenderness (tender / swollen joint count): \nMorning stiffness duration: \nDeformity: \nExtra-articular features: ',
-    investigations: 'CBC, ESR, CRP, RA factor, anti-CCP, uric acid; X-ray hands / feet; refer to a rheumatologist for DMARD therapy',
+    investigations: "CBC, ESR, CRP, RA factor, anti-CCP, uric acid; X-ray hands and feet",
     advice: [
       'Keep the joints moving with gentle range-of-motion exercises; rest during the flare',
       'Early rheumatology review is important; disease-modifying treatment prevents joint damage',
@@ -688,7 +688,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Generalised body ache, bone pain, weakness / low bone density',
     diagnosis: 'Vitamin D deficiency / osteopenia',
     examination: 'Bone tenderness: \nProximal muscle weakness: \nGait: \nSpinal deformity / height loss: \nFall risk: ',
-    investigations: 'Serum 25-OH vitamin D, calcium, phosphorus, alkaline phosphatase, PTH, TSH, creatinine; DEXA scan',
+    investigations: "Serum 25-OH vitamin D, calcium, phosphorus, alkaline phosphatase, PTH, TSH, creatinine; DEXA scan",
     advice: [
       'Take calcium- and protein-rich food daily (milk, curd, paneer, dal, eggs)',
       'Get 20 to 30 minutes of morning sunlight on the arms and legs daily',
@@ -701,7 +701,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Burning pain, tingling, numbness of feet / non-healing foot ulcer',
     diagnosis: 'Peripheral neuropathy (diabetic) / diabetic foot',
     examination: 'Ulcer / wound (size, depth, discharge, odour): \nSkin and nail condition: \nMonofilament and vibration sensation: \nDorsalis pedis / posterior tibial pulses: \nFoot deformity: \nSigns of infection: ',
-    investigations: 'HbA1c, fasting / post-prandial sugar, CBC, CRP, creatinine, vitamin B12; X-ray foot if ulcer or deformity; Doppler if pulses weak',
+    investigations: "HbA1c, fasting and post-prandial blood sugar, CBC, CRP, creatinine, vitamin B12",
     advice: [
       'Inspect both feet daily, including between toes and the sole; use a mirror',
       'Never walk barefoot; wear soft, well-fitting footwear and cotton socks',
@@ -712,10 +712,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'Bilateral'),
   t('tibial-plateau', 'Tibial plateau fracture', 'knee', 14, {
-    complaint: 'Knee pain and swelling after injury / follow-up of tibial plateau fracture',
-    diagnosis: 'Tibial plateau fracture (conservative / post-operative)',
+    complaint: 'Knee pain and swelling after injury; follow-up of tibial plateau fracture',
+    diagnosis: "Tibial plateau fracture",
     examination: 'Swelling / effusion: \nWound: \nKnee ROM: \nLigament stability: \nCalf swelling / compartment signs: \nDistal neurovascular status: ',
-    investigations: 'X-ray knee AP / lateral; CT knee if articular depression is suspected',
+    investigations: "X-ray knee AP and lateral",
     advice: [
       'Do not put weight on the operated / injured leg until the doctor allows; use crutches or a walker',
       'Wear the hinged knee brace as advised',
@@ -725,10 +725,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('distal-femur', 'Distal femur fracture', 'knee', 14, {
-    complaint: 'Thigh / knee pain and swelling after injury / follow-up of distal femur fracture',
-    diagnosis: 'Distal femur fracture (conservative / post-operative)',
+    complaint: 'Thigh / knee pain and swelling after injury; follow-up of distal femur fracture',
+    diagnosis: "Distal femur fracture",
     examination: 'Swelling: \nWound: \nKnee ROM: \nLimb alignment / length: \nCalf swelling: \nDistal neurovascular status: ',
-    investigations: 'X-ray femur with knee AP / lateral (reduction, implant position, union)',
+    investigations: "X-ray femur with knee, AP and lateral",
     advice: [
       'Do not put weight on the leg until the doctor allows; use a walker or crutches',
       'Do ankle pumps, quadriceps and knee bending exercises as shown',
@@ -738,10 +738,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('supracondylar', 'Supracondylar fracture humerus (child)', 'fracture', 7, {
-    complaint: 'Elbow pain and swelling after fall / follow-up of supracondylar fracture',
-    diagnosis: 'Supracondylar fracture of humerus - child (cast / post-operative K-wires)',
+    complaint: 'Elbow pain and swelling after fall; follow-up of supracondylar fracture',
+    diagnosis: "Supracondylar fracture of humerus - child",
     examination: 'Swelling: \nCast / slab condition: \nRadial pulse and capillary refill: \nFinger movement and sensation (AIN / PIN / ulnar): \nPin site (if K-wires): ',
-    investigations: 'X-ray elbow AP / lateral (alignment, Baumann angle)',
+    investigations: "X-ray elbow AP and lateral",
     advice: [
       'Keep the arm raised on pillows or in a sling; move the fingers often',
       'Keep the cast dry and clean; do not push anything inside it',
@@ -750,10 +750,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('scaphoid', 'Scaphoid fracture', 'hand', 14, {
-    complaint: 'Wrist pain after a fall on the outstretched hand / follow-up of scaphoid fracture',
-    diagnosis: 'Scaphoid fracture (cast / post-operative screw fixation)',
+    complaint: 'Wrist pain after a fall on the outstretched hand; follow-up of scaphoid fracture',
+    diagnosis: "Scaphoid fracture",
     examination: 'Anatomical snuffbox tenderness: \nSwelling: \nThumb / wrist ROM: \nGrip: \nCast / wound: \nDistal neurovascular status: ',
-    investigations: 'X-ray wrist with scaphoid views; MRI or CT if X-ray is normal but suspicion remains',
+    investigations: "X-ray wrist with scaphoid views",
     advice: [
       'Keep the thumb spica cast on and dry; do not remove it',
       'Move the fingers and elbow often; keep the hand raised',
@@ -767,7 +767,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after lumbar discectomy / microdiscectomy',
     diagnosis: 'Lumbar disc prolapse - post-operative (discectomy)',
     examination: 'Wound: \nLeg pain (radicular) / numbness: \nMotor power (EHL, ankle dorsiflexion, plantar flexion): \nSLR: \nBladder / bowel: ',
-    investigations: 'MRI lumbar spine only if new or recurrent symptoms',
+    investigations: "",
     advice: [
       'Walk a little every few hours; do not lie in bed all day',
       'Avoid bending forward, twisting and lifting more than 5 kg for 6 weeks; bend at the knees',
@@ -781,7 +781,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after spinal fixation / fusion surgery',
     diagnosis: 'Spinal instrumented fusion - post-operative',
     examination: 'Wound: \nBack and leg pain: \nMotor power and sensation in both legs: \nBladder / bowel: \nBrace fit: ',
-    investigations: 'X-ray spine AP / lateral (implant position, alignment); flexion-extension views later',
+    investigations: "X-ray spine AP and lateral",
     advice: [
       'Wear the spinal brace whenever you are up and walking, as advised',
       'Do not bend, twist or lift more than 3 to 5 kg for at least 3 months',
@@ -793,10 +793,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('achilles-rupture', 'Achilles tendon rupture', 'ankle', 14, {
-    complaint: 'Sudden pain / snap at the back of the ankle / follow-up of Achilles tendon rupture',
-    diagnosis: 'Achilles tendon rupture (conservative in equinus boot / post-operative repair)',
+    complaint: "Sudden pain and a snap at the back of the ankle; follow-up of Achilles tendon rupture",
+    diagnosis: "Achilles tendon rupture",
     examination: 'Palpable gap: \nThompson (calf squeeze) test: \nWound (if operated): \nBoot / cast and heel wedge position: \nCalf swelling: \nDistal neurovascular status: ',
-    investigations: 'Ultrasound / MRI if diagnosis is unclear',
+    investigations: "",
     advice: [
       'Keep the ankle pointed downwards in the boot or cast; do not remove it unless the doctor says',
       'Walk with crutches; put weight only as instructed',
@@ -808,9 +808,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('septic-arthritis', 'Septic arthritis - follow-up', 'bone', 7, {
     complaint: 'Follow-up of septic arthritis after washout / on antibiotics',
-    diagnosis: 'Septic arthritis (post arthrotomy / arthroscopic washout, on antibiotics)',
+    diagnosis: "Septic arthritis - post washout, on antibiotics",
     examination: 'Fever: \nJoint swelling, warmth, tenderness: \nROM: \nWound / drain: \nDischarge: ',
-    investigations: 'CBC, ESR, CRP (repeat to see the trend); joint fluid and blood culture reports; X-ray of the joint',
+    investigations: "CBC, ESR, CRP; X-ray of the joint",
     advice: [
       'Take the antibiotics exactly as advised for the full course, even if the pain has settled',
       'Rest the joint; do gentle movements only as the physiotherapist shows',
@@ -821,9 +821,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('prp', 'PRP injection - follow-up', 'bone', 21, {
     complaint: 'Follow-up after platelet rich plasma (PRP) injection',
-    diagnosis: 'Post PRP injection (tendinopathy / osteoarthritis)',
+    diagnosis: "Post PRP injection",
     examination: 'Injection site (swelling, redness): \nPain score: \nROM: \nFunction / activity level: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Mild pain and swelling for 2 to 3 days after the injection is normal',
       'Rest the part for 48 to 72 hours; then start gentle movement as advised',
@@ -835,9 +835,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('ia-steroid', 'Intra-articular steroid injection - follow-up', 'knee', 14, {
     complaint: 'Follow-up after intra-articular steroid injection',
-    diagnosis: 'Post intra-articular steroid injection (osteoarthritis / inflammatory arthritis)',
+    diagnosis: "Post intra-articular steroid injection",
     examination: 'Injection site: \nEffusion: \nPain score: \nROM: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Rest the joint for 24 to 48 hours; avoid heavy work, running and long walks for 1 week',
       'Pain may flare for 1 to 2 days after the injection; apply a cold pack for 10 minutes if needed',
@@ -850,7 +850,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Knee pain, instability or swelling after injury (dashboard / fall on bent knee)',
     diagnosis: 'Posterior cruciate ligament (PCL) injury',
     examination: 'Effusion: \nPosterior sag: \nPosterior drawer: \nQuadriceps active test: \nMedial / lateral / posterolateral stability: \nKnee ROM: ',
-    investigations: 'X-ray knee AP / lateral (avulsion); MRI knee',
+    investigations: "X-ray knee AP and lateral; MRI knee",
     advice: [
       'Wear the knee brace as advised; walk with crutches if the knee feels unstable',
       'Do quadriceps strengthening exercises; avoid hamstring strengthening early',
@@ -863,7 +863,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain and swelling on top of the shoulder after fall / blow',
     diagnosis: 'Acromioclavicular (AC) joint injury / dislocation',
     examination: 'Prominence / step at AC joint: \nTenderness: \nCross-body adduction test: \nShoulder ROM: \nNeurovascular status: ',
-    investigations: 'X-ray shoulder AP / Zanca view, both sides for comparison',
+    investigations: "X-ray shoulder AP and Zanca view, both sides",
     advice: [
       'Use the arm sling for comfort for 1 to 3 weeks as advised; remove it for gentle elbow and wrist exercises',
       'Apply a cold pack for 15 minutes a few times a day for the first 2 days',
@@ -873,10 +873,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('humerus-shaft', 'Humerus shaft fracture', 'shoulder', 14, {
-    complaint: 'Arm pain and swelling after injury / follow-up of humerus shaft fracture',
-    diagnosis: 'Humerus shaft fracture (functional brace / slab / post-operative)',
+    complaint: 'Arm pain and swelling after injury; follow-up of humerus shaft fracture',
+    diagnosis: "Humerus shaft fracture",
     examination: 'Swelling / bruising: \nBrace or slab: \nRadial nerve (wrist and finger extension, sensation over the first web space): \nElbow and wrist ROM: \nRadial pulse: ',
-    investigations: 'X-ray humerus AP / lateral (alignment, union)',
+    investigations: "X-ray humerus AP and lateral",
     advice: [
       'Keep the arm in the brace / sling as advised; sleep propped up on pillows',
       'Do not lean on the elbow, lift weight or push or pull with the arm',
@@ -888,7 +888,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Groin / hip pain, limp and restricted movement',
     diagnosis: 'Avascular necrosis (AVN) of femoral head',
     examination: 'Gait / limp: \nGroin tenderness: \nHip ROM (internal rotation, abduction): \nLimb length: \nFlexion deformity: ',
-    investigations: 'X-ray pelvis AP and frog-leg lateral; MRI both hips; note the stage (Ficat / ARCO)',
+    investigations: "X-ray pelvis AP and frog-leg lateral; MRI both hips",
     advice: [
       'Use crutches or a walker and put less weight on the painful leg, as advised',
       'Stop alcohol and smoking completely; avoid steroid tablets unless prescribed by the doctor',
@@ -901,7 +901,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after fixation of pelvis / acetabular fracture',
     diagnosis: 'Pelvic / acetabular fracture - post-operative',
     examination: 'Wound: \nSwelling: \nHip ROM: \nSciatic / femoral nerve function: \nLimb length: \nCalf swelling: ',
-    investigations: 'X-ray pelvis AP, Judet views; CT pelvis if needed (reduction, union)',
+    investigations: "X-ray pelvis AP and Judet views",
     advice: [
       'Do not put weight on the operated leg until the doctor allows (usually 6 to 12 weeks); use a walker or crutches',
       'Take the blood thinner injections or tablets exactly as advised',
@@ -914,7 +914,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Repeated ankle sprains / giving way',
     diagnosis: 'Chronic lateral ankle instability',
     examination: 'Swelling: \nAnterior drawer: \nTalar tilt: \nPeroneal strength: \nSingle-leg balance: \nHindfoot alignment: ',
-    investigations: 'X-ray ankle (weight-bearing); MRI ankle for ligament, cartilage and peroneal tendon injury',
+    investigations: "X-ray ankle weight-bearing; MRI ankle",
     advice: [
       'Wear an ankle brace or tape for sports and uneven ground',
       'Do peroneal strengthening and balance exercises daily as shown',
@@ -925,9 +925,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('femur-shaft-postop', 'Femur shaft fracture - post-operative', 'fracture', 14, {
     complaint: 'Follow-up after nailing / plating of femoral shaft fracture',
-    diagnosis: 'Femoral shaft fracture - post-operative (IM nail / plate)',
+    diagnosis: "Femoral shaft fracture - post-operative",
     examination: 'Wound: \nThigh swelling: \nKnee and hip ROM: \nLimb length / rotation: \nCalf swelling: \nDistal neurovascular status: ',
-    investigations: 'X-ray femur AP / lateral (alignment, implant, callus)',
+    investigations: "X-ray femur AP and lateral",
     advice: [
       'Walk with a walker or crutches; weight bearing only as instructed by the doctor',
       'Do ankle pumps, quadriceps and knee bending exercises daily as shown',
@@ -938,9 +938,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('osteomyelitis', 'Osteomyelitis - follow-up', 'bone', 14, {
     complaint: 'Follow-up of bone infection on antibiotics / after debridement',
-    diagnosis: 'Osteomyelitis (acute / chronic) - on treatment',
+    diagnosis: "Osteomyelitis - on treatment",
     examination: 'Fever: \nLocal warmth, swelling, tenderness: \nSinus / discharge: \nWound: \nLimb function: ',
-    investigations: 'CBC, ESR, CRP (repeat to see the trend); culture and sensitivity; X-ray / MRI of the affected bone',
+    investigations: "CBC, ESR, CRP; X-ray and MRI of the affected bone; culture and sensitivity",
     advice: [
       'Take the antibiotics exactly as advised for the full course; do not stop early even if you feel better',
       'Keep the wound or sinus clean and covered; change the dressing as shown',
@@ -953,7 +953,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Sudden pain at the back of the thigh while running / sprinting',
     diagnosis: 'Hamstring muscle strain / tear',
     examination: 'Bruising: \nPalpable defect / lump: \nTenderness (site): \nStraight leg raise: \nResisted knee flexion: ',
-    investigations: 'Ultrasound / MRI thigh for grade and site of tear (proximal avulsion needs early referral)',
+    investigations: "Ultrasound / MRI thigh",
     advice: [
       'Rest for 48 to 72 hours; apply a cold pack for 15 minutes a few times a day and use a compression bandage',
       'Do not stretch aggressively early; start gentle movement and walking when pain allows',
@@ -966,7 +966,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after intra-articular hyaluronic acid injection',
     diagnosis: 'Knee osteoarthritis - post viscosupplementation',
     examination: 'Injection site: \nEffusion: \nPain score: \nROM: \nGait: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Avoid strenuous activity, running and long walks for 48 hours after the injection',
       'Mild pain or swelling for 1 to 2 days is common; use a cold pack if needed',
@@ -980,7 +980,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain on the outer side of the knee while running / cycling, worse going downhill or on stairs',
     diagnosis: 'Iliotibial band friction syndrome',
     examination: 'Tenderness over lateral femoral epicondyle: \nNoble compression test: \nOber test: \nHip abductor strength: \nRunning mechanics: ',
-    investigations: 'Usually clinical. X-ray / MRI knee only if the picture is atypical',
+    investigations: "",
     advice: [
       'Reduce running / cycling to the level that does not bring on the pain; avoid downhill running for now',
       'Cold pack to the outer knee for 15 minutes after activity',
@@ -993,7 +993,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain along the inner shin during or after running / jumping',
     diagnosis: 'Medial tibial stress syndrome (shin splints)',
     examination: 'Diffuse tenderness along posteromedial tibial border: \nFocal bony tenderness (rule out stress fracture): \nFoot posture / pronation: \nCalf tightness: ',
-    investigations: 'X-ray / MRI leg if focal bony tenderness or pain at rest (to exclude stress fracture)',
+    investigations: "",
     advice: [
       'Reduce running and jumping; switch to swimming or cycling while the shin settles',
       'Cold pack for 15 minutes after activity',
@@ -1006,7 +1006,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Gradual pain at one spot in the leg or foot that increases with running / walking and eases with rest',
     diagnosis: 'Stress fracture',
     examination: 'Point bony tenderness: \nHop test: \nSwelling: \nTraining load / recent change: \nBone-health risk factors: ',
-    investigations: 'X-ray (may be normal early); MRI if X-ray is normal and suspicion is high. Vitamin D level as advised',
+    investigations: "X-ray of the affected bone",
     advice: [
       'Stop running and jumping. Do not push through the pain',
       'Protect the limb as advised (walking boot or crutches if told); cycling or swimming only if pain free',
@@ -1019,7 +1019,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Deep shoulder pain with overhead or throwing activity, clicking or catching',
     diagnosis: 'SLAP / labral tear shoulder',
     examination: "O'Brien test: \nSpeed test: \nBiceps load test: \nRotator cuff strength: \nScapular control: \nInstability tests: ",
-    investigations: 'MRI shoulder (MR arthrogram if needed)',
+    investigations: "MRI shoulder",
     advice: [
       'Avoid overhead lifting, throwing and heavy pushing or pulling until advised',
       'Do pain-free range-of-motion and rotator cuff / scapular strengthening exercises as shown',
@@ -1032,7 +1032,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Groin / hip pain with deep flexion, sitting for long, or twisting; stiffness',
     diagnosis: 'Femoroacetabular impingement (FAI)',
     examination: 'FADIR (flexion-adduction-internal rotation) test: \nHip internal rotation: \nHip flexion: \nGait: \nCore and gluteal strength: ',
-    investigations: 'X-ray pelvis AP and Dunn / cross-table lateral view of the hip; MRI hip (arthrogram) if surgery is considered',
+    investigations: "X-ray pelvis AP; X-ray hip Dunn and cross-table lateral views",
     advice: [
       'Avoid deep squats, low sitting and repeated forced hip flexion',
       'Do hip mobility, core and gluteal strengthening exercises as shown',
@@ -1045,7 +1045,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain in the inner groin / thigh during running, kicking or change of direction',
     diagnosis: 'Adductor-related groin pain / strain',
     examination: 'Adductor tenderness (origin / muscle belly): \nResisted adduction: \nAdductor squeeze test: \nHip ROM: \nInguinal region / hernia check: ',
-    investigations: 'Ultrasound / MRI if severe or not improving; X-ray pelvis and hip to exclude other causes',
+    investigations: "X-ray pelvis and hip",
     advice: [
       'Relative rest from kicking, sprinting and cutting movements; walking and pain-free cycling are fine',
       'Cold pack for 15 minutes a few times a day for the first few days',
@@ -1058,7 +1058,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Painful bump at the base of the big toe, difficulty with footwear',
     diagnosis: 'Hallux valgus (bunion)',
     examination: 'Deformity (hallux valgus angle): \nMedial eminence tenderness / skin: \nFirst MTP joint motion: \nTransfer metatarsalgia: \nFoot posture: ',
-    investigations: 'Weight-bearing X-ray foot AP and lateral (hallux valgus and intermetatarsal angles)',
+    investigations: "Weight-bearing X-ray foot AP and lateral",
     advice: [
       'Wear wide, soft shoes with a roomy toe box; avoid high heels and pointed shoes',
       'Use a bunion pad or toe spacer for comfort; a cushioned insole may help',
@@ -1071,7 +1071,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Burning pain or numbness between the toes (usually 3rd and 4th), worse with tight shoes and walking',
     diagnosis: "Morton's neuroma",
     examination: "Mulder click: \nWeb-space tenderness: \nToe sensation: \nMetatarsal head tenderness: \nFootwear: ",
-    investigations: 'Ultrasound / MRI forefoot if the diagnosis is uncertain',
+    investigations: "",
     advice: [
       'Wear wide, low-heeled shoes with a roomy toe box; avoid tight and pointed shoes',
       'Use a metatarsal pad or cushioned insole as advised',
@@ -1081,10 +1081,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('fifth-mt', '5th metatarsal fracture', 'fracture', 14, {
-    complaint: 'Pain and swelling on the outer border of the foot after a twisting injury / follow-up of 5th metatarsal fracture',
+    complaint: 'Pain and swelling on the outer border of the foot after a twisting injury; follow-up of 5th metatarsal fracture',
     diagnosis: '5th metatarsal fracture',
     examination: 'Tenderness at base of 5th metatarsal: \nSwelling / bruising: \nWeight bearing: \nSkin: \nNeurovascular status: ',
-    investigations: 'X-ray foot AP, oblique and lateral (note the fracture zone). Repeat X-ray as advised',
+    investigations: "X-ray foot AP, oblique and lateral",
     advice: [
       'Use the boot / cast / crutches as advised and follow the weight-bearing instructions given',
       'Keep the foot raised above heart level when resting during the first few days',
@@ -1094,10 +1094,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('boxer', "Metacarpal (boxer's) fracture", 'hand', 14, {
-    complaint: 'Pain and swelling of the hand after a punch or fall / follow-up of metacarpal fracture',
+    complaint: 'Pain and swelling of the hand after a punch or fall; follow-up of metacarpal fracture',
     diagnosis: 'Metacarpal fracture',
     examination: 'Swelling / bruising: \nKnuckle contour: \nRotational deformity (finger overlap): \nSkin (check for bite / open wound): \nTendon function and sensation: ',
-    investigations: 'X-ray hand AP, oblique and lateral. Repeat X-ray as advised',
+    investigations: "X-ray hand AP, oblique and lateral",
     advice: [
       'Keep the hand raised above heart level; move the free fingers and the shoulder and elbow',
       'Use the splint / cast as advised and keep it dry',
@@ -1110,7 +1110,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Fingertip droops and cannot be straightened after a ball or object hit the finger',
     diagnosis: 'Mallet finger',
     examination: 'Extensor lag at the DIP joint: \nSwelling / tenderness: \nSkin condition under splint: \nPassive extension: ',
-    investigations: 'X-ray finger AP and lateral (check for a bony fragment / joint subluxation)',
+    investigations: "X-ray finger AP and lateral",
     advice: [
       'Keep the fingertip straight in the splint all the time, day and night, usually for 6 to 8 weeks',
       'Never bend the fingertip while changing the splint or washing: keep the tip supported on a flat surface',
@@ -1122,7 +1122,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Painless / mildly painful lump over the wrist or hand',
     diagnosis: 'Ganglion cyst',
     examination: 'Site and size: \nTransillumination: \nTenderness: \nWrist range of motion: \nGrip strength: \nNeurovascular status: ',
-    investigations: 'Ultrasound if the lump is deep or the diagnosis is uncertain',
+    investigations: "",
     advice: [
       'Many ganglia are harmless and can be watched; they may get smaller on their own',
       'Do not try to burst or hit the lump at home',
@@ -1135,7 +1135,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Nodule or cord in the palm with a finger that cannot be straightened fully',
     diagnosis: "Dupuytren's contracture",
     examination: 'Nodules / cords: \nFingers involved: \nMCP and PIP contracture (degrees): \nTabletop test: \nSkin condition: ',
-    investigations: 'Clinical diagnosis',
+    investigations: "",
     advice: [
       'The condition progresses slowly; it does not harm the hand if the fingers can still lie flat on a table',
       'Treatment (needle release, injection or surgery) is considered when the finger cannot lie flat (tabletop test fails) or when function is affected',
@@ -1147,7 +1147,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Low back pain, with or without leg pain, worse on standing / extension and relieved by sitting',
     diagnosis: 'Spondylolisthesis (lumbar)',
     examination: 'Step-off at the lumbar level: \nHamstring tightness: \nSLR: \nNeurological examination (power, sensation, reflexes): \nGait: ',
-    investigations: 'Standing X-ray lumbosacral spine lateral with flexion / extension views; MRI lumbosacral spine if leg symptoms',
+    investigations: "Standing X-ray LS spine lateral with flexion and extension views",
     advice: [
       'Avoid heavy lifting and repeated back extension (arching) for now',
       'Do core strengthening and hamstring stretching exercises as shown by the physiotherapist',
@@ -1159,7 +1159,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain on one side of the lower back / buttock, worse on getting up from sitting, turning in bed, or climbing stairs',
     diagnosis: 'Sacroiliac joint pain',
     examination: 'Tenderness over the SI joint / PSIS: \nFABER test: \nCompression / distraction test: \nThigh thrust test: \nLumbar spine examination: ',
-    investigations: 'X-ray pelvis AP; MRI if inflammatory or other causes are suspected',
+    investigations: "X-ray pelvis AP",
     advice: [
       'Avoid sitting on one side, crossing the legs, and sudden twisting movements',
       'Hot fomentation to the lower back / buttock for 15 minutes twice a day',
@@ -1171,7 +1171,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain at the tailbone, worse on sitting and on getting up from a seat',
     diagnosis: 'Coccydynia',
     examination: 'Coccyx tenderness: \nCoccyx mobility: \nPelvic floor tenderness: \nLumbar spine and SI joint examination: ',
-    investigations: 'X-ray coccyx lateral (sitting and standing) if needed',
+    investigations: "",
     advice: [
       'Use a wedge or ring-shaped cushion while sitting; lean forward slightly and avoid hard seats',
       'Avoid sitting for long periods; take frequent standing breaks',
@@ -1181,10 +1181,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('wryneck', 'Acute torticollis / whiplash neck strain', 'spine', 7, {
-    complaint: 'Sudden neck pain and stiffness with difficulty turning the head / neck pain after a sudden jolt or accident',
+    complaint: "Sudden neck pain and stiffness with difficulty turning the head",
     diagnosis: 'Acute neck strain (torticollis / whiplash)',
     examination: 'Neck movements: \nMuscle spasm / tenderness: \nMidline bony tenderness: \nUpper limb neurological examination: \nSpurling test: ',
-    investigations: 'X-ray cervical spine AP / lateral if there was trauma or midline tenderness',
+    investigations: "",
     advice: [
       'Hot fomentation to the neck and shoulders for 15 minutes, 2 to 3 times a day',
       'Keep the neck moving gently within the pain limit; do not use a collar for long unless advised',
@@ -1197,7 +1197,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up of developmental dysplasia of the hip in an infant',
     diagnosis: 'Developmental dysplasia of hip (DDH) - follow-up',
     examination: 'Harness / brace fit: \nHip abduction: \nBarlow / Ortolani: \nLeg length and skin folds: \nSkin condition under straps: \nFemoral nerve palsy check (knee extension): ',
-    investigations: 'Ultrasound hip (Graf) / X-ray pelvis as advised for the child’s age',
+    investigations: "Ultrasound hip / X-ray pelvis AP",
     advice: [
       'Use the harness exactly as advised; do not remove or adjust it unless the doctor has told you to',
       'Check the skin under the straps daily for redness and sores; keep the folds clean and dry',
@@ -1207,10 +1207,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('perthes', 'Perthes disease - follow-up', 'hip', 56, {
-    complaint: 'Child with limp and pain in the hip / thigh / knee; follow-up of Perthes disease',
+    complaint: "Child with limp and pain in the hip, thigh or knee; follow-up of Perthes disease",
     diagnosis: 'Legg-Calve-Perthes disease - follow-up',
     examination: 'Gait (Trendelenburg): \nHip ROM (abduction / rotation): \nLimb length: \nThigh muscle wasting: \nPain score: ',
-    investigations: 'X-ray pelvis AP and frog-leg lateral (Herring / Catterall classification)',
+    investigations: "X-ray pelvis AP and frog-leg lateral",
     advice: [
       'Encourage hip movement exercises as shown, especially abduction; swimming is helpful',
       'Avoid running, jumping and contact sport until advised',
@@ -1220,10 +1220,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('flatfoot', 'Flat foot (paediatric)', 'ankle', 90, {
-    complaint: 'Flat feet noted by parents / foot pain after activity in a child',
+    complaint: "Flat feet noted by parents; foot pain after activity in a child",
     diagnosis: 'Paediatric flat foot (flexible)',
     examination: 'Arch on standing and on tiptoe (flexibility): \nHeel alignment: \nTendo-Achilles tightness: \nPain / tenderness: \nGait: ',
-    investigations: 'Usually not needed. Standing foot X-ray only for a rigid or painful flat foot',
+    investigations: "",
     advice: [
       'Most flexible flat feet in children are normal and do not need treatment',
       'Let the child walk barefoot on sand or grass and do toe-walking and heel-raise exercises',
@@ -1235,7 +1235,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Child walks with the feet turning inward',
     diagnosis: 'In-toeing gait (paediatric)',
     examination: 'Foot progression angle: \nHip rotation (internal / external): \nThigh-foot angle: \nForefoot adduction: \nRunning gait: ',
-    investigations: 'Usually not needed',
+    investigations: "",
     advice: [
       'In-toeing usually improves on its own as the child grows, often by 8 to 10 years of age',
       'Avoid W-sitting; encourage sitting cross-legged',
@@ -1247,7 +1247,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up of a child with cerebral palsy for muscle tightness, gait and hip / foot deformity',
     diagnosis: 'Cerebral palsy - orthopaedic follow-up',
     examination: 'GMFCS level: \nTone (Ashworth / Tardieu): \nHip abduction and migration: \nHamstring / calf contracture: \nFoot deformity: \nSpine (scoliosis): \nOrthosis fit: ',
-    investigations: 'X-ray pelvis AP (hip migration percentage) as advised; spine X-ray if scoliosis is suspected',
+    investigations: "X-ray pelvis AP",
     advice: [
       'Continue daily stretching and positioning as taught by the physiotherapist',
       'Use braces / orthoses and standing aids as advised and check the skin under them daily',
@@ -1259,7 +1259,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after removal of implant (plate / screws / nail / wire)',
     diagnosis: 'Post implant removal',
     examination: 'Wound: \nDischarge / redness: \nLimb alignment: \nRange of motion: \nWeight bearing: ',
-    investigations: 'X-ray of the part as advised (check for bone healing and screw holes)',
+    investigations: "X-ray of the part",
     advice: [
       'Keep the wound clean and dry; suture removal on the date advised',
       'Protect the bone from heavy impact and contact sport for 6 to 8 weeks (the bone is weaker at the screw holes)',
@@ -1271,7 +1271,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up of limb with K-wires / external fixator pins',
     diagnosis: 'K-wire / pin fixation - pin site care',
     examination: 'Pin sites (discharge / redness / loosening): \nSkin tenting: \nSplint / cast: \nNeurovascular status: ',
-    investigations: 'X-ray as advised',
+    investigations: "X-ray of the part",
     advice: [
       'Keep the pin sites clean and dry; do dressings as shown by the nurse or doctor',
       'Do not touch, move or pull the wires; keep them covered and protected',
@@ -1282,9 +1282,9 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   t('eswt', 'ESWT (shockwave therapy) - follow-up', 'bone', 21, {
     complaint: 'Follow-up after extracorporeal shockwave therapy session',
-    diagnosis: 'Tendinopathy / fasciitis - post ESWT',
+    diagnosis: "Post ESWT (shockwave therapy)",
     examination: 'Treated area (pain, bruising, skin): \nPain score: \nFunction: \nSession number: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Mild soreness or bruising for a day or two is common',
       'Avoid heavy impact activity and running for 48 hours after each session',
@@ -1297,7 +1297,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Assessment for return to sport after injury / surgery',
     diagnosis: 'Return-to-sport assessment',
     examination: 'Pain: \nSwelling / effusion: \nRange of motion (compared to other side): \nStrength (limb symmetry index): \nHop / agility tests: \nSport-specific drills: \nConfidence: ',
-    investigations: 'As needed (imaging only if unresolved symptoms)',
+    investigations: "",
     advice: [
       'Return to sport in steps: running, then drills, then non-contact training, then full contact; move to the next step only when the previous one is pain free',
       'Warm up and cool down properly; continue strengthening and injury-prevention exercises',
@@ -1310,7 +1310,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Referral for supervised physiotherapy',
     diagnosis: 'Physiotherapy referral',
     examination: 'Clinical findings: \nROM: \nStrength: \nFunctional limitation: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Attend the physiotherapy sessions as planned and do the home exercises daily',
       'Do not push into sharp pain; mild muscle ache after exercise is expected',
@@ -1321,10 +1321,10 @@ export const STARTERS: StarterTemplate[] = [
   }, 'N/A'),
   /* ---------- added (batch 2): more fractures, soft tissue, medical-ortho, post-op and paediatric ---------- */
   t('radial-head', 'Radial head fracture', 'hand', 14, {
-    complaint: 'Elbow pain and swelling after a fall on the outstretched hand / follow-up of radial head fracture',
+    complaint: 'Elbow pain and swelling after a fall on the outstretched hand; follow-up of radial head fracture',
     diagnosis: 'Radial head fracture',
     examination: 'Elbow swelling / effusion: \nLateral tenderness: \nElbow flexion-extension: \nForearm rotation (block to rotation): \nWrist tenderness (DRUJ): \nNeurovascular status: ',
-    investigations: 'X-ray elbow AP and lateral (Mason classification); CT if block to movement is suspected',
+    investigations: "X-ray elbow AP and lateral",
     advice: [
       'Use the sling / splint for comfort only for the first few days; start gentle elbow and forearm movement early as shown',
       'Keep the arm raised and use a cold pack for 15 minutes a few times a day for swelling',
@@ -1334,10 +1334,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('olecranon', 'Olecranon fracture', 'hand', 14, {
-    complaint: 'Elbow pain after a fall on the point of the elbow / follow-up of olecranon fracture',
+    complaint: 'Elbow pain after a fall on the point of the elbow; follow-up of olecranon fracture',
     diagnosis: 'Olecranon fracture',
     examination: 'Active elbow extension against gravity: \nSwelling / bruising: \nSkin (wound over the olecranon): \nUlnar nerve sensation: \nWound / implant site: ',
-    investigations: 'X-ray elbow AP and lateral; repeat X-ray at follow-up for position and healing',
+    investigations: "X-ray elbow AP and lateral",
     advice: [
       'Keep the arm in the splint / sling as advised and raised above heart level when resting',
       'Do not push or lift heavy objects with the arm until the doctor allows',
@@ -1350,7 +1350,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Elbow pain / stiffness after dislocation and reduction',
     diagnosis: 'Elbow dislocation - post reduction / stiff elbow',
     examination: 'Elbow stability (varus / valgus, pivot shift): \nFlexion-extension range: \nForearm rotation: \nSwelling: \nUlnar and median nerve function: \nDistal pulses: ',
-    investigations: 'X-ray elbow AP and lateral (check congruent reduction and associated fractures)',
+    investigations: "X-ray elbow AP and lateral",
     advice: [
       'Use the sling or splint for only the short period advised, then begin active elbow movement early',
       'Do gentle bending and straightening exercises several times a day; do not force or let anyone stretch the elbow',
@@ -1360,10 +1360,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('distal-humerus', 'Distal humerus fracture', 'hand', 14, {
-    complaint: 'Pain and swelling at the elbow after a fall / follow-up of distal humerus fracture',
+    complaint: 'Pain and swelling at the elbow after a fall; follow-up of distal humerus fracture',
     diagnosis: 'Distal humerus fracture',
     examination: 'Swelling / bruising: \nElbow range of motion: \nWound / implant site: \nUlnar, radial and median nerve function: \nDistal pulses: ',
-    investigations: 'X-ray elbow AP and lateral; CT if needed for planning; repeat X-ray at follow-up',
+    investigations: "X-ray elbow AP and lateral",
     advice: [
       'Keep the arm elevated on a pillow above heart level for the first week',
       'Follow the elbow exercises exactly as taught; early movement helps prevent stiffness',
@@ -1373,10 +1373,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('patella-fx', 'Patella fracture', 'knee', 14, {
-    complaint: 'Knee pain and swelling after a fall or direct blow / follow-up of patella fracture',
+    complaint: 'Knee pain and swelling after a fall or direct blow; follow-up of patella fracture',
     diagnosis: 'Patella fracture',
     examination: 'Knee effusion / haemarthrosis: \nActive straight leg raise: \nDefect over patella: \nWound / implant site: \nKnee flexion range: ',
-    investigations: 'X-ray knee AP and lateral (and skyline view); repeat X-ray as advised',
+    investigations: "X-ray knee AP, lateral and skyline views",
     advice: [
       'Use the knee brace / immobiliser and walk with support as advised',
       'Keep the leg raised and use a cold pack for 15 minutes a few times a day',
@@ -1386,10 +1386,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('calcaneus', 'Calcaneus fracture', 'ankle', 14, {
-    complaint: 'Heel pain and swelling after a fall from height / follow-up of calcaneus fracture',
+    complaint: 'Heel pain and swelling after a fall from height; follow-up of calcaneus fracture',
     diagnosis: 'Calcaneus fracture',
     examination: 'Swelling and blisters: \nSkin condition: \nHeel width / varus: \nSubtalar movement: \nNeurovascular status: ',
-    investigations: 'X-ray foot and calcaneal axial view (Bohler angle); CT foot; X-ray lumbar spine if fall from height',
+    investigations: "X-ray foot and calcaneal axial view; CT foot",
     advice: [
       'Keep the foot raised above heart level for most of the day until the swelling settles',
       'Do not put weight on the foot until the doctor allows (non weight bearing for several weeks)',
@@ -1402,7 +1402,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain and swelling on top of the foot after a crush or twisting injury',
     diagnosis: 'Metatarsal fracture',
     examination: 'Dorsal swelling / bruising: \nPoint tenderness: \nAlignment of toes: \nSkin / compartment signs: \nCapillary refill: ',
-    investigations: 'X-ray foot AP, oblique and lateral; repeat X-ray at 2 weeks for displacement',
+    investigations: "X-ray foot AP, oblique and lateral",
     advice: [
       'Use the walking boot / cast and keep the foot raised for the first week',
       'Walk with support and weight bear as the doctor advises',
@@ -1412,10 +1412,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('phalanx-fx', 'Finger phalanx fracture', 'hand', 14, {
-    complaint: 'Finger pain, swelling and bruising after injury / follow-up of finger fracture',
+    complaint: 'Finger pain, swelling and bruising after injury; follow-up of finger fracture',
     diagnosis: 'Phalanx fracture (finger)',
     examination: 'Swelling / bruising: \nRotation (finger overlap on making a fist): \nAngulation: \nActive range of motion: \nSkin / nail bed: ',
-    investigations: 'X-ray finger AP, oblique and lateral',
+    investigations: "X-ray finger AP, oblique and lateral",
     advice: [
       'Use the splint or buddy-strap to the next finger as advised',
       'Keep the hand raised and move the other fingers and the shoulder and elbow',
@@ -1425,10 +1425,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('thumb-mc', 'Thumb metacarpal base fracture', 'hand', 14, {
-    complaint: 'Pain at the base of the thumb after a fall or punch / follow-up of thumb metacarpal fracture',
-    diagnosis: 'Thumb metacarpal base fracture (Bennett / Rolando type)',
+    complaint: 'Pain at the base of the thumb after a fall or punch; follow-up of thumb metacarpal fracture',
+    diagnosis: "Thumb metacarpal base fracture",
     examination: 'Swelling at the thumb base: \nTenderness over first CMC joint: \nThumb opposition: \nStability / subluxation: \nNeurovascular status: ',
-    investigations: 'X-ray thumb AP and lateral (Robert view); CT if the joint surface is involved',
+    investigations: "X-ray thumb AP, lateral and Robert views",
     advice: [
       'Keep the thumb in the splint / cast as advised and raised when resting',
       'Move the other fingers, wrist and elbow; do not use the thumb for gripping or pinching',
@@ -1440,7 +1440,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Sudden back pain after minor fall, lifting or bending in an older person',
     diagnosis: 'Osteoporotic vertebral compression fracture',
     examination: 'Midline spinal tenderness: \nKyphosis: \nNeurological examination (power, sensation, reflexes, bladder): \nHeight loss: \nGait: ',
-    investigations: 'X-ray dorsolumbar spine standing; MRI spine to date the fracture and exclude other causes; DEXA scan; vitamin D, calcium, creatinine',
+    investigations: "X-ray dorsolumbar spine standing; MRI spine; DEXA scan; serum vitamin D, calcium, creatinine",
     advice: [
       'Take short walks and avoid prolonged bed rest; use the back brace if advised',
       'Avoid lifting weights, bending forward and twisting the back',
@@ -1454,7 +1454,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Groin and hip pain with difficulty walking after a fall',
     diagnosis: 'Pubic rami fracture (stable pelvic fracture)',
     examination: 'Groin / pubic tenderness: \nPelvic compression test: \nLeg raise: \nBruising: \nBladder and bowel function: \nMobility / walking aid: ',
-    investigations: 'X-ray pelvis AP, inlet and outlet views; CT pelvis if posterior ring injury is suspected',
+    investigations: "X-ray pelvis AP, inlet and outlet views",
     advice: [
       'Walk with a walker or crutches and put weight as pain allows, as advised',
       'Do not stay in bed for long; sit out and move regularly to avoid chest infection, clots and weakness',
@@ -1468,7 +1468,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Child with wrist pain and swelling after a fall on the hand',
     diagnosis: 'Buckle (torus) fracture of distal radius',
     examination: 'Swelling / tenderness over distal radius: \nDeformity: \nFinger movement and sensation: \nSplint / cast: \nSkin: ',
-    investigations: 'X-ray wrist AP and lateral',
+    investigations: "X-ray wrist AP and lateral",
     advice: [
       'This is a stable fracture and usually heals in about 3 to 4 weeks in a splint or cast',
       'Keep the splint or cast dry (use a plastic cover for bathing) and do not let the child put anything inside',
@@ -1481,7 +1481,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Toe pain, swelling and bruising after stubbing or a heavy object falling on the foot',
     diagnosis: 'Toe (phalanx) fracture',
     examination: 'Swelling / bruising: \nDeformity / rotation: \nNail bed injury: \nSkin wound: \nCapillary refill: ',
-    investigations: 'X-ray foot / toe AP and oblique',
+    investigations: "X-ray foot AP and oblique",
     advice: [
       'Buddy-tape the injured toe to the next toe with a small pad between them as shown',
       'Wear stiff-soled or wide, comfortable shoes; avoid tight shoes',
@@ -1494,7 +1494,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Sudden pain in the calf while running / pushing off; difficulty walking on the toes',
     diagnosis: 'Calf muscle strain (gastrocnemius)',
     examination: 'Site of tenderness: \nSwelling / bruising: \nPalpable gap: \nSingle-leg heel raise: \nThompson test (to exclude Achilles rupture): \nCalf circumference / DVT signs: ',
-    investigations: 'Ultrasound calf (grade of tear; also to exclude DVT if swelling is out of proportion)',
+    investigations: "Ultrasound calf",
     advice: [
       'Rest for the first 2 to 3 days; use a heel raise in the shoe to reduce stretch on the calf',
       'Cold pack for 15 minutes a few times a day and use a compression stocking or bandage',
@@ -1507,7 +1507,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain, swelling and difficulty bending the knee after a direct blow to the thigh',
     diagnosis: 'Quadriceps contusion',
     examination: 'Thigh swelling / girth compared to the other side: \nTenderness: \nKnee flexion range (grade): \nActive knee extension: \nCompartment signs: \nNeurovascular status: ',
-    investigations: 'Ultrasound thigh if haematoma is large; X-ray if there is a bone injury concern or a long-standing lump (myositis ossificans)',
+    investigations: "",
     advice: [
       'Keep the knee bent as much as possible (about 120 degrees) with a compression bandage for the first 24 hours',
       'Cold pack for 15 minutes every few hours in the first 2 days; do not massage or heat the thigh early',
@@ -1520,7 +1520,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain behind and below the outer ankle bone with activity, sometimes snapping',
     diagnosis: 'Peroneal tendinopathy',
     examination: 'Tenderness along the peroneal tendons: \nPain on resisted eversion: \nSnapping / subluxation: \nHindfoot alignment (cavovarus): \nAnkle stability: ',
-    investigations: 'Ultrasound / MRI ankle if not improving',
+    investigations: "",
     advice: [
       'Reduce running, jumping and uneven ground; use a lace-up brace or a lateral heel wedge if advised',
       'Cold pack for 15 minutes after activity',
@@ -1533,7 +1533,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain on the inner side of the ankle with progressive flattening of the foot',
     diagnosis: 'Posterior tibial tendon dysfunction',
     examination: 'Tenderness along the medial ankle / tendon: \nSingle-leg heel rise: \nToo many toes sign: \nHindfoot valgus: \nArch flexibility: ',
-    investigations: 'Weight-bearing X-ray foot and ankle; MRI / ultrasound if needed',
+    investigations: "Weight-bearing X-ray foot and ankle",
     advice: [
       'Wear supportive shoes with a good arch support; use the insole or brace prescribed',
       'Avoid walking barefoot, running and prolonged standing on hard floors for now',
@@ -1546,7 +1546,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Burning pain and numbness in the sole of the foot and inner ankle, worse after standing or at night',
     diagnosis: 'Tarsal tunnel syndrome',
     examination: 'Tinel sign behind the medial malleolus: \nSensation over the sole: \nIntrinsic muscle strength: \nHeel position: \nVascular status: ',
-    investigations: 'Nerve conduction study of the posterior tibial nerve; MRI ankle if a mass is suspected; blood sugar and thyroid as needed',
+    investigations: "Nerve conduction study of the posterior tibial nerve",
     advice: [
       'Rest and elevate the foot after standing for long; avoid tight shoes and tight ankle straps',
       'Wear supportive shoes and the insole or arch support advised',
@@ -1558,7 +1558,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain in the ball of the foot while standing and walking',
     diagnosis: 'Metatarsalgia',
     examination: 'Tenderness under the metatarsal heads: \nCallosities: \nToe deformities (claw / hammer): \nTendo-Achilles tightness: \nFootwear: ',
-    investigations: 'Weight-bearing X-ray foot AP and lateral',
+    investigations: "Weight-bearing X-ray foot AP and lateral",
     advice: [
       'Wear shoes with a wide toe box, cushioned sole and low heel; avoid high heels',
       'Use a metatarsal pad or cushioned insole as advised',
@@ -1571,7 +1571,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain at the base of the big toe after forced upward bending of the toe in sport',
     diagnosis: 'Turf toe (first MTP joint sprain)',
     examination: 'Tenderness at plantar plate: \nSwelling / bruising: \nGreat toe extension (pain / limitation): \nStability (Lachman of the MTP): \nGait / push-off: ',
-    investigations: 'X-ray foot weight bearing (check sesamoids and alignment); MRI if grade 2 or 3',
+    investigations: "X-ray foot weight bearing",
     advice: [
       'Rest from sport; use a stiff-soled shoe or carbon plate insert to limit toe bending',
       'Cold pack for 15 minutes a few times a day for the first days, and a taping as shown',
@@ -1583,7 +1583,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain at the front of the shoulder with overhead or lifting activity',
     diagnosis: 'Biceps tendinopathy (long head)',
     examination: 'Tenderness in the bicipital groove: \nSpeed test: \nYergason test: \nRotator cuff strength: \nShoulder range of motion: \nPopeye sign: ',
-    investigations: 'Ultrasound / MRI shoulder if not improving',
+    investigations: "",
     advice: [
       'Avoid heavy lifting, overhead work and repetitive pulling until the pain settles',
       'Cold pack for 15 minutes after activity',
@@ -1595,7 +1595,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Sudden severe shoulder pain with difficulty moving the arm, often worse at night',
     diagnosis: 'Calcific tendinitis shoulder',
     examination: 'Tenderness over the greater tuberosity: \nPainful arc: \nRange of motion (active and passive): \nRotator cuff strength: \nNight pain: ',
-    investigations: 'X-ray shoulder AP in internal and external rotation and axillary view; ultrasound shoulder to see the deposit',
+    investigations: "X-ray shoulder AP in internal and external rotation, and axillary view",
     advice: [
       'Rest the arm in a sling for a short time for comfort, but do not keep the shoulder still for long',
       'Cold pack for 15 minutes a few times a day, especially in the acute painful phase',
@@ -1608,7 +1608,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Tingling and numbness in the ring and little finger, worse with elbow bending or at night',
     diagnosis: 'Cubital tunnel syndrome (ulnar neuropathy at the elbow)',
     examination: 'Tinel sign at the cubital tunnel: \nElbow flexion test: \nSensation over little finger and ulnar half of ring finger: \nFroment sign / grip and pinch strength: \nIntrinsic wasting: ',
-    investigations: 'Nerve conduction study / EMG; X-ray elbow if bony cause suspected',
+    investigations: "Nerve conduction study / EMG",
     advice: [
       'Avoid keeping the elbow bent for long (for example while holding the phone or sleeping); wrap a soft towel around the elbow at night',
       'Avoid leaning on the elbow on a hard surface',
@@ -1620,7 +1620,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain on the little-finger side of the wrist, worse with twisting and weight bearing',
     diagnosis: 'TFCC injury (ulnar-sided wrist pain)',
     examination: 'Ulnar fovea tenderness: \nPiano key sign / DRUJ stability: \nUlnar impaction test: \nForearm rotation: \nGrip strength: ',
-    investigations: 'X-ray wrist PA (neutral rotation) and lateral; MRI wrist / MR arthrogram',
+    investigations: "X-ray wrist PA and lateral; MRI wrist",
     advice: [
       'Use a wrist brace or splint as advised and avoid twisting and pushing movements',
       'Avoid weight bearing on the hand, racquet sports and heavy lifting',
@@ -1632,7 +1632,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain at the base of the thumb while gripping, opening jars or turning keys',
     diagnosis: 'Thumb carpometacarpal osteoarthritis',
     examination: 'Grind test: \nTenderness at first CMC joint: \nThumb adduction / zigzag deformity: \nPinch and grip strength: \nWrist / de Quervain test: ',
-    investigations: 'X-ray hand and thumb (Eaton staging)',
+    investigations: "X-ray hand and thumb",
     advice: [
       'Use a thumb splint at night and during painful activities as advised',
       'Use larger-grip tools and jar openers; avoid forceful pinching and twisting',
@@ -1645,7 +1645,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain and swelling at the base of the thumb after a fall or pole / ball injury',
     diagnosis: "Thumb ulnar collateral ligament (UCL) injury (gamekeeper's thumb)",
     examination: 'Tenderness at the MCP joint (ulnar side): \nValgus stress (opening in extension and 30 degrees flexion): \nSwelling / bruising: \nPinch strength: \nStener lesion lump: ',
-    investigations: 'X-ray thumb to exclude avulsion fracture; ultrasound / MRI to confirm complete tear and displacement',
+    investigations: "X-ray thumb",
     advice: [
       'Keep the thumb in the splint or cast as advised for about 4 to 6 weeks',
       'Do not grip, pinch or twist with the thumb during this time',
@@ -1658,7 +1658,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Deep buttock pain, sometimes spreading down the back of the leg, worse on sitting',
     diagnosis: 'Piriformis syndrome',
     examination: 'Tenderness over the piriformis / sciatic notch: \nFAIR test: \nPain on resisted abduction-external rotation: \nSLR and neurological examination (to exclude disc prolapse): \nHip rotation: ',
-    investigations: 'MRI lumbosacral spine / pelvis if radicular pain or not improving, to exclude disc and other causes',
+    investigations: "",
     advice: [
       'Avoid prolonged sitting on hard surfaces; take breaks every 30 minutes and use a cushion',
       'Hot fomentation to the buttock for 15 minutes',
@@ -1671,7 +1671,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Burning, tingling or numbness on the outer side of the thigh',
     diagnosis: 'Meralgia paraesthetica (lateral femoral cutaneous nerve entrapment)',
     examination: 'Sensation over the anterolateral thigh: \nTenderness / Tinel near the anterior superior iliac spine: \nHip extension pain: \nMotor power (to exclude other causes): \nAbdominal / pelvic examination: ',
-    investigations: 'Blood sugar (HbA1c), thyroid; nerve conduction study / ultrasound if the diagnosis is uncertain',
+    investigations: "HbA1c; TSH",
     advice: [
       'Avoid tight belts, tight jeans and anything pressing on the groin area',
       'Reduce weight if overweight; avoid prolonged hip extension',
@@ -1683,7 +1683,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Swelling or tightness behind the knee',
     diagnosis: "Baker's cyst (popliteal cyst)",
     examination: 'Swelling behind the knee (size, tenderness): \nKnee effusion: \nKnee range of motion: \nJoint line tenderness: \nCalf swelling / tenderness (to exclude DVT): ',
-    investigations: 'Ultrasound popliteal fossa (also to exclude DVT); MRI knee if internal derangement is suspected',
+    investigations: "Ultrasound popliteal fossa",
     advice: [
       'The cyst is usually a sign of an underlying knee problem (arthritis or a meniscus tear), which needs treatment',
       'Avoid deep squatting and kneeling; keep the knee moving with gentle exercises',
@@ -1693,10 +1693,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('patellar-instability', 'Patellar dislocation / instability', 'knee', 14, {
-    complaint: 'Kneecap slipped out of position after a twist or fall / feeling of the kneecap giving way',
+    complaint: "Kneecap slipped out of position after a twist or fall; feeling of the kneecap giving way",
     diagnosis: 'Patellar dislocation / instability',
     examination: 'Effusion: \nApprehension test: \nMedial retinaculum tenderness: \nPatellar glide: \nQ-angle / rotational alignment: \nGeneralised ligament laxity: ',
-    investigations: 'X-ray knee AP, lateral and skyline views; MRI knee to look for loose bodies and cartilage injury',
+    investigations: "X-ray knee AP, lateral and skyline views; MRI knee",
     advice: [
       'Use the knee brace or immobiliser and crutches for the short period advised',
       'Keep the leg raised and use a cold pack for 15 minutes a few times a day',
@@ -1709,7 +1709,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Deep knee pain with swelling after activity, sometimes catching or locking',
     diagnosis: 'Knee chondral / osteochondral lesion',
     examination: 'Effusion: \nJoint line tenderness: \nWilson test: \nMcMurray test: \nROM: \nAlignment and ligament stability: ',
-    investigations: 'X-ray knee standing AP, lateral and skyline; MRI knee (cartilage sequences)',
+    investigations: "X-ray knee standing AP, lateral and skyline views; MRI knee",
     advice: [
       'Avoid impact activity such as running, jumping and deep squatting until advised',
       'Do low-impact exercise (cycling, swimming) and quadriceps strengthening as shown',
@@ -1722,7 +1722,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Persistent muscle pain and tight spots (trigger points) in the neck, shoulder or back',
     diagnosis: 'Myofascial pain syndrome',
     examination: 'Trigger points (site): \nTaut band / referred pain: \nNeck and shoulder range of motion: \nPosture: \nNeurological examination: ',
-    investigations: 'Usually not needed; vitamin D, B12 and thyroid as clinically indicated',
+    investigations: "",
     advice: [
       'Hot fomentation for 15 minutes, 2 to 3 times a day',
       'Do regular stretching and posture correction exercises, and take short breaks if you work at a desk',
@@ -1735,7 +1735,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Neck pain and stiffness after long hours of desk work or phone use',
     diagnosis: 'Postural neck pain',
     examination: 'Posture (forward head, rounded shoulders): \nNeck range of motion: \nTrapezius / paraspinal tenderness: \nSpurling test: \nUpper limb neurological examination: ',
-    investigations: 'X-ray cervical spine only if symptoms persist or there are neurological signs',
+    investigations: "",
     advice: [
       'Keep the screen at eye level and do not look down at the phone for long; hold the phone up',
       'Take a break every 30 minutes; stand and stretch your neck and shoulders',
@@ -1748,7 +1748,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Pain between the shoulder blades / mid-back, worse with prolonged sitting or movement',
     diagnosis: 'Thoracic spine pain (mechanical)',
     examination: 'Posture (kyphosis): \nTenderness over spinous processes / paraspinals: \nChest expansion: \nNeurological examination (legs): \nRib springing: ',
-    investigations: 'X-ray thoracic spine; MRI if there is night pain, neurological signs or systemic symptoms',
+    investigations: "X-ray thoracic spine",
     advice: [
       'Hot fomentation for 15 minutes twice a day',
       'Correct sitting posture; take a break from the desk every 30 minutes',
@@ -1760,7 +1760,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Chronic low back and buttock pain with morning stiffness that eases with activity and is worse at night',
     diagnosis: 'Ankylosing spondylitis',
     examination: 'Schober test: \nChest expansion: \nSI joint tenderness: \nOcciput-to-wall distance: \nHeel / enthesis tenderness: \nPeripheral joints: ',
-    investigations: 'X-ray pelvis AP (sacroiliitis); MRI sacroiliac joints; HLA-B27; ESR, CRP; refer to a rheumatologist for disease-modifying treatment',
+    investigations: "X-ray pelvis AP; MRI sacroiliac joints; HLA-B27; ESR, CRP",
     advice: [
       'Do daily back and chest-expansion exercises; regular exercise is the most important part of treatment',
       'Keep a straight posture; sleep on a firm mattress with a thin pillow and avoid a pillow under the knees',
@@ -1773,7 +1773,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Gradual pain and stiffness of the shoulder, grinding on movement, night pain',
     diagnosis: 'Osteoarthritis shoulder (glenohumeral)',
     examination: 'Range of motion (especially external rotation): \nCrepitus: \nCuff strength: \nMuscle wasting: \nAC joint tenderness: ',
-    investigations: 'X-ray shoulder AP, scapular Y and axillary view',
+    investigations: "X-ray shoulder AP, scapular Y and axillary views",
     advice: [
       'Keep the shoulder moving; do the range-of-motion exercises as shown by the physiotherapist',
       'Hot fomentation before exercise and a cold pack after if sore',
@@ -1786,7 +1786,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Ankle pain and stiffness with walking, worse at the end of the day',
     diagnosis: 'Osteoarthritis ankle',
     examination: 'Swelling / anterior joint line tenderness: \nRange of motion (dorsiflexion): \nHindfoot alignment: \nGait: \nPrevious injury / fracture: ',
-    investigations: 'Weight-bearing X-ray ankle AP, mortise and lateral',
+    investigations: "Weight-bearing X-ray ankle AP, mortise and lateral",
     advice: [
       'Use cushioned, supportive footwear; a rocker-sole shoe or brace may help',
       'Avoid running and jumping; choose low-impact exercise such as cycling and swimming',
@@ -1799,7 +1799,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Generalised bone pain, muscle weakness and tiredness; difficulty climbing stairs',
     diagnosis: 'Osteomalacia / vitamin D deficiency',
     examination: 'Bone tenderness (ribs, pelvis, tibia): \nProximal muscle weakness: \nGait (waddling): \nHeight / deformities: \nTetany signs: ',
-    investigations: 'Serum 25-OH vitamin D, calcium, phosphate, alkaline phosphatase, PTH, creatinine, TSH; X-ray (Looser zones) as needed',
+    investigations: "Serum 25-OH vitamin D, calcium, phosphate, alkaline phosphatase, PTH, creatinine, TSH",
     advice: [
       'Take vitamin D and calcium as prescribed, with a calcium-rich diet (milk, curd, green leafy vegetables)',
       'Get safe sunlight exposure for 15 to 20 minutes a day (arms and legs exposed) when possible',
@@ -1812,7 +1812,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after hip arthroscopy',
     diagnosis: 'Post hip arthroscopy',
     examination: 'Portal wounds: \nSwelling: \nHip range of motion: \nStraight leg raise: \nWeight bearing status / use of crutches: \nCalf: ',
-    investigations: 'X-ray hip as advised',
+    investigations: "X-ray pelvis AP",
     advice: [
       'Follow the weight-bearing and range-of-motion limits given by your surgeon exactly, and use the crutches as told',
       'Do the exercises given by the physiotherapist daily; avoid deep hip bending and twisting early',
@@ -1825,7 +1825,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after knee arthroscopy (diagnostic / debridement / chondroplasty / loose body removal)',
     diagnosis: 'Post knee arthroscopy',
     examination: 'Portal wounds: \nEffusion: \nKnee range of motion: \nStraight leg raise: \nQuadriceps tone: \nCalf: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Keep the knee raised and use a cold pack for 15 minutes several times a day for the first week',
       'Walk with support and do knee bending and quadriceps exercises as shown from day 1',
@@ -1838,7 +1838,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after shoulder arthroscopy (decompression / debridement / biceps procedure)',
     diagnosis: 'Post shoulder arthroscopy',
     examination: 'Portal wounds: \nSwelling: \nPassive and active range of motion: \nDeltoid activation: \nNeurovascular status: \nSling use: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Use the sling for the period advised; remove it for the exercises as taught',
       'Do the pendulum and elbow, wrist and hand exercises regularly',
@@ -1851,7 +1851,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after carpal tunnel release',
     diagnosis: 'Post carpal tunnel release',
     examination: 'Wound: \nSwelling: \nFinger movement: \nSensation in median nerve distribution: \nGrip strength: \nScar tenderness: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Keep the hand raised and move your fingers fully, many times a day, from the first day',
       'Keep the dressing dry; suture removal on the date advised',
@@ -1864,7 +1864,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after flexor / extensor tendon repair in the hand',
     diagnosis: 'Post tendon repair (hand)',
     examination: 'Wound: \nSplint (position and fit): \nFinger posture: \nActive and passive motion allowed: \nCapillary refill and sensation: ',
-    investigations: '',
+    investigations: "",
     advice: [
       'Wear the splint all the time as instructed; do not take it off or use the hand for any activity',
       'Do the finger exercises exactly as taught by the hand therapist, not more, not less',
@@ -1877,7 +1877,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after bunion (hallux valgus) correction',
     diagnosis: 'Post hallux valgus surgery',
     examination: 'Wound: \nToe alignment: \nSwelling: \nToe movement: \nFootwear / weight bearing status: \nNeurovascular status: ',
-    investigations: 'Weight-bearing X-ray foot AP and lateral at the follow-up date advised',
+    investigations: "Weight-bearing X-ray foot AP and lateral",
     advice: [
       'Wear the special post-operative shoe and walk as advised on the heel / outer edge of the foot',
       'Keep the foot raised above heart level for most of the day in the first 2 weeks to reduce swelling',
@@ -1890,7 +1890,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after lumbar decompression surgery',
     diagnosis: 'Post lumbar decompression',
     examination: 'Wound: \nLeg pain / numbness compared with before: \nPower (ankle, toes, knee): \nBladder and bowel function: \nWalking ability: ',
-    investigations: 'X-ray / MRI as advised',
+    investigations: "",
     advice: [
       'Walk a little several times a day; avoid sitting still for long, and avoid bending, twisting and lifting for the period advised',
       'Keep the wound clean and dry; suture removal on the date advised',
@@ -1903,7 +1903,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Child with heel pain during or after running and jumping',
     diagnosis: "Sever's disease (calcaneal apophysitis)",
     examination: 'Heel tenderness (sides of the calcaneus): \nSqueeze test: \nCalf tightness: \nGait: \nAge / growth spurt: ',
-    investigations: 'Usually clinical; X-ray heel if pain is severe or one-sided and persistent',
+    investigations: "",
     advice: [
       'Reduce running and jumping until the heel pain settles; swimming and cycling are fine',
       'Use heel cups or cushioned heel raises in the shoes',
@@ -1916,7 +1916,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Parents notice the legs bowing out or knees touching in a child',
     diagnosis: 'Genu varum / genu valgum (paediatric)',
     examination: 'Intercondylar / intermalleolar distance: \nAge of the child: \nSymmetry: \nGait: \nHeight / growth: \nRickets signs: ',
-    investigations: 'Standing X-ray both lower limbs (long film) if severe, asymmetric or beyond the age of physiological correction; vitamin D, calcium, phosphate, ALP if rickets is suspected',
+    investigations: "",
     advice: [
       'Mild bowing before about 2 years and mild knock knees at 3 to 6 years are usually normal and correct by themselves',
       'Give a balanced diet with milk, curd, eggs and sunlight; vitamin D if the doctor advises',
@@ -1925,10 +1925,10 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
   t('ais', 'Adolescent idiopathic scoliosis - follow-up', 'spine', 90, {
-    complaint: 'Spinal curvature noticed by family / school screening; follow-up of scoliosis',
+    complaint: "Spinal curvature noticed by family or school screening; follow-up of scoliosis",
     diagnosis: 'Adolescent idiopathic scoliosis (AIS)',
     examination: 'Adams forward bend test: \nShoulder / waist asymmetry: \nRib hump (scoliometer): \nRisser stage / menarche: \nNeurological examination: \nBrace compliance: ',
-    investigations: 'Standing X-ray whole spine AP and lateral (Cobb angle); compare with the previous film',
+    investigations: "Standing X-ray whole spine AP and lateral",
     advice: [
       'Wear the brace for the number of hours advised if prescribed; it works only if worn regularly',
       'Do the scoliosis-specific exercises and stay active; sports are generally encouraged',
@@ -1941,7 +1941,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Follow-up after fixation of slipped capital femoral epiphysis',
     diagnosis: 'Post fixation of slipped capital femoral epiphysis (SCFE)',
     examination: 'Wound: \nLimb length / rotation: \nHip range of motion: \nGait: \nContralateral hip (pain / limitation): \nWeight / BMI: ',
-    investigations: 'X-ray pelvis AP and frog-leg lateral (both hips)',
+    investigations: "X-ray pelvis AP and frog-leg lateral view",
     advice: [
       'Walk with crutches and follow the weight-bearing instructions exactly; do not put full weight on the leg early',
       'Avoid running, jumping and contact sport until the doctor allows',
@@ -1954,7 +1954,7 @@ export const STARTERS: StarterTemplate[] = [
     complaint: 'Child walks on the toes',
     diagnosis: 'Toe walking (paediatric)',
     examination: 'Ankle dorsiflexion (knee straight and bent): \nCalf tightness: \nTone / reflexes: \nGait on request (can the child walk flat-footed?): \nDevelopment / speech: \nSpine: ',
-    investigations: 'Usually not needed; further tests if there are neurological findings or if the cause is unclear',
+    investigations: "",
     advice: [
       'Many young children toe walk and grow out of it by themselves',
       'Encourage heel-down walking, calf stretching and barefoot play on soft surfaces',
