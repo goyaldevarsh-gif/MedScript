@@ -158,7 +158,7 @@ function Builder() {
     }
     return next;
   });
-  const warnings = useMemo(() => (rx ? checkRx(rx) : []), [rx]);
+  const warnings = useMemo(() => (rx ? checkRx(rx, { muted: settings?.ixMuted, custom: settings?.ixCustom }) : []), [rx, settings?.ixMuted, settings?.ixCustom]);
   /* meds the doctor usually prescribes for this diagnosis (from own past prescriptions) */
   const usual = useMemo(() => {
     const dx = norm(rx?.clinical.diagnosis || '');

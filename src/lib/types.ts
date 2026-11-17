@@ -59,10 +59,12 @@ export interface LayoutCfg {
   footerNote: string; sealLeft: boolean;
 }
 export type SpecialtyKey = 'ortho' | 'general' | 'other';
+export interface IxCustom { id: string; a: string; b: string; level: 'danger' | 'warn' | 'info'; note: string }
 export interface AppSettings {
   doctor: Doctor; clinics: Clinic[]; defaultClinicId: string;
   signature: SignatureCfg; seal: SealCfg; layout: LayoutCfg;
   defaultLang: Lang; defaultFollowUpDays: number; lastBackupAt: number;
+  /** doctor's own interaction rules and the built-in rule ids switched off */ ixCustom?: IxCustom[]; ixMuted?: string[];
   rxCounter: number; patientCounter: number; seeded: boolean; /** first-run setup wizard finished or skipped */ setupDone?: boolean; specialtyKey?: SpecialtyKey; orthovaultUrl?: string; ovEmail?: string;
 }
 export interface DoctorSnapshot {

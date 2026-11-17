@@ -1,9 +1,11 @@
-import type { Prescription, RxItem } from './types';
+import type { IxCustom, Prescription, RxItem } from './types';
+import { AGE_RULES, CLASSES, CTX_RULES, RULES } from '../data/interactions';
 import { ALLERGY_CLASSES, MAX_DAILY_MG } from '../data/rules';
 import { timesPerDay } from './dosage';
 import { norm } from './util';
 
-export interface Warning { level: 'danger' | 'warn' | 'info'; text: string; itemId?: string }
+export interface Warning { level: 'danger' | 'warn' | 'info'; text: string; itemId?: string; ruleId?: string }
+export interface IxOpts { muted?: string[]; custom?: IxCustom[] }
 
 const baseName = (s: string) => norm(s.replace(/\(.*?\)/g, ''));
 const keyOf = (s: string) => baseName(s).split(' ')[0];
@@ -34,7 +36,7 @@ function dailyDoses(it: RxItem): number | null {
   return it.doseQty * timesPerDay(it);
 }
 
-export function checkRx(rx: Prescription): Warning[] {
+export function checkRx(rx: Prescription, opts: IxOpts = {}): Warning[] {
   const w: Warning[] = [];
   const p = rx.patient;
   const items = rx.items;
@@ -118,6 +120,73 @@ export function checkRx(rx: Prescription): Warning[] {
     else if (it.src === 'import' && !it.generic.trim()) w.push({ level: 'warn', itemId: it.id, text: `${it.brand}: composition not known (shop stock list), so allergy, duplicate and interaction checks cannot run for it. Add the composition (edit it in the Drug Library) or confirm from the pack.` });
     else if (!it.verified) w.push({ level: 'info', itemId: it.id, text: `${it.brand || it.generic}: doctor-entered (unverified) medicine. Confirm composition and strength from the pack.` });
   });
+  w.push(...interactionWarnings(rx, opts));
   return w;
 }
-export const disclaimer = 'MedScript does not perform drug-interaction checking. Allergy, duplicate and dose alerts are basic aids only; the prescribing doctor remains responsible for every prescription.';
+export const disclaimer = 'Allergy, duplicate, dose and interaction alerts cover common orthopaedic medicines only and are aids, not a complete check. The prescribing doctor remains responsible for every prescription.';
+
+/* ---------- interactions ---------- */
+const SYSTEMIC_NO = /topical|external|transdermal|ophthalmic|eye|ear|nasal|inhal|vaginal|gel|cream|ointment|spray|patch|lotion|drops?/i;
+const nameText = (it: RxItem) => norm([it.generic, it.brand, ...it.ingredients.map((i) => i.name)].filter(Boolean).join(' '));
+const shown = (it: RxItem) => (it.generic || it.brand || '').replace(/\s*\(.*?\)/g, '').trim();
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+/** a medicine "belongs" to a class by name; NSAID / steroid / FQ topicals are ignored */
+function inClass(it: RxItem, cls: string, custom?: string): boolean {
+  const t = nameText(it); if (!t) return false;
+  const c = CLASSES[cls];
+  if (custom !== undefined) { const k = norm(custom); if (CLASSES[k]) return inClass(it, k); return k.length >= 3 && t.includes(k); }
+  if (!c || !c.re.test(t)) return false;
+  if (['nsaid', 'steroid', 'fq'].includes(cls) && (SYSTEMIC_NO.test(it.route || '') || SYSTEMIC_NO.test(it.form || ''))) return false;
+  return true;
+}
+/** things the patient already takes, read from the Comorbidities box (e.g. "on warfarin, telmisartan") */
+function ongoing(rx: Prescription): Set<string> {
+  const t = norm(`${rx.clinical.comorbidities || ''}`); const out = new Set<string>();
+  if (!t) return out;
+  for (const [k, c] of Object.entries(CLASSES)) if (c.re.test(t)) out.add(k);
+  if (/\b(blood thinner|anticoag|on thinners|blood thinners)\b/.test(t)) out.add('anticoag');
+  if (/\b(stent|ecosprin|aspirin|clopidogrel)\b/.test(t)) out.add('antiplatelet');
+  return out;
+}
+function interactionWarnings(rx: Prescription, opts: IxOpts): Warning[] {
+  const out: Warning[] = []; const muted = new Set(opts.muted || []);
+  const items = rx.items; if (!items.length) return out;
+  const on = ongoing(rx);
+  const members = (cls: string) => items.filter((i) => inClass(i, cls));
+  const has = (cls: string) => members(cls).length > 0 || on.has(cls);
+  const list = (its: RxItem[]) => [...new Set(its.map(shown))].filter(Boolean).join(' + ');
+  for (const r of RULES) {
+    if (muted.has(r.id)) continue;
+    const A = members(r.a); if (!A.length) continue;
+    if (r.unless && has(r.unless)) continue;
+    if (r.a === r.b) {
+      const gen = [...new Map(A.map((i) => [baseName(i.generic || i.brand), i])).values()];
+      if (gen.length < 2) continue;
+      out.push({ level: r.level, ruleId: r.id, itemId: undefined, text: `Interaction: ${list(gen)}: ${r.text}` });
+      continue;
+    }
+    const B = members(r.b);
+    // same tablet carrying both classes (e.g. aceclofenac + paracetamol) never pairs with itself
+    const Bx = B.filter((b) => !A.some((a) => a.id === b.id));
+    if (Bx.length) out.push({ level: r.level, ruleId: r.id, text: `Interaction: ${list(A)} + ${list(Bx)}: ${r.text}` });
+    else if (!B.length && on.has(r.b)) out.push({ level: r.level, ruleId: r.id, text: `Interaction: ${list(A)} with ${CLASSES[r.b].label} the patient already takes (from Comorbidities): ${r.text}` });
+  }
+  const text = norm(rx.clinical.comorbidities || '');
+  for (const r of CTX_RULES) {
+    if (muted.has(r.id) || !text || !r.cond.test(text)) continue;
+    const A = members(r.cls); if (!A.length) continue;
+    out.push({ level: r.level, ruleId: r.id, text: `Patient has ${r.condLabel}: ${list(A)}: ${r.text}` });
+  }
+  const age = rx.patient.age ? (rx.patient.ageUnit === 'M' ? parseFloat(rx.patient.age) / 12 : parseFloat(rx.patient.age)) : NaN;
+  if (!isNaN(age)) for (const r of AGE_RULES) {
+    if (muted.has(r.id) || age < r.min) continue;
+    const A = members(r.cls); if (!A.length) continue;
+    out.push({ level: r.level, ruleId: r.id, text: `Age ${Math.round(age)}: ${list(A)}: ${r.text}` });
+  }
+  for (const c of opts.custom || []) {
+    if (!c.a.trim() || !c.b.trim()) continue;
+    const A = items.filter((i) => inClass(i, '', c.a)); const B = items.filter((i) => inClass(i, '', c.b) && !A.some((a) => a.id === i.id));
+    if (A.length && B.length) out.push({ level: c.level, ruleId: c.id, text: `Your rule: ${list(A)} + ${list(B)}${c.note.trim() ? ': ' + cap(c.note.trim()) : ': avoid this combination.'}` });
+  }
+  return out;
+}

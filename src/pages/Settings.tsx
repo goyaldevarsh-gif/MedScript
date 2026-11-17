@@ -4,6 +4,7 @@ import { BadgeCheck, Building2, Cloud, Download, Eye, FileSignature, Layout as L
 import type { AppSettings, Clinic, Doctor, Lang, Prescription } from '../lib/types';
 import { db, exportAll, importAll, toggleFavourite, updateSettings, useMedicineIndex, useSettings, wipeAll } from '../lib/db';
 import OvLinkCard from '../components/OvLinkCard';
+import SafetyRules from '../components/SafetyRules';
 import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../components/ui';
 import SignaturePad from '../components/SignaturePad';
 import { DrugLibrary, MedRow } from '../components/MedicineLibrary';
@@ -20,7 +21,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 const TABS = [
   { k: 'doctor', l: 'Doctor profile', i: User }, { k: 'clinic', l: 'Clinic profile', i: Building2 }, { k: 'sign', l: 'Signature & seal', i: FileSignature },
   { k: 'layout', l: 'Prescription layout', i: LayoutIcon }, { k: 'lang', l: 'Default language', i: Languages }, { k: 'favs', l: 'Favourite medicines', i: Pill },
-  { k: 'backup', l: 'Backup & restore', i: Cloud }, { k: 'app', l: 'Application', i: Smartphone },
+  { k: 'safety', l: 'Drug safety checks', i: ShieldAlert }, { k: 'backup', l: 'Backup & restore', i: Cloud }, { k: 'app', l: 'Application', i: Smartphone },
 ] as const;
 
 export default function SettingsPage() {
@@ -46,6 +47,7 @@ export default function SettingsPage() {
           {tab === 'layout' && <LayoutCard s={s} />}
           {tab === 'lang' && <LangCard s={s} />}
           {tab === 'favs' && <FavCard />}
+          {tab === 'safety' && <SafetyRules s={s} />}
           {tab === 'backup' && <BackupCard s={s} />}
           {tab === 'app' && <><OvLinkCard s={s} /><AppCard /></>}
         </div>

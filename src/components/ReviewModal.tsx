@@ -17,7 +17,7 @@ export default function ReviewModal({ rx, settings, onClose, onDone, onChangeTog
   const toast = useToast();
   const [ack, setAck] = useState(false);
   const [busy, setBusy] = useState(false);
-  const warnings = useMemo(() => checkRx(rx), [rx]);
+  const warnings = useMemo(() => checkRx(rx, { muted: settings.ixMuted, custom: settings.ixCustom }), [rx, settings.ixMuted, settings.ixCustom]);
   const snap = useMemo(() => makeSnapshot(settings, rx.clinicId), [settings, rx.clinicId]);
   const hasSig = !!settings.signature.dataUrl;
   const hasSeal = settings.seal.mode === 'uploaded' ? !!settings.seal.uploaded : settings.seal.mode === 'generated' ? !!snap.sealDataUrl : false;
