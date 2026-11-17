@@ -8,6 +8,7 @@ import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../comp
 import SignaturePad from '../components/SignaturePad';
 import { DrugLibrary, MedRow } from '../components/MedicineLibrary';
 import SampleRx from '../components/SampleRx';
+import { KitsCard } from '../components/Kits';
 import { chooseSpecialty } from '../components/SpecialtyPicker';
 import { SPECIALTIES } from '../lib/defaults';
 import { cleanStamp, rotateDataUrl, cleanSignature, fileToDataUrl, trimLogo, renderSeal, sealPossible, sealAspect } from '../lib/imaging';
@@ -45,7 +46,7 @@ export default function SettingsPage() {
           {tab === 'sign' && <><SignatureCard s={s} /><SealCard s={s} /><SamplePreview /></>}
           {tab === 'layout' && <LayoutCard s={s} />}
           {tab === 'lang' && <LangCard s={s} />}
-          {tab === 'favs' && <FavCard />}
+          {tab === 'favs' && <><FavCard /><KitsCard /></>}
           {tab === 'backup' && <BackupCard s={s} />}
           {tab === 'app' && <><OvLinkCard s={s} /><AppCard /></>}
         </div>

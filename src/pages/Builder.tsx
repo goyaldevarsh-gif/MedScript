@@ -14,6 +14,7 @@ import { Check, Eye, FilePlus2, Layers, Save, ShieldCheck, Copy, FileEdit, Lock,
 import { useLiveQuery } from 'dexie-react-hooks';
 import type { Clinical, Lang, Medicine, Patient, Prescription, RxItem, Side, Template } from '../lib/types';
 import { blankRx, itemFromMedicine } from '../lib/defaults';
+import { KitPicker } from '../components/Kits';
 import { db, deleteDraft, duplicateRx, peekPatientId, saveDraft, touchMedicines, updateSettings, useSettings } from '../lib/db';
 import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../components/ui';
 import { MedicineSearch } from '../components/MedicineLibrary';
@@ -53,6 +54,7 @@ function Builder() {
   const [preview, setPreview] = useState(false);
   const [review, setReview] = useState(false);
   const [tplPicker, setTplPicker] = useState(false);
+  const [kitOpen, setKitOpen] = useState(false);
   const starterRank = (t: Template) => { const i = STARTERS.findIndex((s) => s.key === t.sourceKey); return i < 0 ? 999 : i; };
   const pastRx = useLiveQuery(() => db.prescriptions.orderBy('updatedAt').reverse().limit(400).toArray(), []) || [];
   const quickTpls = (useLiveQuery(() => db.templates.toArray(), []) || []).filter((t) => isOrtho(settings) || !t.builtIn).sort((a, b) => Number(b.favourite) - Number(a.favourite) || Number(b.items.length > 0) - Number(a.items.length > 0) || starterRank(a) - starterRank(b) || a.name.localeCompare(b.name)).slice(0, 7);
@@ -291,6 +293,7 @@ function Builder() {
           <Card className="p-4">
             <div className="mb-3 flex items-center justify-between"><div className="text-sm font-extrabold uppercase tracking-wide text-slate-500">Medicines {rx.items.length > 0 && <span className="ml-1 rounded-full bg-navy px-2 py-0.5 text-xs text-white">{rx.items.length}</span>}</div></div>
             {!readOnly && <MedicineSearch onPick={addMedicine} />}
+            {!readOnly && (settings.kits?.length || 0) > 0 && <div className="mt-2"><Chip tone="teal" onClick={() => setKitOpen(true)}>+ Add from kit</Chip></div>}
             {!readOnly && usual.length > 0 && (
               <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                 <span className="text-xs font-extrabold uppercase tracking-wide text-slate-500">Usually for this</span>
@@ -352,6 +355,7 @@ function Builder() {
         </div>
       </div>
 
+      {kitOpen && <KitPicker onClose={() => setKitOpen(false)} onAdd={(its) => { update((r) => ({ ...r, items: [...r.items, ...its] })); toast(`${its.length} medicine${its.length === 1 ? '' : 's'} added from kit`); }} />}
       {tplPicker && <TemplatePicker onClose={() => setTplPicker(false)} onPick={pickTemplate} />}
       {preview && <PreviewModal rx={rx} onClose={() => setPreview(false)} onFinalize={!readOnly ? () => { setPreview(false); setReview(true); } : undefined} />}
       {review && <ReviewModal rx={rx} settings={settings} onClose={() => setReview(false)} onChangeToggles={(t) => update((r) => ({ ...r, toggles: t }))}
