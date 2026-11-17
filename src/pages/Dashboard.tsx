@@ -8,6 +8,7 @@ import { isToday } from '../lib/util';
 import { TemplateIcon } from '../components/TemplateIcon';
 import OvInbox from '../components/OvInbox';
 import SampleRx from '../components/SampleRx';
+import FollowUpDue from '../components/FollowUpDue';
 
 export default function Dashboard() {
   const nav = useNavigate();
@@ -45,6 +46,8 @@ export default function Dashboard() {
       </button>
       <OvInbox />
       <div className="flex justify-center"><SampleRx /></div>
+
+      <FollowUpDue />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card className="p-4">

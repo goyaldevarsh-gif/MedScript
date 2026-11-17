@@ -7,7 +7,7 @@ import { buildPdf, pdfName } from '../lib/pdf';
 import { makeSnapshot } from '../lib/snapshot';
 import { getSettings } from '../lib/db';
 import { download } from '../lib/util';
-import { printBlob, shareWhatsApp, sharePdf } from '../lib/share';
+import { canShareFiles, followUpOn, hasWaNumber, printBlob, shareWhatsApp, sharePdf } from '../lib/share';
 
 export default function PreviewModal({ rx, onClose, onFinalize, sample }: { rx: Prescription; onClose: () => void; onFinalize?: () => void; sample?: boolean }) {
   const toast = useToast();
@@ -31,6 +31,7 @@ export default function PreviewModal({ rx, onClose, onFinalize, sample }: { rx: 
   }, [rx, final, lhOn]);
   const name = pdfName(rx);
   const dn = rx.doctorSnapshot?.doctor.fullName || '';
+  const fuD = followUpOn(rx); const fuDate = fuD ? fuD.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
   return (
     <Modal full title={<span>{final ? 'Prescription' : 'Draft preview'} <span className="ml-1 text-sm font-semibold text-slate-500">· {pages} page{pages > 1 ? 's' : ''}</span></span>} onClose={onClose}
       footer={
@@ -40,9 +41,9 @@ export default function PreviewModal({ rx, onClose, onFinalize, sample }: { rx: 
             <Btn variant="secondary" disabled={!blob} onClick={() => blob && download(blob, name)}><Download size={16} /> {sample ? 'Download sample' : final ? 'Download PDF' : 'Download draft'}</Btn>
             {final && !sample ? (
               <>
+                <Btn variant="success" disabled={!blob} onClick={async () => { if (!blob) return; if (!hasWaNumber(rx.patient.phone) && !canShareFiles(blob, name)) { toast('Add the patient\'s mobile number to send on WhatsApp', { ms: 5000 }); return; } const r = await shareWhatsApp(rx, blob, name, dn); if (r === 'downloaded') toast('PDF downloaded: attach it in the WhatsApp chat', { ms: 5000 }); }}><MessageCircle size={16} /> WhatsApp{fuDate ? ` + follow-up ${fuDate}` : ''}</Btn>
                 <Btn variant="secondary" disabled={!blob} onClick={() => blob && printBlob(blob)}><Printer size={16} /> Print</Btn>
                 <Btn variant="secondary" disabled={!blob} onClick={async () => { if (!blob) return; const r = await sharePdf(blob, name, `Prescription for ${rx.patient.name}`); if (r === 'downloaded') toast('Sharing not supported here: PDF downloaded'); }}><Share2 size={16} /> Share</Btn>
-                <Btn variant="success" disabled={!blob} onClick={async () => { if (!blob) return; const r = await shareWhatsApp(rx, blob, name, dn); if (r === 'downloaded') toast('PDF downloaded: attach it in the WhatsApp chat', { ms: 5000 }); }}><MessageCircle size={16} /> WhatsApp</Btn>
               </>
             ) : onFinalize && <Btn onClick={onFinalize}><CheckCircle2 size={16} /> Review & finalize</Btn>}
           </div>
