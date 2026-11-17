@@ -58,15 +58,17 @@ export function Empty({ icon, title, text, action }: { icon?: ReactNode; title: 
 }
 export const Spinner = () => <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-brand" />;
 
+const modalStack: symbol[] = [];
 export function Modal({ title, onClose, children, wide, footer, full }: { title: ReactNode; onClose: () => void; children: ReactNode; wide?: boolean; footer?: ReactNode; full?: boolean }) {
   useEffect(() => {
-    const h = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const id = Symbol('modal'); modalStack.push(id);
+    const h = (e: KeyboardEvent) => { if (e.key === 'Escape' && modalStack[modalStack.length - 1] === id) onClose(); };
     window.addEventListener('keydown', h);
     const prev = document.body.style.overflow; document.body.style.overflow = 'hidden';
-    return () => { window.removeEventListener('keydown', h); document.body.style.overflow = prev; };
+    return () => { window.removeEventListener('keydown', h); const i = modalStack.indexOf(id); if (i >= 0) modalStack.splice(i, 1); document.body.style.overflow = prev; };
   }, [onClose]);
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/50 sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div role="dialog" aria-modal="true" aria-label={typeof title === 'string' ? title : undefined} className="fixed inset-0 z-50 flex items-end justify-center bg-navy/50 sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className={cx('flex max-h-[94vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl', full ? 'sm:max-w-6xl sm:h-[92vh] h-[94vh]' : wide ? 'sm:max-w-3xl' : 'sm:max-w-lg')}>
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
           <div className="text-base font-extrabold">{title}</div>

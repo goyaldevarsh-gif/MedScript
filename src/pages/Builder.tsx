@@ -48,7 +48,7 @@ function Builder() {
     if (settings?.ovEmail) {
       try { await sendRx(rx, settings?.ovEmail); markSent(rx.id); toast('Sent to OrthoVault'); }
       catch (e) { toast(ovMsg(e), { tone: 'err' }); }
-    } else if (settings?.orthovaultUrl) window.open(ovSaveUrl(settings.orthovaultUrl, rx), '_blank');
+    } else if (settings?.orthovaultUrl && /^https:\/\//i.test(settings.orthovaultUrl.trim())) window.open(ovSaveUrl(settings.orthovaultUrl.trim(), rx), '_blank', 'noopener');
   }
   const [rev, setRev] = useState(0);
   const [status, setStatus] = useState<'saved' | 'saving' | 'idle'>('idle');
@@ -391,7 +391,7 @@ function PrintField({ label, value, onChange, on, setOn }: { label: string; valu
     <div>
       <div className="mb-1 flex items-center justify-between"><span className="lbl !mb-0">{label}</span>
         <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500"><input type="checkbox" checked={on} onChange={(e) => setOn(e.target.checked)} /> Print</label></div>
-      <textarea className="field min-h-[56px]" rows={2} value={value} onChange={(e) => onChange(e.target.value)} />
+      <textarea aria-label={label} className="field min-h-[56px]" rows={2} value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }

@@ -12,6 +12,7 @@ import Templates from './pages/Templates';
 import SettingsPage from './pages/Settings';
 import { seedIfNeeded } from './lib/db';
 import { initUpdates } from './lib/pwa';
+import ErrorBoundary from './components/ErrorBoundary';
 
 initUpdates();
 try { navigator.storage?.persist?.(); } catch { /* ignore */ }
@@ -38,5 +39,5 @@ function Boot() {
   );
 }
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode><ToastProvider><Boot /></ToastProvider></React.StrictMode>
+  <React.StrictMode><ErrorBoundary><ToastProvider><Boot /></ToastProvider></ErrorBoundary></React.StrictMode>
 );

@@ -50,3 +50,21 @@ describe('interaction checker', () => {
     for (const r of [...CTX_RULES, ...AGE_RULES]) expect(CLASSES[r.cls]).toBeTruthy();
   });
 });
+
+describe('children', () => {
+  const kid = (name: string, age: string, unit: 'Y' | 'M' = 'Y') => { const r = rx([item(name)], { age }); r.patient.ageUnit = unit; return checkRx(r).filter((w) => w.ruleId); };
+  it('tramadol under 12 and aspirin under 16 are danger', () => {
+    expect(kid('Tramadol', '8').find((w) => w.ruleId === 'kid-tramadol')?.level).toBe('danger');
+    expect(kid('Aspirin', '10').find((w) => w.ruleId === 'kid-aspirin')?.level).toBe('danger');
+  });
+  it('the same medicines are quiet for adults', () => {
+    expect(kid('Tramadol', '30').some((w) => w.ruleId === 'kid-tramadol')).toBe(false);
+    expect(kid('Aspirin', '30').some((w) => w.ruleId === 'kid-aspirin')).toBe(false);
+  });
+  it('fluoroquinolone under 18, doxycycline under 8, NSAID under 6 months', () => {
+    expect(kid('Ciprofloxacin', '12').some((w) => w.ruleId === 'kid-fq')).toBe(true);
+    expect(kid('Doxycycline', '6').some((w) => w.ruleId === 'kid-tetra')).toBe(true);
+    expect(kid('Doxycycline', '9').some((w) => w.ruleId === 'kid-tetra')).toBe(false);
+    expect(kid('Ibuprofen', '4', 'M').some((w) => w.ruleId === 'kid-nsaid-infant')).toBe(true);
+  });
+});

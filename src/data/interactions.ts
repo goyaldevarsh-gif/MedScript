@@ -36,6 +36,8 @@ export const CLASSES: Record<string, { label: string; re: RegExp }> = {
   sulfonylurea: { label: 'diabetes tablet (sulfonylurea)', re: /\b(glimepiride|gliclazide|glibenclamide|glipizide)/ },
   levothyroxine: { label: 'levothyroxine', re: /\blevothyroxine|thyronorm|eltroxin/ },
   ondansetron: { label: 'ondansetron', re: /\bondansetron|ondem/ },
+  kidopioid: { label: 'tramadol / tapentadol / codeine', re: /\b(tramadol|tapentadol|codeine)/ },
+  aspirin: { label: 'aspirin', re: /\b(aspirin|acetylsalicylic|ecosprin|disprin)/ },
   lithium: { label: 'lithium', re: /\blithium/ },
 };
 
@@ -107,10 +109,15 @@ export const CTX_RULES: CtxRule[] = [
   { id: 'ctx-metro-liver', group: 'Patient conditions', cls: 'metronidazole', cond: /\b(liver|cirrhosis)\b/, condLabel: 'liver disease', level: 'warn', text: 'metronidazole dose may need reduction in liver disease.' },
 ];
 /** age-based rules (years) */
-export const AGE_RULES: { id: string; cls: string; min: number; level: IxLevel; text: string; group: string }[] = [
+export const AGE_RULES: { id: string; cls: string; min?: number; max?: number; level: IxLevel; text: string; group: string }[] = [
   { id: 'age-nsaid', group: 'Patient conditions', cls: 'nsaid', min: 65, level: 'warn', text: 'NSAIDs in patients 65 and older carry higher stomach, kidney and heart risk. Lowest dose, shortest time, consider stomach cover.' },
   { id: 'age-fq', group: 'Patient conditions', cls: 'fq', min: 60, level: 'warn', text: 'fluoroquinolones raise the risk of tendon rupture in patients over 60.' },
   { id: 'age-benzo', group: 'Patient conditions', cls: 'benzo', min: 65, level: 'warn', text: 'benzodiazepines in patients 65 and older raise the risk of confusion and falls.' },
   { id: 'age-opioid', group: 'Patient conditions', cls: 'opioid', min: 65, level: 'info', text: 'opioids in patients 65 and older: start at a lower dose.' },
   { id: 'age-gaba', group: 'Patient conditions', cls: 'gabapentinoid', min: 65, level: 'info', text: 'pregabalin / gabapentin in patients 65 and older: start at a lower dose (dizziness, falls).' },
+  { id: 'kid-tramadol', group: 'Children', cls: 'kidopioid', max: 12, level: 'danger', text: 'tramadol / tapentadol / codeine are not recommended under 12 years (risk of breathing problems).' },
+  { id: 'kid-aspirin', group: 'Children', cls: 'aspirin', max: 16, level: 'danger', text: 'aspirin is avoided under 16 years because of the risk of Reye syndrome.' },
+  { id: 'kid-fq', group: 'Children', cls: 'fq', max: 18, level: 'warn', text: 'fluoroquinolones are generally avoided in children and teenagers (joint and tendon risk). Use only if there is no alternative.' },
+  { id: 'kid-tetra', group: 'Children', cls: 'tetracycline', max: 8, level: 'warn', text: 'doxycycline / tetracyclines under 8 years can stain growing teeth.' },
+  { id: 'kid-nsaid-infant', group: 'Children', cls: 'nsaid', max: 0.5, level: 'warn', text: 'NSAIDs under 6 months of age need a specialist decision.' },
 ];

@@ -24,7 +24,7 @@ export default function SafetyRules({ s }: { s: AppSettings }) {
     setD({ id: '', a: '', b: '', level: 'warn', note: '' }); toast('Rule added');
   };
   const groups = [...new Set([...RULES, ...CTX_RULES, ...AGE_RULES].map((r) => r.group))];
-  const all = [...RULES.map((r) => ({ ...r, name: nice(r) })), ...CTX_RULES.map((r) => ({ ...r, name: `${CLASSES[r.cls].label} with ${r.condLabel}` })), ...AGE_RULES.map((r) => ({ ...r, name: `${CLASSES[r.cls].label}, age ${r.min}+` }))] as { id: string; group: string; level: string; text: string; name: string }[];
+  const all = [...RULES.map((r) => ({ ...r, name: nice(r) })), ...CTX_RULES.map((r) => ({ ...r, name: `${CLASSES[r.cls].label} with ${r.condLabel}` })), ...AGE_RULES.map((r) => ({ ...r, name: r.max !== undefined ? `${CLASSES[r.cls].label}, under ${r.max < 1 ? '6 months' : r.max + ' years'}` : `${CLASSES[r.cls].label}, age ${r.min}+` }))] as { id: string; group: string; level: string; text: string; name: string }[];
   return (
     <div className="space-y-4">
       <Card className="space-y-3 p-5">

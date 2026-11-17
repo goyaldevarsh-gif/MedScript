@@ -414,6 +414,8 @@ function BackupCard({ s }: { s: AppSettings }) {
   const [pending, setPending] = useState<any>(null);
   const [wipe, setWipe] = useState(false);
   const [typed, setTyped] = useState('');
+  const [persisted, setPersisted] = useState<boolean | null>(null);
+  useEffect(() => { navigator.storage?.persisted?.().then(setPersisted).catch(() => setPersisted(null)); }, []);
   const counts = useLiveQuery(async () => ({ p: await db.patients.count(), r: await db.prescriptions.count(), a: await db.audit.count() }), []);
   async function doExport() {
     const data = await exportAll();
@@ -421,13 +423,17 @@ function BackupCard({ s }: { s: AppSettings }) {
     toast('Backup downloaded. Keep it somewhere safe.');
   }
   async function run(mode: 'merge' | 'replace') {
-    try { await importAll(pending, mode); toast('Data restored'); setPending(null); } catch (e: any) { toast(e.message, { tone: 'err' }); }
+    try {
+      if (mode === 'replace') { const cur = await exportAll(); download(new Blob([JSON.stringify(cur)], { type: 'application/json' }), `MedScript_before_restore_${new Date().toISOString().slice(0, 10)}.json`); }
+      await importAll(pending, mode); toast(mode === 'replace' ? 'Data restored. Your earlier data was saved as a "before_restore" file.' : 'Data restored', { ms: 6000 }); setPending(null);
+    } catch (e: any) { toast(e.message, { tone: 'err' }); }
   }
   return (
     <Card className="space-y-4 p-5">
       <div><h2 className="text-lg font-extrabold">Backup & restore</h2><p className="text-sm text-slate-600">All data lives on this device. A backup file contains everything, including finalized prescriptions and the audit log.</p></div>
       <div className="grid grid-cols-3 gap-3 text-center">{[['Patients', counts?.p], ['Prescriptions', counts?.r], ['Audit entries', counts?.a]].map(([l, n]) => <div key={l as string} className="rounded-xl bg-slate-50 p-3"><div className="text-2xl font-extrabold">{n ?? '–'}</div><div className="text-xs font-bold uppercase text-slate-500">{l}</div></div>)}</div>
       <div className="text-sm font-semibold text-slate-600">Last backup: {s.lastBackupAt ? fmtDateTime(s.lastBackupAt) : 'never'}</div>
+      {persisted !== null && <div className={`text-xs font-semibold ${persisted ? 'text-teal-700' : 'text-amber-800'}`}>{persisted ? 'Storage protection is on: the browser will not clear this data to free space.' : 'The browser may clear this data if the phone runs low on space. Install the app to the home screen and keep regular backups.'}</div>}
       <div className="flex flex-wrap gap-2">
         <Btn onClick={doExport}><Download size={16} /> Download backup</Btn>
         <input ref={file} hidden type="file" accept=".json,application/json" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { setPending(JSON.parse(await f.text())); } catch { toast('That file is not a valid backup', { tone: 'err' }); } e.target.value = ''; }} />
@@ -438,7 +444,7 @@ function BackupCard({ s }: { s: AppSettings }) {
         <Modal title="Restore backup" onClose={() => setPending(null)}>
           <p className="mb-3 text-sm">Backup from <b>{pending.exportedAt ? new Date(pending.exportedAt).toLocaleString('en-IN') : 'unknown date'}</b> with {pending.data?.prescriptions?.length ?? 0} prescriptions and {pending.data?.patients?.length ?? 0} patients.</p>
           <div className="space-y-2"><Btn className="w-full" onClick={() => run('merge')}>Merge into current data (safe)</Btn><Btn className="w-full" variant="danger" onClick={() => run('replace')}>Replace everything on this device</Btn></div>
-          <p className="mt-2 text-xs text-slate-500">Merge keeps your existing finalized prescriptions untouched.</p>
+          <p className="mt-2 text-xs text-slate-500">Merge keeps your existing finalized prescriptions and anything edited more recently on this device. Replace first downloads a copy of the current data, then swaps it for the backup.</p>
         </Modal>
       )}
       {wipe && (

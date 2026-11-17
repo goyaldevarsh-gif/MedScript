@@ -203,18 +203,31 @@ export async function exportAll() {
 export async function importAll(json: any, mode: 'replace' | 'merge') {
   if (!json || json.app !== 'MedScript' || !json.data) throw new Error('This is not a MedScript backup file.');
   const d = json.data;
+  /** keep only rows that have the shape the app reads, so one damaged row can never break a screen */
+  const ok = (rows: any, shape?: (r: any) => boolean): any[] => (Array.isArray(rows) ? rows.filter((r) => r && typeof r === 'object' && typeof r.id === 'string' && r.id && (!shape || shape(r))) : []);
+  const obj = (x: any) => !!x && typeof x === 'object' && !Array.isArray(x);
   const tables: [Table<any, any>, any[]][] = [
-    [db.patients, d.patients], [db.prescriptions, d.prescriptions], [db.medicines, d.medicines], [db.meta, d.meta], [db.templates, d.templates], [db.audit, d.audit],
+    [db.patients, ok(d.patients, (r) => typeof r.name === 'string')],
+    [db.prescriptions, ok(d.prescriptions, (r) => obj(r.patient) && obj(r.clinical) && Array.isArray(r.items) && (r.status === 'draft' || r.status === 'final'))],
+    [db.medicines, ok(d.medicines, (r) => Array.isArray(r.ingredients))], [db.meta, ok(d.meta)],
+    [db.templates, ok(d.templates, (r) => obj(r.clinical))], [db.audit, ok(d.audit)],
   ];
+  const settingsRows = Array.isArray(d.settings) ? d.settings.filter((r: any) => r && typeof r.key === 'string') : [];
+  if (mode === 'replace' && !tables[0][1].length && !tables[1][1].length) throw new Error('This backup has no patients or prescriptions. Nothing was changed.');
   await db.transaction('rw', [db.patients, db.prescriptions, db.medicines, db.meta, db.templates, db.settings, db.audit], async () => {
-    if (mode === 'replace') { for (const [t] of tables) await t.clear(); await db.settings.clear(); }
+    if (mode === 'replace') { for (const [t] of tables) await t.clear(); if (settingsRows.length) await db.settings.clear(); }
     for (const [t, rows] of tables) {
-      if (!Array.isArray(rows)) continue;
-      if (mode === 'merge' && t === db.prescriptions) {
-        for (const r of rows) { const ex = await db.prescriptions.get(r.id); if (!ex || (ex.status === 'draft' && r.updatedAt > ex.updatedAt)) await db.prescriptions.put(r); }
+      if (mode === 'merge') {
+        // merge never overwrites newer data on this device
+        for (const r of rows) {
+          const ex = await t.get(r.id);
+          if (!ex) { await t.put(r); continue; }
+          if (t === db.prescriptions) { if (ex.status === 'draft' && (r.updatedAt || 0) > (ex.updatedAt || 0)) await t.put(r); }
+          else if (t === db.patients || t === db.templates) { if ((r.updatedAt || 0) > (ex.updatedAt || 0)) await t.put(r); }
+        }
       } else await t.bulkPut(rows);
     }
-    if (mode === 'replace' && Array.isArray(d.settings)) await db.settings.bulkPut(d.settings);
+    if (mode === 'replace' && settingsRows.length) await db.settings.bulkPut(settingsRows);
   });
 }
 export async function wipeAll() {

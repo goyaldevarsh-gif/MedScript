@@ -179,9 +179,9 @@ function interactionWarnings(rx: Prescription, opts: IxOpts): Warning[] {
   }
   const age = rx.patient.age ? (rx.patient.ageUnit === 'M' ? parseFloat(rx.patient.age) / 12 : parseFloat(rx.patient.age)) : NaN;
   if (!isNaN(age)) for (const r of AGE_RULES) {
-    if (muted.has(r.id) || age < r.min) continue;
+    if (muted.has(r.id) || (r.min !== undefined && age < r.min) || (r.max !== undefined && age >= r.max)) continue;
     const A = members(r.cls); if (!A.length) continue;
-    out.push({ level: r.level, ruleId: r.id, text: `Age ${Math.round(age)}: ${list(A)}: ${r.text}` });
+    out.push({ level: r.level, ruleId: r.id, text: `${age < 1 ? Math.round(age * 12) + ' months' : 'Age ' + Math.round(age)}: ${list(A)}: ${r.text}` });
   }
   for (const c of opts.custom || []) {
     if (!c.a.trim() || !c.b.trim()) continue;
