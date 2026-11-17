@@ -7,14 +7,15 @@ import { ROUTES, unitForForm } from '../lib/defaults';
 import { cx, uid } from '../lib/util';
 import { itemTitle } from '../lib/pdf';
 import type { Warning } from '../lib/safety';
+import { pedDose } from '../lib/pedDose';
 
 const QTY_PRESETS = ['1 strip', '2 strips', '3 strips', '1 bottle', '1 tube', '1 sachet pack', '1 vial'];
 const NOTE_PRESETS = ['Swallow whole.', 'Do not crush or chew.', 'Avoid alcohol.', 'Take with plenty of water.', 'Complete the full course.', 'Apply a thin layer. Do not rub hard.', 'Shake well before use.', 'Stop if rash or swelling occurs.'];
 const UNITS = ['tablet', 'capsule', 'mL', 'drop', 'sachet', 'application', 'puff', 'patch', 'scoop', 'unit'];
 
-export default function ItemEditor({ it, index, total, open, onToggle, onChange, onRemove, onMove, lang, warnings, readOnly, caps, nameMode }: {
+export default function ItemEditor({ it, index, total, open, onToggle, onChange, onRemove, onMove, lang, warnings, readOnly, caps, nameMode, weightKg }: {
   it: RxItem; index: number; total: number; open: boolean; onToggle: () => void; onChange: (n: RxItem) => void; onRemove: () => void; onMove: (d: -1 | 1) => void;
-  lang: Lang; warnings: Warning[]; readOnly?: boolean; caps: boolean; nameMode: 'generic' | 'brand';
+  lang: Lang; warnings: Warning[]; readOnly?: boolean; caps: boolean; nameMode: 'generic' | 'brand'; weightKg?: number;
 }) {
   const set = (p: Partial<RxItem>) => onChange({ ...it, ...p });
   const liquid = isLiquid(it);
@@ -23,6 +24,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
   const title = itemTitle(it, nameMode, caps);
   const issues = itemIssues(it);
   const auto = instructionEn(it);
+  const ped = weightKg ? pedDose(it, weightKg) : null;
   const [customDose, setCustomDose] = useState(false);
   const [customDur, setCustomDur] = useState(false);
   const [customQty, setCustomQty] = useState(false);
@@ -69,6 +71,12 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
               {warnings.filter((w) => w.level !== 'info').map((w, i) => (
                 <div key={i} className={cx('rounded-lg px-3 py-2 text-[13px] font-semibold', w.level === 'danger' ? 'bg-danger-50 text-danger' : 'bg-amber-50 text-amber-900')}>{w.text}</div>
               ))}
+            </div>
+          )}
+          {ped && (
+            <div className={cx('mb-2 flex flex-wrap items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold', ped.status === 'high' ? 'bg-amber-50 text-amber-900' : 'bg-teal-50 text-teal-900')}>
+              <span className="min-w-0 flex-1">{ped.text}</span>
+              {ped.use && !readOnly && <button className="shrink-0 rounded-md bg-teal-600 px-2.5 py-1 text-[11px] font-bold text-white" onClick={() => { setCustomDose(false); set({ doseQty: ped.use!.qty, doseText: '', ...(ped.use!.unit === 'mL' ? { doseUnit: 'mL' } : {}) }); }}>Use {ped.use.qty} {ped.use.unit}</button>}
             </div>
           )}
           {/* main row: the four things that change most. Everything else is under "More". */}

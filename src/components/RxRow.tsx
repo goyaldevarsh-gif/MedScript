@@ -12,7 +12,7 @@ export default function RxRow({ rx, showPatient = true }: { rx: Prescription; sh
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2"><span className="truncate text-[15px] font-extrabold">{showPatient ? rx.patient.name || 'Unnamed patient' : rx.clinical.diagnosis || 'No diagnosis'}</span>
           {rx.status === 'draft' ? <Badge tone="amber">Draft</Badge> : <Badge tone="green">{rx.rxNo}</Badge>}{rx.version > 1 && <Badge tone="blue">v{rx.version}</Badge>}</div>
-        <div className="truncate text-xs text-slate-500">{showPatient && (rx.clinical.diagnosis || 'No diagnosis') + ' · '}{rx.items.length} medicine{rx.items.length === 1 ? '' : 's'} · {isToday(t) ? new Date(t).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : fmtDate(t)}</div>
+        <div className="truncate text-xs text-slate-500">{showPatient && (rx.clinical.diagnosis || 'No diagnosis') + ' · '}{rx.items.length} medicine{rx.items.length === 1 ? '' : 's'}{rx.procedures?.length ? ` · ${rx.procedures.map((x) => x.kind).join(', ')}` : ''} · {isToday(t) ? new Date(t).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : fmtDate(t)}</div>
       </div>
       <ChevronRight size={18} className="text-slate-400" />
     </Link>

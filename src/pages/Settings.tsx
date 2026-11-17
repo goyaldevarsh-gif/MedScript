@@ -389,6 +389,9 @@ function LangCard({ s }: { s: AppSettings }) {
       <h2 className="text-lg font-extrabold">Default language</h2>
       <p className="text-sm text-slate-600">Patient instruction line and advice print in one language only: English or Hindi (Devanagari). You can switch it, or turn the instruction line off, on each prescription.</p>
       <div className="flex gap-2">{([['en', 'English'], ['hi', 'हिंदी']] as [Lang, string][]).map(([v, l]) => <Chip key={v} active={s.defaultLang === v || (v === 'hi' && s.defaultLang === 'both')} onClick={() => updateSettings((x) => { x.defaultLang = v; })}>{l}</Chip>)}</div>
+      {s.defaultLang !== 'en' && <div><div className="mb-1 text-sm font-bold">Hindi advice style</div>
+        <div className="flex flex-wrap gap-2">{([['', 'Standard Hindi'], ['raj', 'Rajasthani (draft)']] as ['' | 'raj', string][]).map(([v, l]) => <Chip key={v} active={(s.layout.hindiStyle || '') === v} onClick={() => updateSettings((x) => { x.layout.hindiStyle = v || undefined; })}>{l}</Chip>)}</div>
+        <p className="mt-1 text-xs text-slate-500">Rajasthani (Jaipur / Dhundhari style) applies to the advice lines. Please read a sample once; the wording is a draft.</p></div>}
       <Field label="Default follow-up (days)"><input type="number" min="0" className="field w-32" defaultValue={s.defaultFollowUpDays} onBlur={(e) => { updateSettings((x) => { x.defaultFollowUpDays = Math.max(0, Number(e.target.value) || 0); }); toast('Saved'); }} /></Field>
     </Card>
   );

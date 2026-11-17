@@ -4,6 +4,7 @@ import { fmtMobile, phoneList } from './phone';
 import { figuresPng, partLabel } from './body';
 import { detailOf } from './detail';
 import { woundLine } from './wound';
+import { procLine } from './procedures';
 import QRCode from 'qrcode';
 import { eduUrl } from '../data/eduMap';
 import { dosePattern, computeQty, doseLabel, durationLabel, freqLabel, freqMeta, itemInstructions, timingMeta } from './dosage';
@@ -18,6 +19,7 @@ const SURFACE: [number, number, number] = [243, 246, 250];
 
 const clean = (s: string) => (s || '').replace(/[^\x09\x0A\x20-\x7E\xA0-\xFF–—‘’“”•…]/g, '').replace(/→/g, '->');
 import { adviceHi } from '../data/advice';
+import { adviceRaj } from '../data/rajasthani';
 const DEV = /[\u0900-\u097F]/;
 const FORM_PREFIX: Record<string, string> = { Tablet: 'TAB.', Capsule: 'CAP.', Syrup: 'SYP.', Suspension: 'SUSP.', Injection: 'INJ.', Gel: 'GEL', Cream: 'CREAM', Ointment: 'OINT.', Drops: 'DROPS', Sachet: 'SACHET', Powder: 'POWDER', Lotion: 'LOTION', Spray: 'SPRAY', Patch: 'PATCH', Inhaler: 'INHALER' };
 const drName = (n: string) => (!n.trim() ? '' : /^dr\.?\s/i.test(n) ? n.trim() : 'Dr. ' + n.trim());
@@ -231,6 +233,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   row('Comorbidities', c.comorbidities || '');
   if (rx.print.examination) row('Examination', c.examination.split(/[;\n]/).map((x) => x.trim()).filter((x) => x && !/:\s*$/.test(x)).join('; '));
   if (rx.print.investigations) row('Investigations', c.investigations);
+  { const pl = procLine(rx); if (pl) row('Procedure', pl); }
   { const wl = woundLine(rx); if (wl) row('Wound', wl + (rx.wound?.pins?.length ? '  (marked on figure)' : '')); }
   if (rx.print.notes) row('Notes', c.notes);
   if (body && doc.getNumberOfPages() === pageAtClin) {
@@ -297,7 +300,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     ensure(12);
     font('bold', 7.4 * sc, TEAL); doc.text('ADVICE', M, y + 2.6); y += 3.8;
     advice.forEach((a) => {
-      const hi = lang === 'hi' && !DEV.test(a) ? adviceHi(a) : '';
+      const hi = lang === 'hi' && !DEV.test(a) ? ((snap.layout.hindiStyle === 'raj' && adviceRaj(a)) || adviceHi(a)) : '';
       const text = hi || a;
       doc.setFillColor(...NAVY); doc.circle(M + 1.6, y + 2, 0.5, 'F');
       if (DEV.test(text)) hiPara(text, M + 5, CW - 5, 9 * sc, NAVY, false, 0.5);

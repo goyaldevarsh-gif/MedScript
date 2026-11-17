@@ -146,7 +146,7 @@ export async function duplicateRx(id: string, amend = false): Promise<Prescripti
   const now = Date.now();
   const copy: Prescription = {
     ...JSON.parse(JSON.stringify(src)), id: uid(), rxNo: '', status: 'draft', createdAt: now, updatedAt: now,
-    authorizedAt: undefined, hash: undefined, doctorSnapshot: undefined, warningsAtAuth: undefined, followUpDate: '',
+    authorizedAt: undefined, hash: undefined, doctorSnapshot: undefined, warningsAtAuth: undefined, followUpDate: '', procedures: undefined,
     version: amend ? src.version + 1 : 1, parentId: amend ? src.id : undefined,
   };
   copy.items = copy.items.map((i: RxItem) => ({ ...i, id: uid() }));

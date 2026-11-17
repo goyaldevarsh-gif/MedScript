@@ -20,6 +20,7 @@ import { MedicineSearch } from '../components/MedicineLibrary';
 import ItemEditor from '../components/ItemEditor';
 import TemplatePicker from '../components/TemplatePicker';
 import TestPicker from '../components/TestPicker';
+import ProcedureNotes from '../components/ProcedureNote';
 import { splitTests, testKey } from '../data/tests';
 import PreviewModal from '../components/PreviewModal';
 import ReviewModal from '../components/ReviewModal';
@@ -158,6 +159,11 @@ function Builder() {
     }
     return next;
   });
+  /* weight for the small paediatric dose hint under each medicine (only for children) */
+  const kidKg = useMemo(() => {
+    const w = parseFloat((rx?.patient.weight || '').replace(/[^\d.]/g, '')); const a = rx?.patient.age ? (rx.patient.ageUnit === 'M' ? parseFloat(rx.patient.age) / 12 : parseFloat(rx.patient.age)) : NaN;
+    return w > 0 && (isNaN(a) ? w <= 40 : a < 15) ? w : undefined;
+  }, [rx?.patient.weight, rx?.patient.age, rx?.patient.ageUnit]);
   const warnings = useMemo(() => (rx ? checkRx(rx, { muted: settings?.ixMuted, custom: settings?.ixCustom }) : []), [rx, settings?.ixMuted, settings?.ixCustom]);
   /* meds the doctor usually prescribes for this diagnosis (from own past prescriptions) */
   const usual = useMemo(() => {
@@ -301,6 +307,7 @@ function Builder() {
             </fieldset>
           </Card>
           {ortho && <WoundCard rx={rx} update={update} readOnly={!!readOnly} />}
+          <ProcedureNotes rx={rx} update={update} readOnly={!!readOnly} />
         </div>
 
         <div className="space-y-4 lg:col-span-7">
@@ -324,7 +331,7 @@ function Builder() {
               {rx.items.map((it, i) => (
                 <ItemEditor key={it.id} it={it} index={i} total={rx.items.length} open={openItem === it.id} onToggle={() => setOpenItem(openItem === it.id ? null : it.id)}
                   onChange={(n) => update((r) => ({ ...r, items: r.items.map((x) => (x.id === n.id ? n : x)) }))} onRemove={() => removeItem(it)} onMove={(d) => move(i, d)}
-                  lang={rx.lang} warnings={itemWarn(it.id)} readOnly={!!readOnly} caps={settings.layout.genericCaps} nameMode={settings.layout.nameDisplay} />
+                  lang={rx.lang} warnings={itemWarn(it.id)} readOnly={!!readOnly} caps={settings.layout.genericCaps} nameMode={settings.layout.nameDisplay} weightKg={kidKg} />
               ))}
               {!rx.items.length && <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm font-medium text-slate-500">No medicines yet. Search above, tap a favourite, or open the Library.</div>}
             </div>

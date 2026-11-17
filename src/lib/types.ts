@@ -57,6 +57,7 @@ export interface LayoutCfg {
   nameDisplay: 'generic' | 'brand'; nameV2?: boolean; genericCaps: boolean; fontScale: 'normal' | 'large';
   showPhone: boolean; showComposition: boolean; footerBranding: boolean; headerBrand: boolean;
   footerNote: string; sealLeft: boolean;
+  /** Hindi advice printed in Rajasthani (draft wording) */ hindiStyle?: 'raj';
 }
 export type SpecialtyKey = 'ortho' | 'general' | 'other';
 export interface IxCustom { id: string; a: string; b: string; level: 'danger' | 'warn' | 'info'; note: string }
@@ -74,8 +75,9 @@ export interface Wound {
   on: boolean; type?: string; status?: string; site?: string; autoSite?: string; dressing?: string; sutureDays?: number; note?: string;
   pins?: { v: string; x: number; y: number; f?: 'hand' | 'foot'; side?: 'R' | 'L' }[];
 }
+export interface ProcNote { id: string; kind: 'plaster' | 'injection' | 'dressing' | 'aspiration' | 'other'; site: string; side: Side; drug: string; dose: string; consent: boolean; note: string; print: boolean; ts: number }
 export interface Prescription {
-  wound?: Wound;
+  wound?: Wound; /** procedures done at this visit (plaster, injection, dressing, aspiration) */ procedures?: ProcNote[];
   id: string; rxNo: string; status: 'draft' | 'final'; version: number; parentId?: string;
   patientId: string; patient: Patient; clinicId: string;
   clinical: Clinical; print: PrintOpts; items: RxItem[];
