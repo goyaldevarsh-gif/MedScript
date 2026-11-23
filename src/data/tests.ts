@@ -228,3 +228,11 @@ export function testNotes(tests: string[], patient?: { sex?: string; age?: strin
   if (/fasting/.test(all)) out.push('Fasting blood sugar needs 8 hours without food.');
   return out.slice(0, 3);
 }
+
+/** for printing: "Imaging: …  |  Blood: …  |  Other: …" when more than one kind is advised, so a long list stays readable */
+export function printTests(value: string): string {
+  const l = splitTests(value); if (!l.length) return value || '';
+  const kinds = (['imaging', 'blood', 'other'] as TestKind[]).map((k) => [k, l.filter((t) => testKind(t) === k)] as const).filter(([, a]) => a.length);
+  if (kinds.length < 2) return l.join('; ');
+  return kinds.map(([k, a]) => `${KIND_LABEL[k]}: ${a.join(k === 'blood' ? ', ' : '; ')}`).join('   |   ');
+}

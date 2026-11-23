@@ -49,3 +49,13 @@ describe('investigations', () => {
     expect(f('Cubital tunnel syndrome').join()).toMatch(/nerve conduction/i);
   });
 });
+
+import { printTests } from '../src/data/tests';
+describe('printing', () => {
+  it('groups by kind only when mixed', () => {
+    expect(printTests('X-ray knee; CBC; ECG')).toBe('Imaging: X-ray knee   |   Blood: CBC   |   Other: ECG');
+    expect(printTests('X-ray knee; MRI knee')).toBe('X-ray knee; MRI knee');
+    expect(printTests('')).toBe('');
+    expect(printTests('some free text')).toBe('some free text');
+  });
+});

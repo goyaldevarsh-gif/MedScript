@@ -9,6 +9,7 @@ import QRCode from 'qrcode';
 import { eduUrl } from '../data/eduMap';
 import { dosePattern, computeQty, doseLabel, durationLabel, freqLabel, freqMeta, itemInstructions, timingMeta } from './dosage';
 import { addDays, fmtDate, fmtDateTime } from './util';
+import { printTests } from '../data/tests';
 
 const NAVY: [number, number, number] = [16, 36, 58];
 const BLUE: [number, number, number] = [37, 99, 235];
@@ -231,7 +232,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   if (c.diagnosis.trim()) row('Diagnosis', c.diagnosis + (c.side && c.side !== 'N/A' ? ` (${c.side})` : ''));
   row('Comorbidities', c.comorbidities || '');
   if (rx.print.examination) row('Examination', c.examination.split(/[;\n]/).map((x) => x.trim()).filter((x) => x && !/:\s*$/.test(x)).join('; '));
-  if (rx.print.investigations) row('Investigations', c.investigations);
+  if (rx.print.investigations) row('Investigations', printTests(c.investigations));
   { const pl = procLine(rx); if (pl) row('Procedure', pl); }
   { const wl = woundLine(rx); if (wl) row('Wound', wl + (rx.wound?.pins?.length ? '  (marked on figure)' : '')); }
   if (rx.print.notes) row('Notes', c.notes);
