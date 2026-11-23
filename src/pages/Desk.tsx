@@ -74,8 +74,7 @@ export default function Desk() {
       <aside className="hidden w-60 shrink-0 flex-col bg-navy p-5 text-white lg:flex">
         <div className="mt-2 text-center"><div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-xl font-extrabold">Rx</div>
           <div className="mt-3 text-lg font-extrabold">Reception</div><div className="text-xs font-semibold text-white/60">Check-in desk</div></div>
-        <button type="button" onClick={() => { setOpen(true); setPicked(null); }} className="mt-8 flex items-center justify-center gap-2 rounded-xl bg-teal px-4 py-3 text-base font-extrabold shadow hover:brightness-110"><UserPlus size={19} /> New patient</button>
-        <div className="mt-6 space-y-1 text-sm font-bold">
+        <div className="mt-8 space-y-1 text-sm font-bold">
           <button type="button" onClick={() => setTab('w')} className={cx('flex w-full items-center justify-between rounded-lg px-3 py-2.5', tab === 'w' ? 'bg-white/15' : 'text-white/70 hover:bg-white/10')}>Waiting <span>{waiting.length}</span></button>
           <button type="button" onClick={() => setTab('a')} className={cx('flex w-full items-center justify-between rounded-lg px-3 py-2.5', tab === 'a' ? 'bg-white/15' : 'text-white/70 hover:bg-white/10')}>All today <span>{list.length}</span></button>
         </div>
