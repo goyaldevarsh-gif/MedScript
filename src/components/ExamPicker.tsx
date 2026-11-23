@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { AlertTriangle, Check, Wand2 } from 'lucide-react';
 import { EXAM, buildVal, examFor, getVal, isFinding, parseVal, setVal, type ExamItem } from '../data/exam';
 import { cx } from '../lib/util';
-import { useHidden } from '../lib/useCollapse';
 import type { Clinical } from '../lib/types';
 
 
@@ -36,7 +35,6 @@ function Editor({ x, value, onChange, onClose }: { x: ExamItem; value: string; o
  *  can be added where it makes sense (SLRT at 60°). The text box above stays the source of truth, so it can still be typed in freely. */
 export default function ExamPicker({ clin, value, onChange }: { clin: Clinical; value: string; onChange: (v: string) => void }) {
   const { groups, red } = useMemo(() => examFor(clin), [clin.diagnosis, clin.complaint, clin.bodyParts, clin.injury]); // eslint-disable-line
-  const [hidden, setHidden] = useHidden('exam');
   const [tab, setTab] = useState(0); const [open, setOpen] = useState<string>('');
   const g = groups[Math.min(tab, groups.length - 1)];
   const flagged = red.filter((r) => parseVal(r, getVal(value, r)).opt === 'Present');
@@ -58,10 +56,8 @@ export default function ExamPicker({ clin, value, onChange }: { clin: Clinical; 
       </button>
     );
   }
-  if (hidden) return <button type="button" className="mt-1 text-xs font-bold text-brand underline" onClick={() => setHidden(false)}>Show examination shortcuts</button>;
   return (
     <div className="mt-1.5 space-y-1.5">
-      <div className="flex justify-end"><button type="button" className="text-[11px] font-bold text-slate-400 underline" onClick={() => setHidden(true)}>Hide shortcuts (optional aid)</button></div>
       {red.length > 0 && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-2">
           <div className="mb-1 flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide text-red-700"><AlertTriangle size={13} /> Do not miss</div>

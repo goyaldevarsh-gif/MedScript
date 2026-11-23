@@ -6,7 +6,6 @@ import { KIND_LABEL, allTests, joinTests, matchTemplate, planFor, relevantSets, 
 import { db, useSettings } from '../lib/db';
 import { isOrtho } from '../lib/defaults';
 import { cx, norm } from '../lib/util';
-import { useHidden } from '../lib/useCollapse';
 import type { Clinical, Patient } from '../lib/types';
 
 type Menu = TestKind | 'sets' | null;
@@ -18,7 +17,6 @@ const ICON: Record<TestKind, JSX.Element> = { imaging: <ScanLine size={14} />, b
 export default function TestPicker({ clin, value, onChange, usual = [], patient }: { clin: Clinical; value: string; onChange: (v: string) => void; usual?: string[]; patient?: Pick<Patient, 'sex' | 'age' | 'ageUnit'> }) {
   const st = useSettings();
   const tpls = (useLiveQuery(() => db.templates.toArray(), []) || []).filter((t) => isOrtho(st) || !t.builtIn);
-  const [hidden, setHidden] = useHidden('tests');
   const [q, setQ] = useState(''); const [open, setOpen] = useState(false); const [menu, setMenu] = useState<Menu>(null);
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => { if (!menu) return; const h = (e: MouseEvent) => { if (!root.current?.contains(e.target as Node)) setMenu(null); }; document.addEventListener('mousedown', h); return () => document.removeEventListener('mousedown', h); }, [menu]);
@@ -84,10 +82,8 @@ export default function TestPicker({ clin, value, onChange, usual = [], patient 
   }
   const count = (k: TestKind) => cur.filter((t) => testKind(t) === k).length;
 
-  if (hidden) return <button type="button" className="mt-1 text-xs font-bold text-brand underline" onClick={() => setHidden(false)}>Show investigation shortcuts</button>;
   return (
     <div ref={root} className="mt-1.5 space-y-1.5">
-      <div className="flex justify-end"><button type="button" className="text-[11px] font-bold text-slate-400 underline" onClick={() => setHidden(true)}>Hide shortcuts (optional aid)</button></div>
       {plan && !plan.fromYours && (firstLeft.length > 0 || plan.note) && (
         <div className="rounded-lg border border-teal/30 bg-teal-50 px-2.5 py-1.5 text-xs text-teal-800">
           <span className="font-extrabold">{tpl?.name}: usual first-line</span>
