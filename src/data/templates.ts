@@ -1,14 +1,10 @@
-import type { Clinical, Side } from '../lib/types';
 
-export interface StarterTemplate { key: string; name: string; icon: string; followUpDays: number; clinical: Clinical }
-const t = (key: string, name: string, icon: string, followUpDays: number, c: Partial<Clinical> & { diagnosis: string; advice: string[] }, side: Side = 'N/A'): StarterTemplate => ({
-  key, name, icon, followUpDays,
-  clinical: { complaint: '', side, notes: '', examination: '', investigations: '', ...c },
-});
+import { t, type StarterTemplate } from './starter';
+export type { StarterTemplate };
 
 const RED_FLAG_BACK = 'Come back immediately if you develop weakness in legs, numbness around groin/buttocks, difficulty passing urine or stool, fever, or back pain after a fall or accident.';
 
-export const STARTERS: StarterTemplate[] = [
+const BASE: StarterTemplate[] = [
   t('knee-oa', 'Knee osteoarthritis', 'knee', 28, {
     complaint: 'Pain in knee on walking / climbing stairs, morning stiffness',
     diagnosis: 'Osteoarthritis knee',
@@ -1963,3 +1959,6 @@ export const STARTERS: StarterTemplate[] = [
     ],
   }, 'N/A'),
 ];
+
+import { STARTERS2 } from './templates2';
+export const STARTERS: StarterTemplate[] = [...BASE, ...STARTERS2];

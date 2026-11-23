@@ -131,6 +131,25 @@ export const buildVal = (it: ExamItem, opt: string, extra: string) => {
 };
 export const isFinding = (it: ExamItem, val: string) => !!val && parseVal(it, val).opt !== it.normal;
 
+
+/** shown for every problem: how much it limits daily life, plus the checks that apply to any bone or joint complaint */
+EXAM.flags = { key: 'flags', title: 'Function', items: [
+  ch('ADL affected', ['None', 'Mild', 'Moderate', 'Severe'], 'None', ['activities of daily living', 'adl', 'daily activities', 'function'], { when: ['Mild', 'Moderate', 'Severe'], ph: 'e.g. stairs, dressing, toilet, walking, work', sep: ' - ' }),
+  ch('Pain score', ['0', '1-3', '4-6', '7-10'], '0', ['pain score', 'vas', 'pain severity', 'pain']),
+  ch('Morning stiffness', ['None', 'Under 30 min', 'Over 30 min'], 'None', ['stiffness']),
+  ch('Walking aid', ['None', 'Stick', 'Crutches', 'Walker', 'Wheelchair'], 'None', ['walking aid', 'support']),
+  ch('Wound', ['Healthy', 'Discharge', 'Redness', 'Gaping'], 'Healthy', ['wound', 'portal wounds', 'incision', 'wound / pin site', 'skin']),
+  ch('Distal neurovascular status', ['Intact', 'Impaired'], 'Intact', ['neurovascular status', 'distal neurovascular status', 'neurovascular'], { when: ['Impaired'], ph: 'what is affected', sep: ' - ' }),
+  ch('Lower limb neurology', ['Normal', 'Deficit'], 'Normal', ['neurology of lower limbs', 'neurology power sensation reflexes', 'lower limb neurology', 'neurological examination of lower limbs'], { when: ['Deficit'], ph: 'power / sensation / reflex', sep: ' - ' }),
+  ch('Upper limb neurology', ['Normal', 'Deficit'], 'Normal', ['neurology of upper limb', 'upper limb neurology', 'upper limb neurological examination', 'neurology of upper limbs'], { when: ['Deficit'], ph: 'power / sensation / reflex', sep: ' - ' }),
+] };
+const GENERAL_RED: ExamItem[] = [
+  flag('Night pain', ['night pain', 'pain at night']), flag('Rest pain', ['rest pain', 'unrelenting pain']), flag('Fever / chills', ['fever', 'fever chills', 'constitutional']),
+  flag('Weight loss / loss of appetite', ['weight loss', 'weight loss appetite']), flag('Past cancer / TB / long steroid use', ['cancer', 'tb', 'steroid', 'immunosuppression', 'past cancer']),
+  flag('Bladder / bowel disturbance', ['bladder bowel', 'bladder', 'bowel']), flag('New or progressive weakness / numbness', ['progressive weakness', 'weakness', 'numbness', 'neuro deficit']),
+];
+export const RED_GENERAL = GENERAL_RED;
+
 /** the tabs to show for a problem: its regions, injury and nerve tabs where they fit, and the red flags that matter */
 export function examFor(c: Pick<Clinical, 'diagnosis' | 'complaint' | 'bodyParts' | 'injury'>): { groups: ExamGroup[]; red: ExamItem[] } {
   const text = `${c.diagnosis || ''} ${c.complaint || ''}`;
@@ -148,5 +167,6 @@ export function examFor(c: Pick<Clinical, 'diagnosis' | 'complaint' | 'bodyParts
   if (/septic|infect|swollen|hot|fever|effusion/i.test(text) && keys.some((k) => ['knee', 'hip', 'ankle', 'shoulder', 'elbow', 'wrist'].includes(k))) red.push(...RED.joint);
   if (/child|paed|ped\b|limp/i.test(text) && keys.includes('hip')) red.push(...RED.hipchild);
   const seen = new Set<string>();
-  return { groups: groups.slice(0, 3), red: red.filter((r) => (seen.has(r.id) ? false : (seen.add(r.id), true))) };
+  red.push(...GENERAL_RED);
+  return { groups: [...groups.slice(0, 3), EXAM.flags], red: red.filter((r) => (seen.has(r.id) ? false : (seen.add(r.id), true))) };
 }

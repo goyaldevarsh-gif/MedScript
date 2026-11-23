@@ -72,7 +72,7 @@ export default function ExamPicker({ clin, value, onChange }: { clin: Clinical; 
     <div className="mt-1.5 space-y-1.5">
       {red.length > 0 && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-2">
-          <div className="mb-1 flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide text-red-700"><AlertTriangle size={13} /> Do not miss</div>
+          <div className="mb-1 flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide text-red-700"><AlertTriangle size={13} /> Do not miss{red.some((x) => !getVal(value, x)) && <button type="button" className="ml-auto rounded-md border border-red-300 bg-white px-2 py-0.5 text-[11px] font-bold normal-case tracking-normal text-red-700" onClick={() => { let v = value; for (const x of red) if (!getVal(v, x)) v = setVal(v, x, x.normal); setUndo(value); onChange(v); }}>None present</button>}</div>
           <div className="flex flex-wrap gap-1.5">{red.map((x) => chip(x, x.id))}</div>
           {flagged.length > 0 && <div className="mt-1.5 text-xs font-bold text-red-800">Red flag present: {flagged.map((x) => x.label.replace(/ \(.*\)/, '')).join('; ')}. Think of urgent imaging or referral.</div>}
         </div>

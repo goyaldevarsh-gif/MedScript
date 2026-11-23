@@ -6,7 +6,7 @@ const META = /\b(only if|usually|if suspected|if persistent|if not improving|as 
 
 describe('starter templates', () => {
   it('has unique keys, names and diagnoses', () => {
-    expect(STARTERS.length).toBeGreaterThanOrEqual(151);
+    expect(STARTERS.length).toBeGreaterThanOrEqual(251);
     for (const f of ['key', 'name'] as const) expect(new Set(STARTERS.map((s) => s[f])).size).toBe(STARTERS.length);
     const dx = STARTERS.map((s) => s.clinical.diagnosis); expect(new Set(dx).size).toBe(dx.length);
   });

@@ -45,11 +45,12 @@ describe('examination chips', () => {
   });
   it('picks the right tabs and red flags', () => {
     const lbp = examFor(cl('Low back pain with sciatica')); expect(lbp.groups[0].key).toBe('lumbar'); expect(lbp.red.map((r) => r.label).join()).toMatch(/Bladder/);
-    const k = examFor(cl('ACL tear', { injury: 'trauma' })); expect(k.groups.map((g) => g.key)).toEqual(['knee', 'trauma']); expect(k.red.map((r) => r.label).join()).toMatch(/Compartment/);
+    const k = examFor(cl('ACL tear', { injury: 'trauma' })); expect(k.groups.map((g) => g.key)).toEqual(['knee', 'trauma', 'flags']); expect(k.red.map((r) => r.label).join()).toMatch(/Compartment/);
     expect(examFor(cl('Fracture neck of femur', { injury: 'trauma' })).groups[0].key).toBe('hip');
     expect(examFor(cl('Septic arthritis knee')).red.map((r) => r.label).join()).toMatch(/Hot, red/);
     expect(examFor(cl('')).groups[0].key).toBe('general');
-    expect(examFor(cl('Knee osteoarthritis')).red).toHaveLength(0);
+    expect(examFor(cl('Knee osteoarthritis')).red.map((r) => r.label).join()).toMatch(/Night pain/); // general red flags are asked for every problem
+    expect(examFor(cl('Knee osteoarthritis')).groups.at(-1)?.key).toBe('flags');
   });
   it('ids unique inside every tab and every option list has its normal answer', () => {
     for (const g of Object.values(EXAM)) { expect(new Set(g.items.map((i) => i.id)).size, g.key).toBe(g.items.length); for (const i of g.items) { expect(i.opts, i.label).toContain(i.normal); if (i.note) i.note.when.forEach((w) => expect(i.opts, i.label).toContain(w)); } }
