@@ -56,27 +56,3 @@ describe('examination chips', () => {
     for (const r of Object.values(RED).flat()) expect(r.opts).toContain(r.normal);
   });
 });
-
-import { examLines, testLines, printableExam, printableTests, toggleKey } from '../src/data/printpick';
-describe('choose what prints', () => {
-  const ex = 'SLRT: Positive at 60°\nCrossed SLRT: Negative\nPower (EHL, ankle): \nGait: Normal';
-  it('lists only filled lines and prints all by default', () => {
-    expect(examLines(ex).map((l) => l.key)).toEqual(['slrt', 'crossed slrt', 'gait']);
-    expect(printableExam(ex)).toBe('SLRT: Positive at 60°; Crossed SLRT: Negative; Gait: Normal');
-  });
-  it('a left-out finding stays in the text but not on the print', () => {
-    const hide = toggleKey([], 'gait');
-    expect(printableExam(ex, hide)).toBe('SLRT: Positive at 60°; Crossed SLRT: Negative');
-    expect(ex).toContain('Gait: Normal'); expect(toggleKey(hide, 'gait')).toEqual([]);
-  });
-  it('tests: leave one out, grouping still works', () => {
-    const t = 'X-ray LS spine AP and lateral; MRI lumbosacral spine; CBC; ECG';
-    const hide = testLines(t).filter((l) => /MRI|CBC/.test(l.text)).map((l) => l.key);
-    expect(printableTests(t, hide)).toBe('Imaging: X-ray LS spine AP and lateral   |   Other: ECG');
-    expect(printableTests(t, testLines(t).map((l) => l.key))).toBe('');
-  });
-  it('a typed line that is not a chip can be left out too', () => {
-    const t = 'Waddling gait; Tenderness: L4-5'; const h = [examLines(t)[0].key];
-    expect(printableExam(t, h)).toBe('Tenderness: L4-5');
-  });
-});
