@@ -84,9 +84,9 @@ export default function TestPicker({ clin, value, onChange, usual = [], patient 
 
   return (
     <div ref={root} className="mt-1.5 space-y-1.5">
-      {plan && !plan.fromYours && (firstLeft.length > 0 || plan.note) && (
+      {plan && (firstLeft.length > 0 || plan.note) && (
         <div className="rounded-lg border border-teal/30 bg-teal-50 px-2.5 py-1.5 text-xs text-teal-800">
-          <span className="font-extrabold">{tpl?.name}: usual first-line</span>
+          <span className="font-extrabold">{tpl?.name}: {plan.fromYours ? 'tests saved in this template' : 'usual first-line'}</span>
           {firstLeft.length > 0 && <> {firstLeft.join('; ')} <button type="button" className="ml-1 rounded bg-teal px-2 py-0.5 font-bold text-white" onClick={() => addMany(firstLeft)}>Add {firstLeft.length > 1 ? 'all' : ''}</button></>}
           {plan.note && <div className="mt-0.5 font-semibold text-teal-700">{plan.note}</div>}
         </div>

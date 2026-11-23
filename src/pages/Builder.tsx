@@ -142,7 +142,7 @@ function Builder() {
 
   /* ---------- helpers ---------- */
   function applyTpl(r: Prescription, t: Template) {
-    r.clinical = { ...r.clinical, complaint: t.clinical.complaint, diagnosis: t.clinical.diagnosis, side: t.clinical.side, examination: t.clinical.examination, investigations: t.clinical.investigations, advice: shortAdvice(t.clinical.advice) };
+    r.clinical = { ...r.clinical, complaint: t.clinical.complaint, diagnosis: t.clinical.diagnosis, side: t.clinical.side, examination: t.clinical.examination, advice: shortAdvice(t.clinical.advice) };
     r.followUpDays = t.followUpDays;
     if (t.items.length) r.items = [...r.items, ...t.items.map((i) => ({ ...i, id: uid() }))];
   }
