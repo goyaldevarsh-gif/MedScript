@@ -68,14 +68,12 @@ export const testKey = (t: string) => {
 export function splitTests(v: string): string[] { return (v || '').split(/\s*[;\n]\s*/).map((x) => x.trim()).filter(Boolean); }
 export const joinTests = (a: string[]) => a.join('; ');
 
-/** Tests that fit this problem, best first. Uses diagnosis, complaint, body-site and side. */
-export function suggestTests(c: Pick<Clinical, 'diagnosis' | 'complaint' | 'side' | 'bodyParts' | 'injury'>): string[] {
+/** the body regions a problem points to (diagnosis counts more than complaint, then the body-part picker), best two first */
+export function regionKeys(c: Pick<Clinical, 'diagnosis' | 'complaint' | 'bodyParts'>): string[] {
   const text = `${c.diagnosis || ''} ${c.complaint || ''}`;
-  if (!text.trim() && !(c.bodyParts || []).length) return [];
-  const hit = new Map<string, number>(); // region -> score
+  const hit = new Map<string, number>();
   for (const r of R) {
     if (!r.re.test(text)) continue;
-    // a match in the diagnosis counts more than one in the complaint
     hit.set(r.key, (r.re.test(c.diagnosis || '') ? 3 : 1));
   }
   for (const b of c.bodyParts || []) {
@@ -83,7 +81,14 @@ export function suggestTests(c: Pick<Clinical, 'diagnosis' | 'complaint' | 'side
     const k = BODY_REGION[base] || (base.includes('knee') ? 'knee' : '');
     if (k) hit.set(k, (hit.get(k) || 0) + 2);
   }
-  const regions = [...hit.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([k]) => R.find((r) => r.key === k)!);
+  return [...hit.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([k]) => k);
+}
+
+/** Tests that fit this problem, best first. Uses diagnosis, complaint, body-site and side. */
+export function suggestTests(c: Pick<Clinical, 'diagnosis' | 'complaint' | 'side' | 'bodyParts' | 'injury'>): string[] {
+  const text = `${c.diagnosis || ''} ${c.complaint || ''}`;
+  if (!text.trim() && !(c.bodyParts || []).length) return [];
+  const regions = regionKeys(c).map((k) => R.find((r) => r.key === k)!);
   // injuries and fractures: plain films first, then CT, then MRI. Wear-and-tear and soft tissue: X-ray, USG, MRI, CT.
   const trauma = c.injury === 'trauma' || /fractur|dislocat|injur|rupture|tear|post.?op|sprain|ligament|\bacl\b|\bpcl\b|plating|nailing|\bcast\b|follow.?up of/i.test(text);
   // a fracture already treated (post-op / in cast): films only
