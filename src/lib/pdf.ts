@@ -118,6 +118,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const hasClinic = !!(clinic.name || clinic.address || cPhones.length || clinic.email || clinic.timings || clinic.logo);
   const drawHeader = () => {
     if (LH) { y = LH.top + 1; return; }
+    doc.setFillColor(...NAVY); doc.rect(0, 0, PW, 1.6, 'F'); doc.setFillColor(...TEAL); doc.rect(0, 1.6, PW, 0.8, 'F');
     const top = 11;
     const rule = (yy: number) => { doc.setDrawColor(...TEAL); doc.setLineWidth(0.5); doc.line(M, yy, PW - M, yy); };
     // doctor lines
@@ -159,6 +160,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   };
   const drawContHeader = () => {
     y = LH ? LH.top + 1 : 10;
+    if (!LH) { doc.setFillColor(...NAVY); doc.rect(0, 0, PW, 1.6, 'F'); doc.setFillColor(...TEAL); doc.rect(0, 1.6, PW, 0.8, 'F'); }
     font('bold', 9, NAVY); doc.text(clean(drName(snap.doctor.fullName)), M, y + 3);
     font('normal', 8.5, GREY); doc.text(clean(`Patient: ${rx.patient.name} ${rx.patient.pid ? '(' + rx.patient.pid + ')' : ''} - continued`), PW - M, y + 3, { align: 'right' });
     doc.setDrawColor(...BLUE); doc.setLineWidth(0.5); doc.line(M, y + 6, PW - M, y + 6);
@@ -189,17 +191,20 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     if (p.weight) row2.push(`Weight: ${p.weight} kg`);
     const allergy = p.allergies.trim() ? `Allergies: ${p.allergies.trim()}` : '';
     const noAllergy = /^(no known|nkda|nil|none|no allerg)/i.test(p.allergies.trim());
-    const h = 6.4 + (row2.length ? 4.6 : 0) + (allergy ? heightOf(allergy, CW - 6, 8.5 * sc, 'bold') + 0.5 : 0) + 2.4;
+    const h = 12.2 + (row2.length ? 4.6 : 0) + (allergy ? heightOf(allergy, CW - 8, 8.5 * sc, 'bold') + 0.5 : 0) + 1.4;
     doc.setFillColor(...SURFACE); doc.roundedRect(M, y, CW, h, 1.6, 1.6, 'F');
-    let yy = y + 5;
-    if (DEV.test(p.name)) { let np = 10 * sc, b = hiBlock(p.name, 78, np, NAVY, true); while (b.h > np * 0.3528 * 1.75 && np > 6.5) { np -= 0.5; b = hiBlock(p.name, 78, np, NAVY, true); } doc.addImage(b.url, 'PNG', M + 3, yy - 4.4, b.w, b.h, undefined, 'FAST'); } else { let nt = 10 * sc; const nm = clean(p.name || 'Patient name not entered'); font('bold', nt, NAVY); while (doc.getTextWidth(nm) > 78 && nt > 6.5) { nt -= 0.5; font('bold', nt, NAVY); } doc.text(nm, M + 3, yy); }
-    font('normal', 9 * sc, NAVY);
-    doc.text(clean(`Age/Sex: ${ageSex}`), M + 84, yy);
-    doc.text(clean(`ID: ${p.pid || '-'}`), M + 122, yy);
-    doc.text(`Date: ${when}`, PW - M - 3, yy, { align: 'right' });
-    yy += 4.6;
-    if (row2.length) { font('normal', 8.5 * sc, GREY); doc.text(clean(row2.join('     ')), M + 3, yy); yy += 4.6; }
-    if (allergy) { font(noAllergy ? 'normal' : 'bold', 8.5 * sc, noAllergy ? GREY : RED); wrap(allergy, CW - 6).forEach((l) => { doc.text(l, M + 3, yy); yy += lh(8.5 * sc); }); }
+    doc.setFillColor(...TEAL); doc.roundedRect(M, y, 1.3, h, 0.6, 0.6, 'F');
+    font('bold', 6.2 * sc, [120, 132, 150]);
+    doc.text('PATIENT', M + 4.5, y + 3.9); doc.text('AGE / SEX', M + 86, y + 3.9); doc.text('PATIENT ID', M + 122, y + 3.9); doc.text('DATE', PW - M - 3, y + 3.9, { align: 'right' });
+    let yy = y + 8.9;
+    if (DEV.test(p.name)) { let np = 10.5 * sc, b = hiBlock(p.name, 78, np, NAVY, true); while (b.h > np * 0.3528 * 1.75 && np > 6.5) { np -= 0.5; b = hiBlock(p.name, 78, np, NAVY, true); } doc.addImage(b.url, 'PNG', M + 4.5, yy - 4.4, b.w, b.h, undefined, 'FAST'); } else { let nt = 11 * sc; const nm = clean(p.name || 'Patient name not entered'); font('bold', nt, NAVY); while (doc.getTextWidth(nm) > 78 && nt > 6.5) { nt -= 0.5; font('bold', nt, NAVY); } doc.text(nm, M + 4.5, yy); }
+    font('bold', 9.6 * sc, NAVY);
+    doc.text(clean(ageSex), M + 86, yy);
+    doc.text(clean(p.pid || '-'), M + 122, yy);
+    font('bold', 9.6 * sc, NAVY); doc.text(when, PW - M - 3, yy, { align: 'right' });
+    yy += 5;
+    if (row2.length) { font('normal', 8.5 * sc, GREY); doc.text(clean(row2.join('     ')), M + 4.5, yy); yy += 4.6; }
+    if (allergy) { font(noAllergy ? 'normal' : 'bold', 8.5 * sc, noAllergy ? GREY : RED); wrap(allergy, CW - 8).forEach((l) => { doc.text(l, M + 4.5, yy); yy += lh(8.5 * sc); }); }
     y += h + 3;
   }
 
@@ -208,12 +213,12 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const textW = CW - figW;
   const yClin = y; const pageAtClin = doc.getNumberOfPages();
   const LBL = 26;
-  const row = (label: string, text: string) => {
+  const row = (label: string, text: string, bold = false) => {
     if (!text.trim()) return;
     const w = textW - LBL;
     ensure(heightOf(text, w, 9.2 * sc) + 1);
     font('bold', 7.4 * sc, TEAL); doc.text(label.toUpperCase(), M, y + 3.1);
-    const y0 = y; para(text, M + LBL, w, 'normal', 9.2 * sc, NAVY, 0.9);
+    const y0 = y; para(text, M + LBL, w, bold ? 'bold' : 'normal', 9.2 * sc, NAVY, 0.9);
     if (y < y0 + 4.2) y = y0 + 4.2;
   };
   if (c.injury) {
@@ -229,7 +234,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   }
   if ((c.bodyParts || []).some((id) => detailOf(id))) row('Site', (c.bodyParts || []).map((id) => partLabel(id)).join('; '));
   if (rx.print.complaint) row('Complaint', c.complaint);
-  if (c.diagnosis.trim()) row('Diagnosis', c.diagnosis + (c.side && c.side !== 'N/A' ? ` (${c.side})` : ''));
+  if (c.diagnosis.trim()) row('Diagnosis', c.diagnosis + (c.side && c.side !== 'N/A' ? ` (${c.side})` : ''), true);
   row('Comorbidities', c.comorbidities || '');
   if (rx.print.examination) { const sh = splitHistory(c.examination); row('History', sh.hist); row('Examination', sh.exam.split(/[;\n]/).map((x) => x.trim()).filter((x) => x && !/:\s*$/.test(x)).join('; ')); }
   if (rx.print.investigations) row('Investigations', printTests(c.investigations));
@@ -284,7 +289,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       ensure(Math.min(need + 1, 40));
       const nb = (brandFirst ? 11 : 10.2) * sc * ms * 0.3528 * 0.9; // baseline offset scales with the font (stops overlap on crowded pages)
       font('bold', (brandFirst ? 11 : 10.2) * sc * ms, NAVY);
-      doc.text(`${idx + 1}.`, M, y + nb);
+      { const cy = y + nb - 1.1; doc.setFillColor(...TEAL); doc.circle(M + 2.3, cy, 2.3, 'F'); font('bold', 7.6, [255, 255, 255]); doc.text(String(idx + 1), M + 2.3, cy + 1, { align: 'center' }); }
       const nameLines = wrap(t.main, w);
       nameLines.forEach((l, i) => { font('bold', (brandFirst ? 11 : 10.2) * sc * ms, NAVY); ensure(lh(10.2 * sc * ms)); doc.text(l, indent, y + nb); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc * ms, GREY); doc.text(clean(t.sub), indent + tw, y + nb); } y += lh(10.2 * sc * ms); });
       if (compLine) para(compLine, indent, w, 'normal', brandFirst ? 7.2 * sc * ms : 7.8 * sc * ms, [128, 138, 152]);
@@ -316,12 +321,12 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const advice = c.advice.map((a) => a.trim()).filter(Boolean);
   if (advice.length) {
     ensure(12);
-    font('bold', 7.4 * sc, TEAL); doc.text('ADVICE', M, y + 2.6); y += 3.8;
+    font('bold', 8 * sc, TEAL); doc.text('ADVICE', M, y + 2.8); doc.setDrawColor(210, 218, 228); doc.setLineWidth(0.25); doc.line(M + 15, y + 2.1, PW - M, y + 2.1); y += 4.6;
     // one language for the whole advice block: Hindi only when every line has a Hindi version, else all lines stay as written
     const hiAll = lang === 'hi' && advice.every((a) => DEV.test(a) || adviceHi(a));
     advice.forEach((a) => {
       const text = hiAll && !DEV.test(a) ? adviceHi(a) : a;
-      doc.setFillColor(...NAVY); doc.circle(M + 1.6, y + 2, 0.5, 'F');
+      doc.setFillColor(...TEAL); doc.circle(M + 1.6, y + 2, 0.55, 'F');
       if (DEV.test(text)) hiPara(text, M + 5, CW - 5, 9 * sc, NAVY, false, 0.5);
       else { para(text, M + 5, CW - 5, 'normal', 9 * sc, NAVY, 0.5); }
     });
