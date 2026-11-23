@@ -4,6 +4,7 @@ import { Logo, Mark } from './Logo';
 import { cx } from '../lib/util';
 import { useOnline, useUpdate } from '../lib/pwa';
 import { useSettings } from '../lib/db';
+import DeskSync from './DeskSync';
 import SpecialtyPrompt from './SpecialtyPicker';
 import SetupWizard, { useWizardGate } from './SetupWizard';
 import { useEffect } from 'react';
@@ -82,6 +83,7 @@ export default function Layout() {
           </div>
           {!online && <span className="flex items-center gap-1 rounded-md bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800"><WifiOff size={13} /> Offline</span>}
         </header>
+        <DeskSync />
         <main className={cx('scroll-thin min-h-0 flex-1 overflow-y-auto md:pb-6', inBuilder ? 'pb-4' : 'pb-24')}><Outlet /></main>
         {/* Mobile tab bar */}
         <nav className={cx('safe-b fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white md:hidden', inBuilder ? 'hidden' : 'flex')}>

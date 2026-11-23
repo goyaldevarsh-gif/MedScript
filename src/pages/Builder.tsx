@@ -114,6 +114,7 @@ function Builder() {
           if (known) r.patient = { ...known, weight: o.weight || known.weight, allergies: mergeAllergy(known.allergies, o.allergies) }; // today's weight wins; allergies are only ever added to
           else r.patient = { ...r.patient, name: o.name.trim(), age: o.age || '', ageUnit: o.ageUnit === 'M' ? 'M' : 'Y', sex: (['Male', 'Female', 'Other'].includes(o.sex) ? o.sex : '') as Prescription['patient']['sex'], phone: ph, weight: o.weight || '', allergies: mergeAllergy('', o.allergies) };
           if (known) r.patientId = known.id;
+          if (o.toOv) r.sendToOv = true;
           r.clinical = { ...r.clinical, complaint: o.reason || '', notes: [o.bp && `BP ${o.bp}`, o.sugar && `Sugar ${o.sugar}`].filter(Boolean).join(', ') && 'Vitals at reception: ' + [o.bp && `BP ${o.bp}`, o.sugar && `Sugar ${o.sugar}`].filter(Boolean).join(', ') };
         }
       }

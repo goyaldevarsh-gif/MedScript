@@ -15,7 +15,7 @@ describe('reception desk', () => {
     expect(decodeDesk(enc(e))).toMatchObject(e); expect(decodeDesk('garbage')).toBeNull(); expect(decodeDesk(enc({ name: ' ' }))).toBeNull();
   });
   it('errors are written for the receptionist, rules never touch other data', () => {
-    expect(deskMsg({ code: 'permission-denied' })).toMatch(/not switched on/); expect(deskMsg({ code: 'timeout' })).toMatch(/timed out/);
+    expect(deskMsg({ code: 'permission-denied' })).toMatch(/not set up/); expect(deskMsg({ code: 'timeout' })).toMatch(/timed out/i);
     const paths = [...DESK_RULES.matchAll(/match (\S+)/g)].map((m) => m[1]);
     expect(paths.length).toBeGreaterThan(0); for (const p of paths) expect(p.startsWith('/desks/')).toBe(true);
     expect(DESK_RULES).not.toMatch(/users\//);

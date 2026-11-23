@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, useSettings } from '../lib/db';
-import { deskDay, deskSyncKnown, matchPatient, deskCleanup, deskMark, deskMsg, deskRemove, deskWatch, type DeskItem } from '../lib/desk';
+import { matchPatient, deskCleanup, deskMark, deskMsg, deskRemove, deskWatch, type DeskItem } from '../lib/desk';
 import { enc } from '../lib/orthovault';
 import { cx } from '../lib/util';
 import { Card } from './ui';
@@ -12,12 +12,6 @@ import { Card } from './ui';
 export default function DeskQueue() {
   const s = useSettings(); const nav = useNavigate(); const id = s?.deskId || '';
   const pats = useLiveQuery(() => db.patients.toArray(), []) || [];
-  const rows = useLiveQuery(async () => {
-    const last = new Map<string, string>();
-    (await db.prescriptions.toArray()).forEach((r) => { if (r.status !== 'final') return; const d = deskDay(new Date(r.authorizedAt || r.updatedAt)); if (d > (last.get(r.patientId) || '')) last.set(r.patientId, d); });
-    return (await db.patients.toArray()).filter((p) => last.has(p.id)).map((p) => ({ name: p.name, phone: p.phone, at: last.get(p.id)! }));
-  }, []);
-  useEffect(() => { if (id && rows) deskSyncKnown(id, rows).catch(() => {}); }, [id, rows]);
   const [items, setItems] = useState<DeskItem[]>([]); const [err, setErr] = useState('');
   useEffect(() => {
     if (!id) { setItems([]); return; }
@@ -42,7 +36,7 @@ export default function DeskQueue() {
             <button onClick={() => start(i)} className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left active:bg-brand-50">
               <span className="w-8 shrink-0 text-center text-xl font-extrabold text-teal">{i.token}</span>
               <span className="min-w-0">
-                <span className="flex items-center gap-1.5"><span className="truncate text-sm font-extrabold">{i.name}</span>{(k || i.followUp) && <span className={cx('shrink-0 rounded px-1.5 text-[10px] font-extrabold uppercase', k ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-800')}>{k ? `Follow-up · ${k.pid || 'saved'}` : 'Follow-up · record not found'}</span>}</span>
+                <span className="flex items-center gap-1.5"><span className="truncate text-sm font-extrabold">{i.name}</span>{(k || i.followUp) && <span className={cx('shrink-0 rounded px-1.5 text-[10px] font-extrabold uppercase', k ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-800')}>{k ? `Follow-up · ${k.pid || 'saved'}` : 'Follow-up · record not found'}</span>}{i.toOv && <span className="shrink-0 rounded bg-violet-50 px-1.5 text-[10px] font-extrabold uppercase text-violet-700">to OrthoVault</span>}</span>
                 <span className="block truncate text-[11px] font-medium text-slate-500">{[i.age && `${i.age}${i.ageUnit === 'M' ? 'm' : 'y'}`, i.sex, i.reason, i.bp && `BP ${i.bp}`, i.sugar && `Sugar ${i.sugar}`].filter(Boolean).join(' · ')}</span>
               </span>
             </button>

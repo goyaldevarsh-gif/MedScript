@@ -82,7 +82,7 @@ export interface Prescription {
   clinical: Clinical; print: PrintOpts; items: RxItem[];
   followUpDays: number; followUpDate: string; lang: Lang; toggles: PdfToggles;
   showInstr?: boolean; followUpManual?: boolean; qrUrl?: string; ovId?: string;
-  createdAt: number; updatedAt: number; authorizedAt?: number; hash?: string;
+  createdAt: number; updatedAt: number; authorizedAt?: number; hash?: string; /** doctor asked for this patient to go to OrthoVault: it follows automatically once the Rx is authorised */ sendToOv?: boolean;
   doctorSnapshot?: DoctorSnapshot; warningsAtAuth?: string[]; /** alerts the doctor hid as not relevant for this prescription (kept with the record) */ dismissedWarn?: string[];
 }
 export interface Template {
