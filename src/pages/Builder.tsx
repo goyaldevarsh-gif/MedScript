@@ -309,7 +309,7 @@ function Builder() {
       )}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <div className="space-y-4 lg:col-span-5">
-          <PatientCard p={p} nextPid={nextPid} readOnly={!!readOnly} setPatient={setPatient} onPick={(pt) => update((r) => ({ ...r, patient: { ...pt }, patientId: pt.id, dismissedWarn: undefined }))} onClear={() => update((r) => ({ ...r, patient: { ...blankRxPatient(), id: uid() }, patientId: '', dismissedWarn: undefined }))} />
+          <PatientCard onTemplates={() => setTplPicker(true)} p={p} nextPid={nextPid} readOnly={!!readOnly} setPatient={setPatient} onPick={(pt) => update((r) => ({ ...r, patient: { ...pt }, patientId: pt.id, dismissedWarn: undefined }))} onClear={() => update((r) => ({ ...r, patient: { ...blankRxPatient(), id: uid() }, patientId: '', dismissedWarn: undefined }))} />
           {ortho && <Card className="p-4">
             <div className="mb-2 text-sm font-extrabold uppercase tracking-wide text-slate-500">Site of complaint</div>
             <BodyPicker clin={rx.clinical} set={setClin} readOnly={!!readOnly} />
@@ -328,7 +328,7 @@ function Builder() {
               </div>}
               <PrintField label="Examination findings" value={rx.clinical.examination} onChange={(v) => setClin({ examination: v })} on={rx.print.examination} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, examination: b } }))} />
               <PrintField label="Investigations" value={rx.clinical.investigations} onChange={(v) => setClin({ investigations: v })} on={rx.print.investigations} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, investigations: b } }))} />
-              {!readOnly && <TestPicker clin={rx.clinical} value={rx.clinical.investigations} onChange={(v) => setClin({ investigations: v })} usual={usualTests} />}
+              {!readOnly && <TestPicker clin={rx.clinical} value={rx.clinical.investigations} onChange={(v) => setClin({ investigations: v })} usual={usualTests} patient={rx.patient} />}
               <PrintField label="Clinical notes (private by default)" value={rx.clinical.notes} onChange={(v) => setClin({ notes: v })} on={rx.print.notes} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, notes: b } }))} />
               <label className="flex items-center gap-2 text-xs font-semibold text-slate-600"><input type="checkbox" checked={rx.print.complaint} onChange={(e) => update((r) => ({ ...r, print: { ...r.print, complaint: e.target.checked } }))} /> Print chief complaint on prescription</label>
             </fieldset>
@@ -422,7 +422,7 @@ function PrintField({ label, value, onChange, on, setOn }: { label: string; valu
   );
 }
 
-function PatientCard({ p, nextPid, readOnly, setPatient, onPick, onClear }: { p: Patient; nextPid: string; readOnly: boolean; setPatient: (p: Partial<Patient>) => void; onPick: (p: Patient) => void; onClear: () => void }) {
+function PatientCard({ onTemplates, p, nextPid, readOnly, setPatient, onPick, onClear }: { onTemplates: () => void; p: Patient; nextPid: string; readOnly: boolean; setPatient: (p: Partial<Patient>) => void; onPick: (p: Patient) => void; onClear: () => void }) {
   const [q, setQ] = useState('');
   const all = useLiveQuery(() => db.patients.orderBy('updatedAt').reverse().toArray(), []) || [];
   const matches = q.trim() ? all.filter((x) => norm(`${x.name} ${x.phone} ${x.pid}`).includes(norm(q))).slice(0, 6) : [];
@@ -431,7 +431,7 @@ function PatientCard({ p, nextPid, readOnly, setPatient, onPick, onClear }: { p:
       <fieldset disabled={readOnly} className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="text-sm font-extrabold uppercase tracking-wide text-slate-500">Patient</div>
-          <div className="flex items-center gap-2"><Badge tone="blue">{p.pid || nextPid || 'P-…'}{!p.pid && ' (new)'}</Badge>
+          <div className="flex items-center gap-2">{!readOnly && <button type="button" className="flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-1 text-xs font-bold text-slate-700 hover:border-brand" onClick={onTemplates}><Search size={13} /> Templates</button>}<Badge tone="blue">{p.pid || nextPid || 'P-…'}{!p.pid && ' (new)'}</Badge>
             {p.pid && !readOnly && <button className="flex items-center gap-1 text-xs font-bold text-brand" onClick={onClear}><UserPlus size={13} /> New patient</button>}</div>
         </div>
         {!readOnly && !p.pid && (

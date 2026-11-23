@@ -28,7 +28,7 @@ export default function Patients() {
         ))}
       </div>
       {list && !f.length && <Empty icon={<Users />} title={q ? 'No matching patient' : 'No patients yet'} text={q ? 'Check the spelling or add a new patient.' : 'Add a patient here, or simply create a prescription: the patient is saved automatically.'} action={<Btn onClick={() => setAdd(true)}><Plus size={16} /> Add patient</Btn>} />}
-      {add && <PatientForm onClose={() => setAdd(false)} onSaved={(p) => { setAdd(false); nav(`/patients/${p.id}`); }} />}
+      {add && <PatientForm onClose={() => setAdd(false)} onSaved={(p, tid) => { setAdd(false); nav(tid !== undefined ? `/new?patient=${p.id}${tid ? `&template=${tid}` : ''}` : `/patients/${p.id}`); }} />}
     </div>
   );
 }
