@@ -44,7 +44,7 @@ describe('desk safety', () => {
     expect(mergeAllergy('Penicillin, Sulfa', 'penicillin')).toBe('Penicillin, Sulfa');
   });
   it('rules only allow the desk fields and never reach users/', () => {
-    expect(DESK_RULES).toMatch(/hasOnly\(\['name'/); expect(DESK_RULES).not.toMatch(/if true/); expect(DESK_RULES).not.toMatch(/users/);
+    expect(DESK_RULES).toMatch(/hasOnly\(\['name'/); expect(DESK_RULES).toContain("'followUp'"); expect(DESK_RULES).not.toMatch(/if true/); expect(DESK_RULES).not.toMatch(/users/);
   });
 });
 

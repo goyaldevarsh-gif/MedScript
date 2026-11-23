@@ -36,7 +36,7 @@ export default function DeskQueue() {
             <button onClick={() => start(i)} className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left active:bg-brand-50">
               <span className="w-8 shrink-0 text-center text-xl font-extrabold text-teal">{i.token}</span>
               <span className="min-w-0">
-                <span className="flex items-center gap-1.5"><span className="truncate text-sm font-extrabold">{i.name}</span>{k && <span className="shrink-0 rounded bg-blue-50 px-1.5 text-[10px] font-extrabold uppercase text-blue-700">{k.pid || 'old patient'}</span>}</span>
+                <span className="flex items-center gap-1.5"><span className="truncate text-sm font-extrabold">{i.name}</span>{(k || i.followUp) && <span className={cx('shrink-0 rounded px-1.5 text-[10px] font-extrabold uppercase', k ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-800')}>{k ? `Follow-up · ${k.pid || 'saved'}` : 'Follow-up · record not found'}</span>}</span>
                 <span className="block truncate text-[11px] font-medium text-slate-500">{[i.age && `${i.age}${i.ageUnit === 'M' ? 'm' : 'y'}`, i.sex, i.reason, i.bp && `BP ${i.bp}`, i.sugar && `Sugar ${i.sugar}`].filter(Boolean).join(' · ')}</span>
               </span>
             </button>

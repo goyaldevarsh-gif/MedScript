@@ -3,14 +3,14 @@ import { CFG } from './ovcloud';
 /* Reception desk. The receptionist opens a secret link, fills patient details and a one-line reason, and the entry shows up in the
    doctor's MedScript as a waiting list. The desk device never signs in and holds no MedScript data: it can only add to, and read, the
    small "queue" list under desks/{secret id}. Nothing else in the cloud is reachable from it. */
-export interface DeskIn { name: string; age: string; ageUnit: 'Y' | 'M'; sex: string; phone: string; weight: string; allergies: string; reason: string; bp: string; sugar: string }
+export interface DeskIn { name: string; age: string; ageUnit: 'Y' | 'M'; sex: string; phone: string; weight: string; allergies: string; reason: string; bp: string; sugar: string; followUp?: boolean }
 export interface DeskItem extends DeskIn { id: string; token: number; day: string; createdAt: number; status: 'waiting' | 'seen' }
 
 /** paste this inside `match /databases/{database}/documents { ... }` in Firebase console, Firestore, Rules. Keep your existing rules. */
 export const DESK_RULES = `match /desks/{deskId}/queue/{doc} {
   allow read, delete: if deskId.size() >= 20;
   allow create: if deskId.size() >= 20
-    && request.resource.data.keys().hasOnly(['name','age','ageUnit','sex','phone','weight','allergies','reason','bp','sugar','token','day','createdAt','status'])
+    && request.resource.data.keys().hasOnly(['name','age','ageUnit','sex','phone','weight','allergies','reason','bp','sugar','followUp','token','day','createdAt','status'])
     && request.resource.data.keys().hasAll(['name','token','day','createdAt','status'])
     && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() < 100
     && request.resource.data.status == 'waiting'
