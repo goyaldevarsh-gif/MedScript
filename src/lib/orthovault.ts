@@ -1,3 +1,4 @@
+import { ovAge } from './age';
 import { woundLine } from './wound';
 import type { Prescription } from './types';
 import { doseLabel, dosePattern, durationLabel, freqLabel, timingMeta } from './dosage';
@@ -32,7 +33,7 @@ export function ovPayload(rx: Prescription) {
   const fu = rx.followUpDays > 0 ? ymd(new Date(when.getTime() + rx.followUpDays * 86400000)) : '';
   return {
     v: 1, ovId: rx.patient.ovId || rx.ovId || '', rxNo: rx.rxNo, date: ymd(when), followUpDate: fu,
-    patient: { name: rx.patient.name, age: rx.patient.age, ageUnit: rx.patient.ageUnit, sex: rx.patient.sex, phone: rx.patient.phone, weight: rx.patient.weight },
+    patient: { name: rx.patient.name, ...ovAge(rx.patient.age, rx.patient.ageUnit), sex: rx.patient.sex, phone: rx.patient.phone, weight: rx.patient.weight },
     dx: rx.clinical.diagnosis, cc: ccText(rx), advice: [...rx.clinical.advice.map((a) => a.trim()).filter(Boolean), ...(woundLine(rx) ? ['Wound: ' + woundLine(rx)] : [])].join('\n'),
     medicines: rx.items.map((it) => ({
       name: ((n, s) => (s && !n.toLowerCase().includes((s.match(/[\d.]+/) || [s])[0].toLowerCase()) ? `${n} ${s}` : n))((it.brand ? it.brand.toUpperCase() : it.generic).trim(), (it.strength || '').trim()),

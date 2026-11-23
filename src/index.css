@@ -19,3 +19,6 @@ input, textarea, select { @apply text-navy; }
   .card { @apply rounded-2xl border border-slate-200 bg-white shadow-card; }
 }
 @media print { body * { visibility: hidden; } }
+
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}

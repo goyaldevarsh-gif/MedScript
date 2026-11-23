@@ -1,3 +1,4 @@
+import { fmtAge, fmtAgePdf } from './age';
 import { splitHistory } from '../data/exam';
 import type { DoctorSnapshot, Prescription, RxItem } from './types';
 import { imageSize, renderSeal } from './imaging';
@@ -184,7 +185,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   {
     const p = rx.patient;
     const when = fmtDate(rx.authorizedAt || rx.createdAt);
-    const ageSex = [p.age ? p.age + (p.ageUnit === 'M' ? ' M' : ' Y') : '', p.sex || ''].filter(Boolean).join(' / ') || '-';
+    const ageSex = [p.age ? fmtAgePdf(p.age, p.ageUnit) : '', p.sex || ''].filter(Boolean).join(' / ') || '-';
     const row2: string[] = [];
     if (L.showPhone && p.phone) row2.push(`Phone: ${fmtMobile(p.phone)}`);
     if (p.weight) row2.push(`Weight: ${p.weight} kg`);

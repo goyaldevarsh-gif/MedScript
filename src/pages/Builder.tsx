@@ -1,3 +1,5 @@
+import AgeInput from '../components/AgeInput';
+import { ageYears } from '../lib/age';
 import { ADVICE_CHIPS, shortAdvice } from '../data/advice';
 import { eduUrl } from '../data/eduMap';
 import { isOrtho } from '../lib/defaults';
@@ -182,7 +184,7 @@ function Builder() {
   });
   /* weight for the small paediatric dose hint under each medicine (only for children) */
   const kidKg = useMemo(() => {
-    const w = parseFloat((rx?.patient.weight || '').replace(/[^\d.]/g, '')); const a = rx?.patient.age ? (rx.patient.ageUnit === 'M' ? parseFloat(rx.patient.age) / 12 : parseFloat(rx.patient.age)) : NaN;
+    const w = parseFloat((rx?.patient.weight || '').replace(/[^\d.]/g, '')); const a = ageYears(rx?.patient.age, rx?.patient.ageUnit);
     return w > 0 && (isNaN(a) ? w <= 40 : a < 15) ? w : undefined;
   }, [rx?.patient.weight, rx?.patient.age, rx?.patient.ageUnit]);
   const allWarnings = useMemo(() => (rx ? checkRx(rx, { muted: settings?.ixMuted, custom: settings?.ixCustom }) : []), [rx, settings?.ixMuted, settings?.ixCustom]);
@@ -466,8 +468,7 @@ function PatientCard({ onTemplates, p, nextPid, readOnly, setPatient, onPick, on
         )}
         <Field label="Patient name *"><input className="field" value={p.name} onChange={(e) => setPatient({ name: e.target.value })} placeholder="Full name" autoComplete="off" /></Field>
         <div className="grid grid-cols-5 gap-2">
-          <Field label="Age" className="col-span-2"><div className="flex gap-1"><input type="number" min="0" className="field" value={p.age} onChange={(e) => setPatient({ age: e.target.value })} inputMode="numeric" />
-            <select className="field !w-16 !px-1" value={p.ageUnit} onChange={(e) => setPatient({ ageUnit: e.target.value as 'Y' | 'M' })}><option value="Y">Y</option><option value="M">M</option></select></div></Field>
+          <Field label="Age" className="col-span-2"><AgeInput age={p.age} unit={p.ageUnit} onChange={(v) => setPatient(v)} compact /></Field>
           <div className="col-span-3"><span className="lbl">Sex</span><div className="flex gap-1.5">{(['Male', 'Female', 'Other'] as const).map((s) => <Chip key={s} className="flex-1 !px-2" active={p.sex === s} onClick={() => setPatient({ sex: s })}>{s}</Chip>)}</div></div>
         </div>
         <div className="grid grid-cols-2 gap-2">

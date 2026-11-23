@@ -1,3 +1,4 @@
+import { ageYears } from './age';
 import type { IxCustom, Prescription, RxItem } from './types';
 import { AGE_RULES, CLASSES, COURSE_RULES, CTX_RULES, NSAID_GI, PREG_ASK, RULES } from '../data/interactions';
 import { affirmed } from './negation';
@@ -44,8 +45,8 @@ export function checkRx(rx: Prescription, opts: IxOpts = {}): Warning[] {
   const w: Warning[] = [];
   const p = rx.patient;
   const items = rx.items;
-  const ageYears = p.age ? (p.ageUnit === 'M' ? parseFloat(p.age) / 12 : parseFloat(p.age)) : NaN;
-  const adult = !isNaN(ageYears) && ageYears >= 18;
+  const ageYr = ageYears(p.age, p.ageUnit);
+  const adult = !isNaN(ageYr) && ageYr >= 18;
 
   // --- Patient completeness
   if (!p.name.trim()) w.push({ level: 'danger', req: true, text: 'Patient name is missing.' });
@@ -53,8 +54,8 @@ export function checkRx(rx: Prescription, opts: IxOpts = {}): Warning[] {
   if (!p.sex) w.push({ level: 'warn', req: true, text: 'Patient sex is missing.' });
   if (!p.phone) w.push({ level: 'info', text: 'Phone number not entered (needed for WhatsApp sharing).' });
   if (!p.allergies.trim()) w.push({ level: 'info', text: 'Allergy status not recorded. Tap "No known allergies" if applicable.' });
-  if (!isNaN(ageYears) && ageYears < 12 && !p.weight) w.push({ level: 'warn', text: 'Child patient: weight not entered. Verify weight-based dosing.' });
-  if (!isNaN(ageYears) && ageYears < 18) w.push({ level: 'info', text: 'Patient is under 18: automatic maximum-dose checks are skipped. Verify paediatric doses yourself.' });
+  if (!isNaN(ageYr) && ageYr < 12 && !p.weight) w.push({ level: 'warn', text: 'Child patient: weight not entered. Verify weight-based dosing.' });
+  if (!isNaN(ageYr) && ageYr < 18) w.push({ level: 'info', text: 'Patient is under 18: automatic maximum-dose checks are skipped. Verify paediatric doses yourself.' });
   if (!rx.clinical.diagnosis.trim()) w.push({ level: 'warn', req: true, text: 'Diagnosis is empty.' });
 
   // --- Allergies
@@ -190,7 +191,7 @@ function interactionWarnings(rx: Prescription, opts: IxOpts): Warning[] {
     const A = members(r.cls); if (!A.length) continue;
     out.push({ level: r.level, ruleId: r.id, text: `${r.lead || 'Patient has ' + r.condLabel}: ${list(A)}: ${r.text}` });
   }
-  const age = rx.patient.age ? (rx.patient.ageUnit === 'M' ? parseFloat(rx.patient.age) / 12 : parseFloat(rx.patient.age)) : NaN;
+  const age = ageYears(rx.patient.age, rx.patient.ageUnit);
   if (!isNaN(age)) for (const r of AGE_RULES) {
     if (muted.has(r.id) || (r.min !== undefined && age < r.min) || (r.max !== undefined && age >= r.max)) continue;
     const A = members(r.cls); if (!A.length) continue;

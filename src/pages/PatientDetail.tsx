@@ -1,3 +1,4 @@
+import { fmtAge } from '../lib/age';
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -47,7 +48,7 @@ export default function PatientDetail() {
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-navy text-xl font-extrabold text-white">{p.name.slice(0, 1).toUpperCase()}</div>
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-extrabold">{p.name}</h1>
-            <div className="text-sm font-medium text-slate-600">{p.pid} · {p.age}{p.age && p.ageUnit} · {p.sex || '—'}{p.phone && ` · ${p.phone}`}{p.weight && ` · ${p.weight} kg`}</div>
+            <div className="text-sm font-medium text-slate-600">{p.pid} · {fmtAge(p.age, p.ageUnit).toUpperCase()} · {p.sex || '—'}{p.phone && ` · ${p.phone}`}{p.weight && ` · ${p.weight} kg`}</div>
             {p.allergies && <div className="mt-1 text-sm font-bold text-danger">Allergies: {p.allergies}</div>}
           </div>
           <div className="flex flex-wrap gap-2">{settings?.ovEmail && rxs.length > 0 && <Btn variant="secondary" size="sm" disabled={sending} onClick={toOv}>{inOv ? <Check size={15} /> : <Send size={15} />} {sending ? 'Sending…' : inOv ? 'In OrthoVault · resend all' : 'To OrthoVault'}</Btn>}<Btn variant="secondary" size="sm" onClick={() => setEdit(true)}><Pencil size={15} /> Edit</Btn><Btn size="sm" onClick={() => nav(`/new?patient=${p.id}`)}><Plus size={15} /> New prescription</Btn></div>

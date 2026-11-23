@@ -1,3 +1,4 @@
+import { ageYears } from './age';
 import type { Patient } from './types';
 import { affirmed } from './negation';
 
@@ -19,7 +20,7 @@ const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 /** Pregnant / Breastfeeding only make sense for a woman of child-bearing age (age unknown: still shown). */
 export function showWomenChips(p: Pick<Patient, 'sex' | 'age' | 'ageUnit'>): boolean {
   if (p.sex !== 'Female') return false;
-  const a = p.age ? (p.ageUnit === 'M' ? parseFloat(p.age) / 12 : parseFloat(p.age)) : NaN;
+  const a = ageYears(p.age, p.ageUnit);
   return isNaN(a) || (a >= 12 && a <= 50);
 }
 export const chipActive = (value: string, c: CondChip) => c.re.test(affirmed(value || ''));

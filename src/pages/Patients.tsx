@@ -1,3 +1,4 @@
+import { fmtAge } from '../lib/age';
 import { useState } from 'react';
 import { findPatients } from '../lib/find';
 import { Link, useNavigate } from 'react-router-dom';
@@ -23,7 +24,7 @@ export default function Patients() {
         {f.map((p) => (
           <Link key={p.id} to={`/patients/${p.id}`} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3.5 hover:border-brand">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-navy text-sm font-extrabold text-white">{p.name.slice(0, 1).toUpperCase()}</div>
-            <div className="min-w-0 flex-1"><div className="truncate text-[15px] font-extrabold">{p.name}</div><div className="truncate text-xs text-slate-500">{p.pid} · {p.age}{p.age && p.ageUnit} · {p.sex || '—'}{p.phone && ` · ${p.phone}`} · {counts?.get(p.id) || 0} Rx · updated {fmtDate(p.updatedAt)}</div></div>
+            <div className="min-w-0 flex-1"><div className="truncate text-[15px] font-extrabold">{p.name}</div><div className="truncate text-xs text-slate-500">{p.pid} · {fmtAge(p.age, p.ageUnit).toUpperCase()} · {p.sex || '—'}{p.phone && ` · ${p.phone}`} · {counts?.get(p.id) || 0} Rx · updated {fmtDate(p.updatedAt)}</div></div>
             <Btn size="sm" variant="secondary" onClick={(e) => { e.preventDefault(); nav(`/new?patient=${p.id}`); }}>New Rx</Btn>
           </Link>
         ))}

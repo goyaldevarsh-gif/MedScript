@@ -1,3 +1,4 @@
+import { fmtAge } from '../lib/age';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
@@ -33,7 +34,7 @@ export default function OvInbox({ compact }: { compact?: boolean }) {
           <span key={it.id} className="inline-flex items-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <button onClick={() => start(it)} className="px-3 py-2 text-left active:bg-brand-50">
               <span className="block text-sm font-extrabold">{it.name}</span>
-              <span className="block text-[11px] font-medium text-slate-500">{[it.age && `${it.age}${it.ageUnit === 'M' ? 'm' : 'y'}`, it.sex, it.dx].filter(Boolean).join(' · ')}</span>
+              <span className="block text-[11px] font-medium text-slate-500">{[it.age && fmtAge(it.age, it.ageUnit), it.sex, it.dx].filter(Boolean).join(' · ')}</span>
             </button>
             <button aria-label="Remove" onClick={() => dropInbox(it.id, email).catch(() => {})} className="self-stretch border-l border-slate-100 px-2 text-slate-400 hover:text-red-600"><X size={14} /></button>
           </span>

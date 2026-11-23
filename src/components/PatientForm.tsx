@@ -1,3 +1,4 @@
+import AgeInput from './AgeInput';
 import { useState } from 'react';
 import type { Patient } from '../lib/types';
 import { Btn, Chip, Field, Modal } from './ui';
@@ -28,7 +29,7 @@ export default function PatientForm({ initial, onClose, onSaved }: { initial?: P
       <div className="space-y-3">
         <Field label="Patient name *"><input autoFocus className="field" value={p.name} onChange={(e) => set({ name: e.target.value })} /><E k="name" /></Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Age"><div className="flex gap-1"><input type="number" className="field" value={p.age} onChange={(e) => set({ age: e.target.value })} /><select className="field !w-16 !px-1" value={p.ageUnit} onChange={(e) => set({ ageUnit: e.target.value as any })}><option value="Y">Y</option><option value="M">M</option></select></div><E k="age" /></Field>
+          <Field label="Age"><AgeInput age={p.age} unit={p.ageUnit} onChange={(v) => set(v)} /><E k="age" /></Field>
           <div><span className="lbl">Sex</span><div className="flex gap-1.5">{(['Male', 'Female', 'Other'] as const).map((s) => <Chip key={s} className="flex-1 !px-2" active={p.sex === s} onClick={() => set({ sex: s })}>{s}</Chip>)}</div></div>
         </div>
         <div className="grid grid-cols-2 gap-3">

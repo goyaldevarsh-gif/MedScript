@@ -1,6 +1,7 @@
+import { fmtAge } from '../lib/age';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, useSettings } from '../lib/db';
 import { matchPatient, deskCleanup, deskMark, deskMsg, deskRemove, deskWatch, type DeskItem } from '../lib/desk';
@@ -37,13 +38,14 @@ export default function DeskQueue() {
               <span className="w-8 shrink-0 text-center text-xl font-extrabold text-teal">{i.token}</span>
               <span className="min-w-0">
                 <span className="flex items-center gap-1.5"><span className="truncate text-sm font-extrabold">{i.name}</span>{(k || i.followUp) && <span className={cx('shrink-0 rounded px-1.5 text-[10px] font-extrabold uppercase', k ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-800')}>{k ? `Follow-up · ${k.pid || 'saved'}` : 'Follow-up · record not found'}</span>}{i.toOv && <span className="shrink-0 rounded bg-violet-50 px-1.5 text-[10px] font-extrabold uppercase text-violet-700">to OrthoVault</span>}</span>
-                <span className="block truncate text-[11px] font-medium text-slate-500">{[i.age && `${i.age}${i.ageUnit === 'M' ? 'm' : 'y'}`, i.sex, i.reason, i.bp && `BP ${i.bp}`, i.sugar && `Sugar ${i.sugar}`].filter(Boolean).join(' · ')}</span>
+                <span className="block truncate text-[11px] font-medium text-slate-500">{[i.age && fmtAge(i.age, i.ageUnit), i.sex, i.reason, i.bp && `BP ${i.bp}`, i.sugar && `Sugar ${i.sugar}`].filter(Boolean).join(' · ')}</span>
               </span>
             </button>
+            <button aria-label="Mark seen" title="Seen (without opening a prescription)" onClick={() => deskMark(id, i.id, 'seen').catch(() => {})} className="flex items-center gap-1 border-l border-slate-100 px-2.5 text-xs font-extrabold text-emerald-700 hover:bg-emerald-50"><Check size={14} /> Seen</button>
             <button aria-label="Remove" onClick={() => deskRemove(id, i.id).catch(() => {})} className={cx('border-l border-slate-100 px-2 text-slate-400 hover:text-red-600')}><X size={14} /></button>
           </div>); })}
       </div>
-      {seen.length > 0 && <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-500">Seen today:{seen.map((i) => <button key={i.id} className="rounded-full border border-slate-200 bg-white px-2 py-0.5" title="Put back in the waiting list" onClick={() => deskMark(id, i.id, 'waiting').catch(() => {})}>{i.token} {i.name.split(' ')[0]} ↩</button>)}</div>}
+      {seen.length > 0 && <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-500"><span className="flex items-center gap-1 font-extrabold text-emerald-700"><Check size={12} /> Seen today ({seen.length}):</span>{seen.map((i) => <button key={i.id} className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-800" title="Put back in the waiting list" onClick={() => deskMark(id, i.id, 'waiting').catch(() => {})}>{i.token} {i.name.split(' ')[0]} ↩</button>)}</div>}
     </Card>
   );
 }

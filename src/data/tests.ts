@@ -1,3 +1,4 @@
+import { ageYears } from '../lib/age';
 import type { Clinical } from '../lib/types';
 import { norm } from '../lib/util';
 
@@ -227,7 +228,7 @@ export function testNotes(tests: string[], patient?: { sex?: string; age?: strin
   const out: string[] = []; const all = tests.join(' | ').toLowerCase();
   if (/\bmri\b/.test(all)) out.push('MRI: ask about a pacemaker, cochlear implant or metal fragments.');
   if (/contrast/.test(all)) out.push('Contrast scan: check serum creatinine and any contrast allergy.');
-  const a = patient?.age ? (patient.ageUnit === 'M' ? parseFloat(patient.age) / 12 : parseFloat(patient.age)) : NaN;
+  const a = ageYears(patient?.age, patient?.ageUnit);
   const woman = patient?.sex === 'Female' && (isNaN(a) || (a >= 12 && a <= 50));
   if (woman && /(^|\| )ct\b|x-ray (ls|lumbar|thoracic|pelvis|[a-z ]*hip|abdom)/.test(all)) out.push('Woman of child-bearing age: ask about pregnancy before a CT or an X-ray of the spine / pelvis.');
   if (/fasting/.test(all)) out.push('Fasting blood sugar needs 8 hours without food.');

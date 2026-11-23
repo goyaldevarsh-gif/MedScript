@@ -1,3 +1,5 @@
+import Copyright from '../components/Copyright';
+import { fmtAge } from '../lib/age';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Plus, Users, Pill, Layers, Clock, AlertTriangle } from 'lucide-react';
@@ -61,7 +63,7 @@ export default function Dashboard() {
           <SectionTitle icon={<Users size={16} />} title="Recent patients" link={{ to: '/patients', label: 'All patients' }} />
           <div className="space-y-2">{patients.map((p) => (
             <Link key={p.id} to={`/patients/${p.id}`} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 hover:border-brand">
-              <div><div className="text-[15px] font-extrabold">{p.name}</div><div className="text-xs text-slate-500">{p.age}{p.age && p.ageUnit} · {p.sex || '—'} · {p.pid}</div></div>
+              <div><div className="text-[15px] font-extrabold">{p.name}</div><div className="text-xs text-slate-500">{fmtAge(p.age, p.ageUnit).toUpperCase()} · {p.sex || '—'} · {p.pid}</div></div>
               <button className="rounded-lg bg-brand-50 px-3 py-1.5 text-xs font-bold text-brand" onClick={(e) => { e.preventDefault(); nav(`/new?patient=${p.id}`); }}>New Rx</button>
             </Link>))}
             {!patients.length && <Empty title="No patients yet" text="Patients are saved automatically with their first prescription." />}</div>
@@ -93,6 +95,7 @@ export default function Dashboard() {
       {(finals > 0 && (daysSinceBackup === null || daysSinceBackup > 7)) && (
         <Link to="/settings?tab=backup" className="block rounded-xl bg-slate-100 px-4 py-2.5 text-center text-xs font-bold text-slate-700">Your data lives on this device. {daysSinceBackup === null ? 'You have never taken a backup.' : `Last backup ${daysSinceBackup} days ago.`} Back up now →</Link>
       )}
+      <Copyright />
     </div>
   );
 }

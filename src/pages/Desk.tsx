@@ -1,3 +1,6 @@
+import Copyright from '../components/Copyright';
+import AgeInput from '../components/AgeInput';
+import { ageYears, fmtAge } from '../lib/age';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Clock, Hourglass, ListChecks, Repeat, Search, Trash2, UserPlus, Users, X } from 'lucide-react';
@@ -49,7 +52,7 @@ export default function Desk() {
   async function save() {
     const e: string[] = [];
     if (!f.name.trim()) e.push('Name needed');
-    if (f.age && (isNaN(Number(f.age)) || Number(f.age) < 0 || Number(f.age) > 120)) e.push('Check age');
+    if (f.age && !(ageYears(f.age, f.ageUnit) >= 0 && ageYears(f.age, f.ageUnit) <= 120)) e.push('Check age');
     if (f.phone && f.phone.replace(/\D/g, '').length < 10) e.push('Mobile: 10 digits');
     if (f.weight && (isNaN(Number(f.weight)) || Number(f.weight) <= 0)) e.push('Check weight');
     if (e.length) { setErr(e.join('. ')); return; }
@@ -71,7 +74,7 @@ export default function Desk() {
     ['Waiting', waiting.length, Hourglass, 'bg-sky-50 border-sky-200', 'bg-sky-100 text-sky-700'],
     ['Follow-ups', fuCount, Repeat, 'bg-violet-50 border-violet-200', 'bg-violet-100 text-violet-700'],
   ];
-  const sub = (r: DirRow) => [r.a && `${r.a}${r.u === 'M' ? 'm' : 'y'}`, r.s, r.p && `•••• ${r.p.slice(-4)}`].filter(Boolean).join(' · ');
+  const sub = (r: DirRow) => [r.a && fmtAge(r.a, r.u), r.s, r.p && `•••• ${r.p.slice(-4)}`].filter(Boolean).join(' · ');
   return (
     <div className="flex min-h-full bg-slate-100">
       {/* ---------- dark rail ---------- */}
@@ -88,6 +91,7 @@ export default function Desk() {
           <button type="button" onClick={() => setTab('a')} className={cx('flex w-full items-center justify-between rounded-lg px-3 py-2.5', tab === 'a' ? 'bg-white/15' : 'text-white/70 hover:bg-white/10')}>All today <span>{list.length}</span></button>
         </div>
         <div className="mt-auto rounded-xl bg-white/10 p-3 text-sm"><div className="flex items-center gap-2 font-extrabold"><Clock size={16} /> {clock}</div><div className="mt-1 flex items-center gap-2 text-xs font-semibold text-white/70"><span className={cx('h-2 w-2 rounded-full', lerr ? 'bg-amber-400' : 'bg-emerald-400')} /> {lerr ? 'Offline' : 'Live'}</div></div>
+      <div className="mt-auto pt-6 text-center text-[10px] font-semibold leading-snug text-white/40">© {new Date().getFullYear()} OrthoVault<br />Dr. Devarsh Goyal<br />All rights reserved</div>
       </aside>
 
       <main className="min-w-0 flex-1 p-4 sm:p-6">
@@ -120,14 +124,14 @@ export default function Desk() {
             {rows.length > 0 && <div className="hidden grid-cols-[3.5rem_1fr_6rem_6.5rem_5.5rem_6rem_2.5rem] gap-2 bg-slate-50 px-4 py-2 text-xs font-extrabold uppercase text-slate-500 md:grid"><span>Token</span><span>Patient</span><span>Age / Sex</span><span>Visit</span><span>Time</span><span>Status</span><span /></div>}
             <div className="divide-y divide-slate-100">
               {rows.map((it, ix) => { const m = mins(it.createdAt, now); const seen = it.status === 'seen'; return (
-                <div key={it.id} className={cx('grid grid-cols-[3.5rem_1fr_auto] items-center gap-2 px-4 py-3 md:grid-cols-[3.5rem_1fr_6rem_6.5rem_5.5rem_6rem_2.5rem]', !seen && ix === 0 && tab === 'w' && 'bg-teal-50/60')}>
+                <div key={it.id} className={cx('grid grid-cols-[3.5rem_1fr_auto] items-center gap-2 px-4 py-3 md:grid-cols-[3.5rem_1fr_6rem_6.5rem_5.5rem_6rem_2.5rem]', !seen && ix === 0 && tab === 'w' && 'bg-teal-50/60', seen && 'bg-emerald-50/50')}>
                   <span className="flex h-9 w-12 items-center justify-center rounded-lg border border-teal/40 bg-teal-50 text-lg font-extrabold text-teal-700">{it.token}</span>
                   <div className="min-w-0"><div className="flex items-center gap-2"><span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy/10 text-xs font-extrabold text-navy sm:flex">{initials(it.name)}</span><span className="truncate text-base font-extrabold">{it.name}</span>{it.toOv && <span className="rounded bg-violet-50 px-1.5 text-[10px] font-extrabold uppercase text-violet-700">OrthoVault</span>}</div>
                     <div className="truncate text-xs text-slate-500 md:pl-10">{it.reason || '-'}</div></div>
-                  <span className="hidden text-sm font-semibold text-slate-700 md:block">{[it.age && `${it.age}${it.ageUnit === 'M' ? 'm' : 'y'}`, it.sex && it.sex[0]].filter(Boolean).join(' / ') || '-'}</span>
+                  <span className="hidden text-sm font-semibold text-slate-700 md:block">{[it.age && fmtAge(it.age, it.ageUnit), it.sex && it.sex[0]].filter(Boolean).join(' / ') || '-'}</span>
                   <span className="hidden md:block">{it.followUp ? <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-extrabold text-violet-700"><Repeat size={12} /> Follow-up</span> : <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-extrabold text-emerald-700"><UserPlus size={12} /> New</span>}</span>
                   <span className="hidden text-sm font-semibold text-slate-600 md:block">{new Date(it.createdAt).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })}</span>
-                  <span className={cx('justify-self-end rounded-full px-2.5 py-1 text-xs font-extrabold md:justify-self-start', seen ? 'bg-slate-100 text-slate-500' : hue(m))}>{seen ? 'Seen' : ago(it.createdAt, now)}</span>
+                  <span className={cx('justify-self-end rounded-full px-2.5 py-1 text-xs font-extrabold md:justify-self-start', seen ? 'bg-emerald-100 text-emerald-800' : hue(m))}>{seen ? '✓ Seen' : ago(it.createdAt, now)}</span>
                   <button aria-label="Remove" title="Remove" className="hidden justify-self-end rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 md:block" onClick={() => deskRemove(id, it.id).catch((e) => setLerr(deskMsg(e)))}><Trash2 size={17} /></button>
                 </div>); })}
             </div>
@@ -152,6 +156,7 @@ export default function Desk() {
             </div>
           </section>
         </div>
+      <Copyright />
       </main>
 
       {/* ---------- check-in drawer ---------- */}
@@ -170,7 +175,7 @@ export default function Desk() {
                 {known && <span className="mt-1 block text-xs font-bold text-blue-700">✓ Found · {fmt(known.d)}</span>}</label>
             </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <label className="block"><span className="lbl">Age</span><div className="flex gap-1"><input className="field min-w-0" type="number" inputMode="numeric" value={f.age} onChange={(e) => set({ age: e.target.value })} /><select className="field !w-14 shrink-0 !px-1" value={f.ageUnit} onChange={(e) => set({ ageUnit: e.target.value as 'Y' | 'M' })}><option value="Y">Y</option><option value="M">M</option></select></div></label>
+                <div className="block"><span className="lbl">Age</span><AgeInput age={f.age} unit={f.ageUnit} onChange={(v) => set(v)} compact /></div>
                 <label className="block"><span className="lbl">Weight (kg)</span><input className="field" type="number" inputMode="decimal" value={f.weight} onChange={(e) => set({ weight: e.target.value })} /></label>
                 <div className="col-span-2"><span className="lbl">Sex</span><div className="flex gap-1.5">{['Male', 'Female', 'Other'].map((s) => <button key={s} type="button" onClick={() => set({ sex: f.sex === s ? '' : s })} className={cx('flex-1 rounded-lg border px-2 py-2.5 text-sm font-bold', f.sex === s ? 'border-teal bg-teal text-white' : 'border-slate-300 bg-white text-slate-700')}>{s}</button>)}</div></div>
               </div>
