@@ -58,3 +58,19 @@ describe('what OrthoVault receives', () => {
     expect(ccText({ patient: { allergies: '' }, clinical: { complaint: 'Back pain', examination: '', investigations: '' } } as never)).toBe('Back pain');
   });
 });
+
+import { keyHash, nameKey, phoneKey } from '../src/lib/desk';
+describe('reception "seen before" lookup stores no readable patient data', () => {
+  it('phone and name keys ignore formatting and word order', () => {
+    expect(phoneKey('+91 98765-00001')).toBe('9876500001'); expect(phoneKey('12345')).toBe('');
+    expect(nameKey('Kumar  RAM.')).toBe(nameKey('ram kumar'));
+  });
+  it('hashes are fixed-length, salted per desk and do not contain the data', async () => {
+    const a = await keyHash('desk-aaaaaaaaaaaaaaaaaaaa', 'p', '9876500001'), b = await keyHash('desk-bbbbbbbbbbbbbbbbbbbb', 'p', '9876500001');
+    expect(a).toMatch(/^[0-9a-f]{64}$/); expect(a).not.toBe(b); expect(a).not.toContain('98765'); expect(await keyHash('desk-aaaaaaaaaaaaaaaaaaaa', 'p', '9876500001')).toBe(a);
+  });
+  it('rules let the desk read one entry by id but never list them', () => {
+    const k = DESK_RULES.slice(DESK_RULES.indexOf('/known/')); const block = k.slice(0, k.indexOf('match /desks/{deskId}/counters'));
+    expect(block).toMatch(/allow get/); expect(block).not.toMatch(/allow read|allow list/); expect(block).toMatch(/hasOnly\(\['at'\]\)/);
+  });
+});

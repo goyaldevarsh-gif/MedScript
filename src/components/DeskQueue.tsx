@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, useSettings } from '../lib/db';
-import { matchPatient, deskCleanup, deskMark, deskMsg, deskRemove, deskWatch, type DeskItem } from '../lib/desk';
+import { deskDay, deskSyncKnown, matchPatient, deskCleanup, deskMark, deskMsg, deskRemove, deskWatch, type DeskItem } from '../lib/desk';
 import { enc } from '../lib/orthovault';
 import { cx } from '../lib/util';
 import { Card } from './ui';
@@ -12,6 +12,12 @@ import { Card } from './ui';
 export default function DeskQueue() {
   const s = useSettings(); const nav = useNavigate(); const id = s?.deskId || '';
   const pats = useLiveQuery(() => db.patients.toArray(), []) || [];
+  const rows = useLiveQuery(async () => {
+    const last = new Map<string, string>();
+    (await db.prescriptions.toArray()).forEach((r) => { if (r.status !== 'final') return; const d = deskDay(new Date(r.authorizedAt || r.updatedAt)); if (d > (last.get(r.patientId) || '')) last.set(r.patientId, d); });
+    return (await db.patients.toArray()).filter((p) => last.has(p.id)).map((p) => ({ name: p.name, phone: p.phone, at: last.get(p.id)! }));
+  }, []);
+  useEffect(() => { if (id && rows) deskSyncKnown(id, rows).catch(() => {}); }, [id, rows]);
   const [items, setItems] = useState<DeskItem[]>([]); const [err, setErr] = useState('');
   useEffect(() => {
     if (!id) { setItems([]); return; }

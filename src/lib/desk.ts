@@ -18,6 +18,12 @@ export const DESK_RULES = `match /desks/{deskId}/queue/{doc} {
   allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
     && request.resource.data.status in ['waiting','seen'];
 }
+match /desks/{deskId}/known/{h} {
+  allow get, delete: if deskId.size() >= 20;
+  allow create, update: if deskId.size() >= 20 && h.size() == 64
+    && request.resource.data.keys().hasOnly(['at'])
+    && request.resource.data.at is string && request.resource.data.at.size() <= 10;
+}
 match /desks/{deskId}/counters/{day} {
   allow read: if deskId.size() >= 20;
   allow write: if deskId.size() >= 20
@@ -66,6 +72,45 @@ function load() {
     return { fs, F };
   })();
   return boot;
+}
+/* "Has this patient come before?" for the reception, without showing it any patient data. The doctor's app stores only SHA-256 hashes (salted with the secret desk id)
+   of each saved patient's mobile and full name, plus the date of the last visit. The desk hashes what it was typed and asks for that one entry: it can learn only
+   "seen before, last on <date>". It cannot list, read names, or see any history. Needs get-only access: the rule above never allows listing. */
+const hex = async (t: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t))), (x) => x.toString(16).padStart(2, '0')).join('');
+export const phoneKey = (p: string) => { const d = d10(p); return d.length === 10 ? d : ''; };
+export const nameKey = (n: string) => nm(n).split(' ').filter(Boolean).sort().join(' ');
+export const keyHash = (id: string, kind: 'p' | 'n', v: string) => hex(`${id}|${kind}|${v}`);
+export interface Seen { phone?: string; name?: string }
+/** at = day of last visit (yyyy-mm-dd) when found */
+export async function deskKnown(id: string, q: { phone: string; name: string }): Promise<Seen> {
+  if (!ok(id)) return {};
+  const { fs, F } = await load(); const out: Seen = {};
+  const get = async (kind: 'p' | 'n', v: string) => { const s = await F.getDoc(F.doc(fs, 'desks', id, 'known', await keyHash(id, kind, v))); return s.exists() ? String(s.data().at || '') || '-' : undefined; };
+  const pk = phoneKey(q.phone), nk = nameKey(q.name);
+  if (pk) out.phone = await get('p', pk);
+  if (nk.length >= 3 && nk.includes(' ') || nk.length >= 6) out.name = await get('n', nk);
+  return out;
+}
+/** doctor's app: keeps the hashed index up to date (only changed entries are written) */
+export async function deskSyncKnown(id: string, rows: { name: string; phone: string; at: string }[]) {
+  if (!ok(id)) return;
+  const KEY = `ms-desk-known:${id}`; let done: Record<string, string> = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { /* start fresh */ }
+  const todo: [string, string][] = [];
+  for (const r of rows) {
+    for (const [kind, v] of [['p', phoneKey(r.phone)], ['n', nameKey(r.name)]] as const) {
+      if (!v) continue; const h = await keyHash(id, kind, v);
+      if (done[h] !== r.at) todo.push([h, r.at]);
+    }
+  }
+  if (!todo.length) return;
+  const { fs, F } = await load();
+  for (let i = 0; i < todo.length; i += 400) {
+    const b = F.writeBatch(fs); const part = todo.slice(i, i + 400);
+    part.forEach(([h, at]) => b.set(F.doc(fs, 'desks', id, 'known', h), { at }));
+    await b.commit(); part.forEach(([h, at]) => { done[h] = at; });
+    try { localStorage.setItem(KEY, JSON.stringify(done)); } catch { /* ignore */ }
+  }
 }
 const ok = (id: string) => /^[a-z0-9]{20,40}$/.test(id);
 
