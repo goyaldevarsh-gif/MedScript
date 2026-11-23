@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowLeft, Pencil, Plus, Trash2, Copy } from 'lucide-react';
-import { db, duplicateRx } from '../lib/db';
+import { ArrowLeft, Pencil, Plus, Trash2, Copy, Send, Check } from 'lucide-react';
+import { db, duplicateRx, useSettings } from '../lib/db';
+import { markSent, ovMsg, sendRx, wasSent } from '../lib/ovcloud';
 import { Btn, Card, Empty, useToast } from '../components/ui';
 import PatientForm from '../components/PatientForm';
 import RxRow from '../components/RxRow';
@@ -13,7 +14,19 @@ export default function PatientDetail() {
   const toast = useToast();
   const p = useLiveQuery(() => db.patients.get(id!), [id]);
   const rxs = useLiveQuery(() => db.prescriptions.where('patientId').equals(id!).toArray().then((a) => a.sort((x, y) => (y.authorizedAt || y.updatedAt) - (x.authorizedAt || x.updatedAt))), [id]) || [];
+  const settings = useSettings();
   const [edit, setEdit] = useState(false);
+  const [, bump] = useState(0);
+  const [sending, setSending] = useState(false);
+  const inOv = rxs.some((r) => wasSent(r.id));
+  async function toOv() {
+    const r = rxs.find((x) => x.status === 'final') || rxs[0];
+    if (!r || !settings?.ovEmail) return;
+    setSending(true);
+    try { await sendRx({ ...r, patient: { ...r.patient, name: p!.name, age: p!.age, ageUnit: p!.ageUnit, sex: p!.sex, phone: p!.phone, weight: p!.weight } }, settings.ovEmail); markSent(r.id); bump((n) => n + 1); toast('Sent to OrthoVault'); }
+    catch (e) { toast(ovMsg(e), { tone: 'err' }); }
+    setSending(false);
+  }
   if (p === undefined) return null;
   if (!p) return <div className="p-8 text-center text-slate-600">Patient not found. <Link to="/patients" className="font-bold text-brand">Back to patients</Link></div>;
   const finals = rxs.filter((r) => r.status === 'final').length;
@@ -33,7 +46,7 @@ export default function PatientDetail() {
             <div className="text-sm font-medium text-slate-600">{p.pid} · {p.age}{p.age && p.ageUnit} · {p.sex || '—'}{p.phone && ` · ${p.phone}`}{p.weight && ` · ${p.weight} kg`}</div>
             {p.allergies && <div className="mt-1 text-sm font-bold text-danger">Allergies: {p.allergies}</div>}
           </div>
-          <div className="flex gap-2"><Btn variant="secondary" size="sm" onClick={() => setEdit(true)}><Pencil size={15} /> Edit</Btn><Btn size="sm" onClick={() => nav(`/new?patient=${p.id}`)}><Plus size={15} /> New prescription</Btn></div>
+          <div className="flex flex-wrap gap-2">{settings?.ovEmail && rxs.length > 0 && <Btn variant="secondary" size="sm" disabled={sending} onClick={toOv}>{inOv ? <Check size={15} /> : <Send size={15} />} {sending ? 'Sending…' : inOv ? 'In OrthoVault · send again' : 'To OrthoVault'}</Btn>}<Btn variant="secondary" size="sm" onClick={() => setEdit(true)}><Pencil size={15} /> Edit</Btn><Btn size="sm" onClick={() => nav(`/new?patient=${p.id}`)}><Plus size={15} /> New prescription</Btn></div>
         </div>
       </Card>
       <div>
