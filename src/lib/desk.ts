@@ -18,11 +18,11 @@ export const DESK_RULES = `match /desks/{deskId}/queue/{doc} {
   allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
     && request.resource.data.status in ['waiting','seen'];
 }
-match /desks/{deskId}/known/{h} {
-  allow get, delete: if deskId.size() >= 20;
-  allow create, update: if deskId.size() >= 20 && h.size() == 64
-    && request.resource.data.keys().hasOnly(['at'])
-    && request.resource.data.at is string && request.resource.data.at.size() <= 10;
+match /desks/{deskId}/directory/{part} {
+  allow read, delete: if deskId.size() >= 20;
+  allow create, update: if deskId.size() >= 20
+    && request.resource.data.keys().hasOnly(['c'])
+    && request.resource.data.c is string && request.resource.data.c.size() < 900000;
 }
 match /desks/{deskId}/counters/{day} {
   allow read: if deskId.size() >= 20;
@@ -32,7 +32,7 @@ match /desks/{deskId}/counters/{day} {
 }`;
 
 export const newDeskId = () => { const a = new Uint8Array(18); crypto.getRandomValues(a); return Array.from(a, (x) => x.toString(36).padStart(2, '0')).join('').slice(0, 28); };
-export const deskLink = (id: string) => `${location.origin}${location.pathname}#/desk?d=${id}`;
+export const deskLink = (id: string, k = '') => `${location.origin}${location.pathname}#/desk?d=${id}${k ? '&k=' + k : ''}`;
 const d10 = (x?: string) => (x || '').replace(/\D/g, '').slice(-10);
 const nm = (x?: string) => (x || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 interface Who { name: string; phone?: string; age?: string; sex?: string }
@@ -73,52 +73,65 @@ function load() {
   })();
   return boot;
 }
-/* "Has this patient come before?" for the reception, without showing it any patient data. The doctor's app stores only SHA-256 hashes (salted with the secret desk id)
-   of each saved patient's mobile and full name, plus the date of the last visit. The desk hashes what it was typed and asks for that one entry: it can learn only
-   "seen before, last on <date>". It cannot list, read names, or see any history. Needs get-only access: the rule above never allows listing. */
-const hex = async (t: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t))), (x) => x.toString(16).padStart(2, '0')).join('');
-export const phoneKey = (p: string) => { const d = d10(p); return d.length === 10 ? d : ''; };
-export const nameKey = (n: string) => nm(n).split(' ').filter(Boolean).sort().join(' ');
-export const nameTokens = (n: string) => [...new Set(nm(n).split(' ').filter((t) => t.length >= 3))].slice(0, 4);
-export const keyHash = (id: string, kind: 'p' | 'n' | 't', v: string) => hex(`${id}|${kind}|${v}`);
-export interface Seen { phone?: string; name?: string }
-/** at = day of last visit (yyyy-mm-dd) when found */
-export async function deskKnown(id: string, q: { phone: string; name: string }): Promise<Seen> {
-  if (!ok(id)) return {};
-  const { fs, F } = await load(); const out: Seen = {};
-  const get = async (kind: 'p' | 'n' | 't', v: string) => { const s = await F.getDoc(F.doc(fs, 'desks', id, 'known', await keyHash(id, kind, v))); return s.exists() ? String(s.data().at || '') || '-' : undefined; };
-  const pk = phoneKey(q.phone), nk = nameKey(q.name);
-  if (pk) out.phone = await get('p', pk);
-  if (nk.length >= 2) {
-    out.name = await get('n', nk);                                                   // the whole name
-    if (!out.name) for (const t of nameTokens(q.name).slice(0, 3)) { out.name = await get('t', t); if (out.name) break; } // or any one word of it (first name, surname)
+/* Patient directory for the reception desk, so that typing 2-3 letters or digits shows suggestions.
+   The doctor's app encrypts it (AES-256-GCM) with a key that lives only in the desk link's "#..." part, which browsers never send to any server.
+   The cloud stores unreadable text; the desk opens it in the browser and searches locally. Only name, mobile, age, sex and last visit day are in it:
+   no allergies, diagnosis, prescriptions or notes. */
+export interface DirRow { n: string; p: string; a: string; u: string; s: string; d: string }
+const toB64 = (u: Uint8Array) => { let t = ''; for (let i = 0; i < u.length; i += 8192) t += String.fromCharCode(...u.subarray(i, i + 8192)); return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const fromB64 = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
+export const newDeskKey = () => toB64(crypto.getRandomValues(new Uint8Array(32)));
+export const validKey = (k: string) => /^[A-Za-z0-9_-]{43}$/.test(k);
+const aes = (k: string) => crypto.subtle.importKey('raw', fromB64(k), 'AES-GCM', false, ['encrypt', 'decrypt']);
+const PART = 1500;
+export async function sealDir(k: string, rows: DirRow[]): Promise<string[]> {
+  const key = await aes(k); const out: string[] = [];
+  for (let i = 0; i < Math.max(rows.length, 1); i += PART) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(rows.slice(i, i + PART)))));
+    const all = new Uint8Array(12 + ct.length); all.set(iv); all.set(ct, 12); out.push(toB64(all));
   }
   return out;
 }
-/** doctor's app: keeps the hashed index up to date (only changed entries are written) */
-export async function deskSyncKnown(id: string, rows: { name: string; phone: string; at: string }[]): Promise<{ total: number; written: number }> {
-  if (!ok(id)) return { total: 0, written: 0 };
-  const KEY = `ms-desk-known2:${id}`; let done: Record<string, string> = {};
-  try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { /* start fresh */ }
-  const want = new Map<string, string>(); // hash -> latest visit day
-  const add = (h: string, at: string) => { if (at > (want.get(h) || '')) want.set(h, at); };
-  for (const r of rows) {
-    const pk = phoneKey(r.phone), nk = nameKey(r.name);
-    if (pk) add(await keyHash(id, 'p', pk), r.at);
-    if (nk) add(await keyHash(id, 'n', nk), r.at);
-    for (const t of nameTokens(r.name)) add(await keyHash(id, 't', t), r.at);
-  }
-  const todo = [...want].filter(([h, at]) => done[h] !== at);
-  if (!todo.length) return { total: rows.length, written: 0 };
-  const { fs, F } = await load();
-  for (let i = 0; i < todo.length; i += 400) {
-    const b = F.writeBatch(fs); const part = todo.slice(i, i + 400);
-    part.forEach(([h, at]) => b.set(F.doc(fs, 'desks', id, 'known', h), { at }));
-    await b.commit(); part.forEach(([h, at]) => { done[h] = at; });
-    try { localStorage.setItem(KEY, JSON.stringify(done)); } catch { /* ignore */ }
-  }
-  return { total: rows.length, written: todo.length };
+export async function openDir(k: string, parts: string[]): Promise<DirRow[]> {
+  const key = await aes(k); const rows: DirRow[] = [];
+  for (const p of parts) { const b = fromB64(p); rows.push(...(JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b.slice(0, 12) }, key, b.slice(12)))) as DirRow[])); }
+  return rows;
 }
+/** typing part of a name (any word) or part of a mobile number gives suggestions; 2 characters are enough. Best matches first. */
+export function suggest(rows: DirRow[], q: string, max = 8): DirRow[] {
+  const words = nm(q).split(' ').filter((w) => /[a-z]/.test(w)); const dg = (q.match(/\d/g) || []).join('');
+  if (words.join('').length < 2 && dg.length < 2) return [];
+  const sc = (r: DirRow) => {
+    const n = nm(r.n), toks = n.split(' ');
+    if (words.length && !words.every((w) => toks.some((t) => t.startsWith(w)))) return 0;
+    if (dg.length >= 2 && !r.p.includes(dg)) return 0;
+    return 1 + (words.length && n.startsWith(words[0]) ? 2 : 0) + (dg.length >= 2 && r.p.startsWith(dg) ? 2 : 0) + (dg.length === 10 ? 4 : 0);
+  };
+  return rows.map((r) => [r, sc(r)] as const).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1] || a[0].n.localeCompare(b[0].n)).slice(0, max).map(([r]) => r);
+}
+/** the desk: live, decrypted list of the doctor's patients (read only) */
+export async function deskDirWatch(id: string, k: string, cb: (r: DirRow[]) => void, onErr?: (e: unknown) => void): Promise<() => void> {
+  if (!ok(id) || !validKey(k)) { onErr?.(new Error('This desk link is not valid.')); return () => {}; }
+  const { fs, F } = await load();
+  return F.onSnapshot(F.collection(fs, 'desks', id, 'directory'), async (snap) => {
+    try { const parts = snap.docs.sort((a, b) => Number(a.id.slice(1)) - Number(b.id.slice(1))).map((d) => String(d.data().c || '')).filter(Boolean); cb(parts.length ? await openDir(k, parts) : []); }
+    catch (e) { onErr?.(e); }
+  }, (e) => onErr?.(e));
+}
+/** the doctor's app: publishes the directory (only when it changed) */
+export async function deskDirSync(id: string, k: string, rows: DirRow[]): Promise<{ total: number; written: boolean }> {
+  if (!ok(id) || !validKey(k)) return { total: 0, written: false };
+  const sig = toB64(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(rows))))); const KEY = `ms-desk-dir:${id}`;
+  if (localStorage.getItem(KEY) === sig) return { total: rows.length, written: false };
+  const parts = await sealDir(k, rows); const { fs, F } = await load();
+  const b = F.writeBatch(fs); parts.forEach((c, i) => b.set(F.doc(fs, 'desks', id, 'directory', 'p' + i), { c }));
+  (await F.getDocs(F.collection(fs, 'desks', id, 'directory'))).docs.forEach((d) => { if (Number(d.id.slice(1)) >= parts.length) b.delete(d.ref); });
+  await b.commit(); try { localStorage.setItem(KEY, sig); } catch { /* ignore */ }
+  return { total: rows.length, written: true };
+}
+/** removes the published directory (new link / desk turned off) */
+export async function deskWipe(id: string) { try { if (!ok(id)) return; const { fs, F } = await load(); await Promise.all((await F.getDocs(F.collection(fs, 'desks', id, 'directory'))).docs.map((d) => F.deleteDoc(d.ref))); localStorage.removeItem(`ms-desk-dir:${id}`); } catch { /* best effort */ } }
 const ok = (id: string) => /^[a-z0-9]{20,40}$/.test(id);
 
 /** adds the patient to today's list and returns the token number (1, 2, 3... restarting each day) */

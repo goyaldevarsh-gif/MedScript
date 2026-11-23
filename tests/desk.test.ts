@@ -59,25 +59,28 @@ describe('what OrthoVault receives', () => {
   });
 });
 
-import { keyHash, nameKey, phoneKey } from '../src/lib/desk';
-describe('reception "seen before" lookup stores no readable patient data', () => {
-  it('phone and name keys ignore formatting and word order', () => {
-    expect(phoneKey('+91 98765-00001')).toBe('9876500001'); expect(phoneKey('12345')).toBe('');
-    expect(nameKey('Kumar  RAM.')).toBe(nameKey('ram kumar'));
+import { newDeskKey, openDir, sealDir, suggest, validKey, type DirRow } from '../src/lib/desk';
+const R = (n: string, p: string, d = '2026-11-01'): DirRow => ({ n, p, a: '40', u: 'Y', s: 'Male', d });
+describe('reception directory: encrypted, searchable by 2-3 characters', () => {
+  const rows = [R('Ram Kumar Sharma', '9876500001'), R('Ramesh Gupta', '9812345678'), R('Sita Devi', '9000011111'), R('Kamla Devi', '9876511111'), R('Ravi', '')];
+  it('2 letters or 2 digits already suggest; any word of the name counts', () => {
+    expect(suggest(rows, 'ra').map((r) => r.n)).toEqual(['Ram Kumar Sharma', 'Ramesh Gupta', 'Ravi']);
+    expect(suggest(rows, 'dev').map((r) => r.n).sort()).toEqual(['Kamla Devi', 'Sita Devi']); expect(suggest(rows, 'kumar')).toHaveLength(1);
+    expect(suggest(rows, '98').map((r) => r.n)).toEqual(['Kamla Devi', 'Ram Kumar Sharma', 'Ramesh Gupta']); expect(suggest(rows, '9876500001')).toHaveLength(1);
   });
-  it('hashes are fixed-length, salted per desk and do not contain the data', async () => {
-    const a = await keyHash('desk-aaaaaaaaaaaaaaaaaaaa', 'p', '9876500001'), b = await keyHash('desk-bbbbbbbbbbbbbbbbbbbb', 'p', '9876500001');
-    expect(a).toMatch(/^[0-9a-f]{64}$/); expect(a).not.toBe(b); expect(a).not.toContain('98765'); expect(await keyHash('desk-aaaaaaaaaaaaaaaaaaaa', 'p', '9876500001')).toBe(a);
+  it('one character, nothing typed or no match gives nothing; name + digits must both fit', () => {
+    expect(suggest(rows, 'r')).toEqual([]); expect(suggest(rows, '')).toEqual([]); expect(suggest(rows, 'zz')).toEqual([]);
+    expect(suggest(rows, 'ram 0001').map((r) => r.n)).toEqual(['Ram Kumar Sharma']); expect(suggest(rows, 'sita 5678')).toEqual([]);
   });
-  it('rules let the desk read one entry by id but never list them', () => {
-    const k = DESK_RULES.slice(DESK_RULES.indexOf('/known/')); const block = k.slice(0, k.indexOf('match /desks/{deskId}/counters'));
-    expect(block).toMatch(/allow get/); expect(block).not.toMatch(/allow read|allow list/); expect(block).toMatch(/hasOnly\(\['at'\]\)/);
+  it('is unreadable without the key, round-trips with it, and splits big lists into parts', async () => {
+    const k = newDeskKey(), other = newDeskKey(); expect(validKey(k)).toBe(true); expect(validKey('short')).toBe(false);
+    const parts = await sealDir(k, rows); expect(parts).toHaveLength(1); expect(parts[0]).not.toContain('Sharma');
+    expect(await openDir(k, parts)).toEqual(rows); await expect(openDir(other, parts)).rejects.toBeTruthy();
+    const many = Array.from({ length: 3200 }, (_, i) => R('Patient ' + i, String(9000000000 + i))); const bp = await sealDir(k, many);
+    expect(bp).toHaveLength(3); expect((await openDir(k, bp)).length).toBe(3200);
   });
-});
-
-import { nameTokens } from '../src/lib/desk';
-describe('name search words', () => {
-  it('any one word of the name can be searched, short words ignored', () => {
-    expect(nameTokens('Ram Kumar Sharma')).toEqual(['ram', 'kumar', 'sharma']); expect(nameTokens('Ravi  K.')).toEqual(['ravi']); expect(nameTokens('Sita Sita Devi')).toEqual(['sita', 'devi']);
+  it('rules: the directory holds one text field only and nothing outside /desks', () => {
+    const blk = DESK_RULES.slice(DESK_RULES.indexOf('/directory/'), DESK_RULES.indexOf('/counters/'));
+    expect(blk).toMatch(/hasOnly\(\['c'\]\)/); expect(DESK_RULES).not.toMatch(/\/known\//);
   });
 });

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Search, Trash2, UserPlus, Users } from 'lucide-react';
-import { deskKnown, deskMsg, deskRemove, deskSubmit, deskWatch, type DeskIn, type DeskItem, type Seen } from '../lib/desk';
+import { deskDirWatch, deskMsg, deskRemove, deskSubmit, deskWatch, suggest, validKey, type DeskIn, type DeskItem, type DirRow } from '../lib/desk';
 import { cx } from '../lib/util';
 
 const REASONS = ['Knee pain', 'Back pain', 'Neck pain', 'Shoulder pain', 'Hip pain', 'Fall / injury', 'Fracture follow-up', 'Post-op follow-up', 'Report show'];
@@ -11,14 +11,14 @@ const ago = (t: number, now: number) => { const m = Math.max(0, Math.round((now 
 
 /** The reception desk. Opened from the doctor's secret link, it has no menu and holds no patient history: it checks patients in to the doctor's waiting list. */
 export default function Desk() {
-  const [sp] = useSearchParams(); const id = sp.get('d') || '';
+  const [sp] = useSearchParams(); const id = sp.get('d') || ''; const key = sp.get('k') || '';
   const [f, setF] = useState<DeskIn>(blank()); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ n: number; name: string } | null>(null);
   const [list, setList] = useState<DeskItem[]>([]); const [lerr, setLerr] = useState('');
   const [now, setNow] = useState(Date.now());
-  const [seen, setSeen] = useState<Seen>({}); const [all, setAll] = useState(false);
-  const [q, setQ] = useState(''); const [qb, setQb] = useState(false); const [qr, setQr] = useState<{ kind: 'phone' | 'name' | 'none' | 'err'; at?: string; msg?: string } | null>(null);
-  const short = !!seen.phone && !all; // known mobile: the doctor's app already has age, sex and allergies
+  const [dir, setDir] = useState<DirRow[] | null>(null); const [derr, setDerr] = useState('');
+  const [q, setQ] = useState(''); const [picked, setPicked] = useState<DirRow | null>(null);
+  const sug = useMemo(() => (dir && q.trim().length >= 2 ? suggest(dir, q) : []), [dir, q]);
   const set = (x: Partial<DeskIn>) => setF((c) => ({ ...c, ...x }));
 
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(t); }, []);
@@ -27,26 +27,15 @@ export default function Desk() {
     deskWatch(id, (x) => { if (!dead) { setList(x); setLerr(''); } }, (e) => !dead && setLerr(deskMsg(e))).then((u) => { if (dead) u(); else off = u; }).catch((e) => setLerr(deskMsg(e)));
     return () => { dead = true; off?.(); };
   }, [id]);
-  // typing a 10-digit mobile in the form checks it quietly and marks the visit as a follow-up
   useEffect(() => {
-    const ph = f.phone.replace(/\D/g, ''); if (ph.length < 10) { setSeen({}); return; }
-    let dead = false; const t = setTimeout(() => {
-      deskKnown(id, { phone: f.phone, name: '' }).then((r) => { if (dead) return; setSeen(r); if (r.phone) setF((c) => (c.followUp ? c : { ...c, followUp: true })); }).catch(() => !dead && setSeen({}));
-    }, 500);
-    return () => { dead = true; clearTimeout(t); };
-  }, [f.phone, id]);
-
-  async function find() {
-    const t = q.trim(); if (!t) return; setQb(true); setQr(null);
-    const dg = t.replace(/\D/g, '').slice(-10); const byPhone = dg.length === 10 && !/[a-z]/i.test(t);
-    try {
-      const r = await Promise.race([deskKnown(id, byPhone ? { phone: dg, name: '' } : { phone: '', name: t }), new Promise<never>((_, rej) => setTimeout(() => rej({ code: 'timeout' }), 12000))]);
-      if (byPhone && r.phone) { setQr({ kind: 'phone', at: r.phone }); set({ phone: dg, followUp: true }); }
-      else if (!byPhone && r.name) { setQr({ kind: 'name', at: r.name }); set({ name: t }); }
-      else setQr({ kind: 'none', msg: !byPhone && t.split(/\s+/).length < 2 && t.length < 6 ? 'Type the full name, or the 10-digit mobile number.' : '' });
-    } catch (e) { setQr({ kind: 'err', msg: deskMsg(e) }); }
-    setQb(false);
-  }
+    let off: (() => void) | undefined; let dead = false;
+    deskDirWatch(id, key, (r) => { if (!dead) { setDir(r); setDerr(''); } }, (e) => !dead && setDerr(deskMsg(e))).then((u) => { if (dead) u(); else off = u; }).catch((e) => setDerr(deskMsg(e)));
+    return () => { dead = true; off?.(); };
+  }, [id, key]);
+  // a full 10-digit mobile typed in the form that matches a saved patient marks the visit as a follow-up
+  const known = useMemo(() => { const ph = f.phone.replace(/\D/g, '').slice(-10); return ph.length === 10 && dir ? dir.find((r) => r.p === ph) || null : null; }, [f.phone, dir]);
+  useEffect(() => { if (known) setF((c) => (c.followUp ? c : { ...c, followUp: true })); }, [known]);
+  function pick(r: DirRow) { setPicked(r); setQ(''); set({ name: r.n, phone: r.p, age: r.a, ageUnit: r.u === 'M' ? 'M' : 'Y', sex: ['Male', 'Female', 'Other'].includes(r.s) ? r.s : '', followUp: true }); }
 
   async function save() {
     const e: string[] = [];
@@ -58,11 +47,11 @@ export default function Desk() {
     setBusy(true); setErr('');
     try {
       const n = await deskSubmit(id, { ...f, name: f.name.trim(), phone: f.phone.replace(/\D/g, '').slice(-10), reason: f.reason.trim() });
-      setDone({ n, name: f.name.trim() }); setF(blank()); setAll(false); setSeen({}); setQ(''); setQr(null);
+      setDone({ n, name: f.name.trim() }); setF(blank()); setPicked(null); setQ('');
     } catch (x) { setErr(deskMsg(x)); }
     setBusy(false);
   }
-  if (!/^[a-z0-9]{20,40}$/.test(id)) return <div className="flex min-h-full items-center justify-center p-8 text-center text-lg font-bold text-slate-600">Invalid link</div>;
+  if (!/^[a-z0-9]{20,40}$/.test(id) || !validKey(key)) return <div className="flex min-h-full items-center justify-center p-8 text-center text-lg font-bold text-slate-600">Invalid link</div>;
 
   const waiting = list.filter((i) => i.status === 'waiting'); const seenList = list.filter((i) => i.status === 'seen');
   return (
@@ -113,12 +102,18 @@ export default function Desk() {
 
           <div className="card p-4 sm:p-5">
             <h2 className="mb-2 flex items-center gap-2 text-lg font-extrabold"><Search size={19} /> Find patient</h2>
-            <div className="flex gap-2"><input className="field !py-3 !text-base" placeholder="Mobile or name" value={q} onChange={(e) => { setQ(e.target.value); setQr(null); }} onKeyDown={(e) => e.key === 'Enter' && find()} />
-              <button type="button" disabled={qb || !q.trim()} onClick={find} className="rounded-xl bg-navy px-6 text-base font-extrabold text-white disabled:opacity-50">{qb ? '…' : 'Search'}</button></div>
-            {qr?.kind === 'phone' && <div className="mt-2 rounded-xl border border-blue-300 bg-blue-50 px-3 py-2.5 font-bold text-blue-900">Found{fmt(qr.at) && ` · ${fmt(qr.at)}`} · Follow-up</div>}
-            {qr?.kind === 'name' && <div className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 font-bold text-amber-900">Name match{fmt(qr.at) && ` · ${fmt(qr.at)}`} · check mobile</div>}
-            {qr?.kind === 'none' && <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold text-slate-600">Not found · New</div>}
-            {qr?.kind === 'err' && <div className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 font-bold text-amber-900">{qr.msg}</div>}
+            <input className="field !py-3 !text-base" autoComplete="off" placeholder="Name or mobile" value={q} onChange={(e) => { setQ(e.target.value); setPicked(null); }} />
+            {derr && <div className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 font-bold text-amber-900">{derr}</div>}
+            {sug.length > 0 && (
+              <div className="mt-2 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-md">
+                {sug.map((r) => <button key={r.n + r.p + r.d} type="button" onClick={() => pick(r)} className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-brand-50">
+                  <span className="min-w-0 flex-1"><span className="block truncate font-extrabold">{r.n}</span><span className="block truncate text-xs font-medium text-slate-500">{[r.a && `${r.a}${r.u === 'M' ? 'm' : 'y'}`, r.s, r.p && `•••• ${r.p.slice(-4)}`].filter(Boolean).join(' · ')}</span></span>
+                  <span className="shrink-0 text-xs font-bold text-slate-500">{fmt(r.d)}</span></button>)}
+              </div>)}
+            {dir && !derr && q.trim().length >= 2 && !sug.length && <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold text-slate-600">Not found · New</div>}
+            {dir && !derr && !dir.length && <div className="mt-2 text-xs font-semibold text-slate-500">No saved patients yet.</div>}
+            {!dir && !derr && <div className="mt-2 text-xs font-semibold text-slate-500">Loading…</div>}
+            {picked && <div className="mt-2 rounded-xl border border-blue-300 bg-blue-50 px-3 py-2.5 font-bold text-blue-900">Found · {fmt(picked.d)} · Follow-up</div>}
           </div>
 
           <div className="card space-y-3 p-4 sm:p-5">
@@ -129,25 +124,20 @@ export default function Desk() {
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block"><span className="lbl">Name *</span><input className="field" autoComplete="off" value={f.name} onChange={(e) => set({ name: e.target.value })} /></label>
               <label className="block"><span className="lbl">Mobile</span><input className="field" type="tel" inputMode="tel" value={f.phone} onChange={(e) => set({ phone: e.target.value })} />
-                {seen.phone && <span className="mt-1 block text-xs font-bold text-blue-700">✓ Found{fmt(seen.phone) && ` · ${fmt(seen.phone)}`}</span>}</label>
+                {known && <span className="mt-1 block text-xs font-bold text-blue-700">✓ Found · {fmt(known.d)}</span>}</label>
             </div>
-            {short ? (
-              <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-600">Age, sex, allergy saved. <button type="button" className="font-bold text-brand underline" onClick={() => setAll(true)}>Edit</button></div>
-            ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <label className="block"><span className="lbl">Age</span><div className="flex gap-1"><input className="field min-w-0" type="number" inputMode="numeric" value={f.age} onChange={(e) => set({ age: e.target.value })} /><select className="field !w-14 shrink-0 !px-1" value={f.ageUnit} onChange={(e) => set({ ageUnit: e.target.value as 'Y' | 'M' })}><option value="Y">Y</option><option value="M">M</option></select></div></label>
                 <label className="block"><span className="lbl">Weight (kg)</span><input className="field" type="number" inputMode="decimal" value={f.weight} onChange={(e) => set({ weight: e.target.value })} /></label>
                 <div className="col-span-2"><span className="lbl">Sex</span><div className="flex gap-1.5">{['Male', 'Female', 'Other'].map((s) => <button key={s} type="button" onClick={() => set({ sex: f.sex === s ? '' : s })} className={cx('flex-1 rounded-lg border px-2 py-2.5 text-sm font-bold', f.sex === s ? 'border-brand bg-brand text-white' : 'border-slate-300 bg-white text-slate-700')}>{s}</button>)}</div></div>
               </div>
-            )}
             <div>
               <span className="lbl">Reason</span>
               <input className="field" placeholder="e.g. knee pain" value={f.reason} onChange={(e) => set({ reason: e.target.value })} />
               <div className="mt-2 flex flex-wrap gap-1.5">{REASONS.map((r) => <button key={r} type="button" onClick={() => set({ reason: f.reason ? (f.reason.includes(r) ? f.reason : f.reason + ', ' + r) : r })} className="rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[13px] font-bold text-slate-700 hover:border-brand">{r}</button>)}</div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {!short && <label className="col-span-2 block"><span className="lbl">Allergies</span><input className="field" placeholder="None" value={f.allergies} onChange={(e) => set({ allergies: e.target.value })} /></label>}
-              {short && <label className="block"><span className="lbl">Weight (kg)</span><input className="field" type="number" inputMode="decimal" value={f.weight} onChange={(e) => set({ weight: e.target.value })} /></label>}
+              <label className="col-span-2 block"><span className="lbl">Allergies</span><input className="field" placeholder="None" value={f.allergies} onChange={(e) => set({ allergies: e.target.value })} /></label>
               <label className="block"><span className="lbl">BP</span><input className="field" placeholder="130/80" value={f.bp} onChange={(e) => set({ bp: e.target.value })} /></label>
               <label className="block"><span className="lbl">Sugar</span><input className="field" placeholder="140 RBS" value={f.sugar} onChange={(e) => set({ sugar: e.target.value })} /></label>
             </div>
