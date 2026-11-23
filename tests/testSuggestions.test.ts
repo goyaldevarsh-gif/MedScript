@@ -15,7 +15,8 @@ describe('test suggestions', () => {
   });
   it('for wear-and-tear it prefers USG/MRI over CT', () => {
     const s = suggestTests(c('Rotator cuff tendinopathy', 'Left'));
-    expect(s.findIndex((t) => /^MRI/.test(t))).toBeLessThan(s.findIndex((t) => /^CT/.test(t)));
+    expect(s.some((t) => /^CT/.test(t))).toBe(false); // CT adds nothing for a cuff problem
+    expect(s.some((t) => /^MRI/.test(t))).toBe(true);
   });
   it('never lists the standing and plain version of one film together', () => {
     for (const dx of ['Osteoarthritis knee', 'Tibial plateau fracture', 'Knee collateral ligament sprain', 'Plantar fasciitis', 'Ankle fracture']) {

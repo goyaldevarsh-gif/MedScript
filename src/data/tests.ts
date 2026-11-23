@@ -15,7 +15,7 @@ const R: Region[] = [
     'X-ray {s}wrist AP and lateral', 'X-ray {s}wrist with scaphoid views', 'MRI {s}wrist', 'USG {s}wrist', 'Nerve conduction study of the median nerve', 'CT {s}wrist'] },
   { key: 'hand', re: /hand|finger|thumb|metacarp|phalan|trigger|mallet|boxer|dupuytren|gamekeeper|tendon repair/i, parts: ['hand', 'finger', 'thumb'], tests: [
     'X-ray {s}hand AP, oblique and lateral', 'X-ray {s}finger AP and lateral', 'X-ray {s}thumb AP and lateral', 'USG {s}hand'] },
-  { key: 'cervical', re: /cervical|neck|whiplash|torticoll|wryneck|cerv/i, parts: ['neck', 'cervical'], tests: [
+  { key: 'cervical', re: /cervical|(?<!femoral )neck(?! of femur)|whiplash|torticoll|wryneck|cerv/i, parts: ['neck', 'cervical'], tests: [
     'X-ray cervical spine AP and lateral', 'X-ray cervical spine flexion and extension views', 'MRI cervical spine', 'Nerve conduction study / EMG of the upper limb'] },
   { key: 'thoracic', re: /thoracic|dorsal spine|mid.?back|rib\b|ribs|chest wall/i, parts: ['thoracic'], tests: ['X-ray thoracic spine AP and lateral', 'MRI thoracic spine', 'Chest X-ray PA view'] },
   { key: 'lumbar', re: /lumbar|lumbo|back pain|\bLBP\b|disc|sciatica|radicul|canal stenosis|spondyl|coccy|sacro|\bsi joint|spine|vertebr|scolio/i, parts: ['lumbar', 'spine', 'back'], tests: [
@@ -23,7 +23,7 @@ const R: Region[] = [
   { key: 'pelvis', re: /pelvi|acetabul|pubic|\bsi joint|sacroil|coccy/i, parts: ['pelvis'], tests: ['X-ray pelvis AP', 'X-ray pelvis AP, inlet and outlet views', 'CT pelvis', 'MRI sacroiliac joints'] },
   { key: 'hip', re: /\bhip|femoral neck|femoral head|trochant|groin|avn|perthes|ddh|scfe|thr\b|neck of femur|\bnof\b|impingement|fai\b|piriformis/i, parts: ['hip', 'groin'], tests: [
     'X-ray pelvis with both hips AP', 'X-ray {s}hip lateral view', 'MRI {s}hip', 'MRI both hips', 'USG {s}hip'] },
-  { key: 'thigh', re: /femur|femoral shaft|thigh|hamstring|quadric|contusion|meralgia/i, parts: ['thigh'], tests: ['X-ray {s}femur AP and lateral', 'USG {s}thigh', 'MRI {s}thigh'] },
+  { key: 'thigh', re: /(?<!neck of )femur|femoral shaft|thigh|hamstring|quadric|contusion|meralgia/i, parts: ['thigh'], tests: ['X-ray {s}femur AP and lateral', 'USG {s}thigh', 'MRI {s}thigh'] },
   { key: 'knee', re: /knee|patell|menisc|\bacl\b|\bpcl\b|\bmcl\b|\blcl\b|cruciate|collateral|tibial plateau|distal femur|baker|osgood|chondral|cartilage|genu|\btkr\b|jumper|iliotibial|\bitb\b|cyst/i, parts: ['knee'], tests: [
     'X-ray {s}knee standing AP and lateral', 'X-ray {s}knee AP and lateral', 'X-ray {s}knee skyline view', 'X-ray both knees standing AP', 'MRI {s}knee', 'USG {s}knee', 'CT {s}knee', 'X-ray full-length both lower limbs standing (scanogram)'] },
   { key: 'leg', re: /tibia|fibula|shin|leg fracture|calf|compartment/i, parts: ['leg', 'calf', 'shin'], tests: ['X-ray {s}leg with knee and ankle AP and lateral', 'USG {s}calf'] },
@@ -61,7 +61,8 @@ const fill = (t: string, side?: string) => t.replace('{s}', sideWord(side)).repl
 /** loose key so "X-ray right knee AP/lateral" and "X-ray knee AP and lateral" count as the same test */
 export const testKey = (t: string) => {
   const k = t.toLowerCase().replace(/\b(right|left|bilateral|both|rt|lt|standing|weight[- ]bearing|oblique|and|views?)\b/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
-  return /nerve conduction|\bemg\b/.test(k) ? 'ncs emg' : k; // "NCS", "EMG" and "NCS / EMG of the lower limb" are one request
+  if (!/nerve conduction|\bncs\b|\bemg\b/.test(k)) return k;
+  return 'ncs emg' + (/median/.test(k) ? ' median' : /ulnar/.test(k) ? ' ulnar' : /upper|radial|arm|hand/.test(k) ? ' upper' : /lower|leg|sciatic|tibial|peroneal|lumbar/.test(k) ? ' lower' : ''); // "NCS", "EMG" and "NCS / EMG of the lower limb" are one request
 };
 
 export function splitTests(v: string): string[] { return (v || '').split(/\s*[;\n]\s*/).map((x) => x.trim()).filter(Boolean); }
@@ -96,15 +97,18 @@ export function suggestTests(c: Pick<Clinical, 'diagnosis' | 'complaint' | 'side
     if (/^mri/.test(x)) return 2;
     if (/^usg/.test(x)) return trauma ? 3 : 1;
     return 4; };
+  const nerveText = /nerve|neuro|numb|tingl|carpal|cubital|tarsal tunnel|radicul|sciatica|meralgia|palsy|weakness|drop|paraesth|claudic|myelopath|stenosis|pivd|disc/i.test(text);
+  const ctText = /fractur|dislocat|plateau|non.?union|malunion|deformity|pre.?op|arthroplasty|\btkr\b|\bthr\b|tumou?r|avn|osteonecrosis|acetabul|pelvi|listhesis|vertebr|scaphoid|post.?op|calcane|lisfranc|pilon|talus/i.test(text);
   const out: string[] = [];
   const seen = new Set<string>();
   const push = (t: string) => { const f = fill(t, c.side); const k = testKey(f); if (!seen.has(k)) { seen.add(k); out.push(f); } };
   for (const r of regions) {
     // "standing" and plain versions of one film are the same test: keep the one that suits the problem
     const keep = r.tests.filter((t) => { const std = /standing|weight[- ]bearing/i.test(t); const twin = r.tests.some((o) => o !== t && testKey(o) === testKey(t) && /standing|weight[- ]bearing/i.test(o) !== std); if (trauma) return !std; return !twin || std; });
-    keep.filter((t) => !(fxFollow && /^(mri|usg)/i.test(t)) && !(fxAcute && (/^usg/i.test(t) || (!fxDeep && /^(mri|ct)\b/i.test(t))))).map((t, i) => ({ t, i })).sort((a, b) => rank(a.t) - rank(b.t) || a.i - b.i).forEach((x) => push(x.t));
+    keep.filter((t) => (nerveText || !/^(nerve conduction|emg)/i.test(t)) && (ctText || !/^ct\b/i.test(t)) && !(fxFollow && /^(mri|usg)/i.test(t)) && !(fxAcute && (/^usg/i.test(t) || (!fxDeep && /^(mri|ct)\b/i.test(t))))).map((t, i) => ({ t, i })).sort((a, b) => rank(a.t) - rank(b.t) || a.i - b.i).forEach((x) => push(x.t));
   }
-  const labs = L.filter((l) => l.re.test(text) && !(fxAcute && l.fx));
+  let labs = L.filter((l) => l.re.test(text) && !(fxAcute && l.fx));
+  if (labs.length > 1) labs = labs.filter((l) => l !== L[L.length - 1]); // the catch-all 'pain / arthritis' set only when nothing specific matched
   labs.slice(0, 2).forEach((l) => l.tests.forEach(push));
   return out;
 }

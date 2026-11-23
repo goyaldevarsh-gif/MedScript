@@ -12,7 +12,7 @@ describe('investigations', () => {
     expect(testKind('Nerve conduction study')).toBe('other');
     expect(testKind('ECG')).toBe('other');
   });
-  it('NCS and EMG are one test', () => { expect(testKey('NCS / EMG of the lower limb')).toBe(testKey('Nerve conduction study')); });
+  it('NCS and EMG are one test', () => { expect(testKey('NCS / EMG of the lower limb')).toBe(testKey('Nerve conduction study / EMG of the lower limb')); expect(testKey('NCS median nerve')).not.toBe(testKey('NCS ulnar nerve')); });
   it('every curated plan points to a real built-in template', () => {
     const keys = new Set(STARTERS.map((s) => s.key));
     for (const k of Object.keys(TEMPLATE_TESTS)) expect(keys.has(k), k).toBe(true);
@@ -38,5 +38,14 @@ describe('investigations', () => {
     expect(testNotes(['MRI knee']).join()).toMatch(/pacemaker/);
     expect(testNotes(['CT pelvis'], { sex: 'Female', age: '30', ageUnit: 'Y' }).join()).toMatch(/pregnan/);
     expect(testNotes(['CT pelvis'], { sex: 'Male', age: '30', ageUnit: 'Y' }).join()).not.toMatch(/pregnan/);
+  });
+  it('audit regressions', () => {
+    const f = (d: string, inj = false) => suggestTests(c(d, { side: 'Right', injury: inj }));
+    expect(f('Fracture neck of femur', true).join()).not.toMatch(/cervical/i);
+    expect(f('Septic arthritis').join()).not.toMatch(/uric|vitamin D/i);
+    expect(f('Tennis elbow').join()).not.toMatch(/nerve conduction/i);
+    expect(f('ACL tear', true).join()).not.toMatch(/^CT|; CT/);
+    expect(f('Tibial plateau fracture', true).join()).toMatch(/CT/);
+    expect(f('Cubital tunnel syndrome').join()).toMatch(/nerve conduction/i);
   });
 });
