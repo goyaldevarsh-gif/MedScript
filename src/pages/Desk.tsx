@@ -13,7 +13,7 @@ export default function Desk() {
   const [f, setF] = useState<DeskIn>(blank()); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ n: number; name: string } | null>(null);
   const [list, setList] = useState<DeskItem[]>([]); const [lerr, setLerr] = useState('');
-  const [more, setMore] = useState(false);
+  const [more, setMore] = useState(false); const [all, setAll] = useState(false);
   const [seen, setSeen] = useState<Seen>({}); const [checked, setChecked] = useState(false);
   useEffect(() => {
     const ph = f.phone.replace(/\D/g, ''); if (ph.length < 10 && f.name.trim().length < 4) { setSeen({}); setChecked(false); return; }
@@ -22,6 +22,7 @@ export default function Desk() {
     }, 600);
     return () => { dead = true; clearTimeout(t); };
   }, [f.phone, f.name, id]);
+  const short = !!seen.phone && !all; // known mobile: the doctor's app already has age, sex and allergies
   const set = (x: Partial<DeskIn>) => setF((c) => ({ ...c, ...x }));
   useEffect(() => {
     let off: (() => void) | undefined; let dead = false;
@@ -39,7 +40,7 @@ export default function Desk() {
     setBusy(true); setErr('');
     try {
       const n = await deskSubmit(id, { ...f, name: f.name.trim(), phone: f.phone.replace(/\D/g, '').slice(-10), reason: f.reason.trim() });
-      setDone({ n, name: f.name.trim() }); setF(blank()); setMore(false);
+      setDone({ n, name: f.name.trim() }); setF(blank()); setMore(false); setAll(false);
     } catch (x) { setErr(deskMsg(x)); }
     setBusy(false);
   }
@@ -56,10 +57,12 @@ export default function Desk() {
       <div className="card space-y-3 p-4">
         <div><span className="lbl">Visit</span><div className="flex gap-1.5">{[['New patient', false], ['Follow-up', true]].map(([l, v]) => <button key={String(l)} type="button" onClick={() => set({ followUp: v as boolean })} className={cx('flex-1 rounded-full border px-2 py-2 text-sm font-bold', !!f.followUp === v ? 'border-brand bg-brand text-white' : 'border-slate-300 bg-white text-slate-700')}>{l}</button>)}</div></div>
         <label className="block"><span className="lbl">Patient name *</span><input className="field" autoComplete="off" value={f.name} onChange={(e) => set({ name: e.target.value })} /></label>
+        {!short && (
         <div className="grid grid-cols-2 gap-3">
           <label className="block"><span className="lbl">Age</span><div className="flex gap-1"><input className="field" type="number" inputMode="numeric" value={f.age} onChange={(e) => set({ age: e.target.value })} /><select className="field !w-16 !px-1" value={f.ageUnit} onChange={(e) => set({ ageUnit: e.target.value as 'Y' | 'M' })}><option value="Y">Y</option><option value="M">M</option></select></div></label>
           <div><span className="lbl">Sex</span><div className="flex gap-1.5">{['Male', 'Female', 'Other'].map((s) => <button key={s} type="button" onClick={() => set({ sex: f.sex === s ? '' : s })} className={cx('flex-1 rounded-full border px-2 py-2 text-sm font-bold', f.sex === s ? 'border-brand bg-brand text-white' : 'border-slate-300 bg-white text-slate-700')}>{s}</button>)}</div></div>
         </div>
+        )}
         {(seen.phone || seen.name || (checked && f.phone.replace(/\D/g, '').length >= 10)) && (
           <div className={cx('rounded-xl border px-3 py-2 text-sm font-bold', seen.phone ? 'border-blue-300 bg-blue-50 text-blue-900' : seen.name ? 'border-amber-300 bg-amber-50 text-amber-900' : 'border-slate-200 bg-slate-50 text-slate-600')}>
             {seen.phone ? `Seen before${seen.phone.length === 10 ? ' · last visit ' + new Date(seen.phone).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}. Marked as follow-up.`
@@ -70,7 +73,8 @@ export default function Desk() {
           <label className="block"><span className="lbl">Phone</span><input className="field" type="tel" inputMode="tel" value={f.phone} onChange={(e) => set({ phone: e.target.value })} /></label>
           <label className="block"><span className="lbl">Weight (kg)</span><input className="field" type="number" inputMode="decimal" value={f.weight} onChange={(e) => set({ weight: e.target.value })} /></label>
         </div>
-        <label className="block"><span className="lbl">Known allergies</span><input className="field" placeholder="e.g. Penicillin, leave blank if none" value={f.allergies} onChange={(e) => set({ allergies: e.target.value })} /></label>
+        {!short && <label className="block"><span className="lbl">Known allergies</span><input className="field" placeholder="e.g. Penicillin, leave blank if none" value={f.allergies} onChange={(e) => set({ allergies: e.target.value })} /></label>}
+        {short && <div className="text-sm font-semibold text-slate-600">Age, sex and allergies are already with the doctor. <button type="button" className="font-bold text-brand underline" onClick={() => setAll(true)}>Update them</button></div>}
         <div>
           <span className="lbl">Why has the patient come today?</span>
           <input className="field" placeholder="e.g. knee pain for 2 months" value={f.reason} onChange={(e) => set({ reason: e.target.value })} />
