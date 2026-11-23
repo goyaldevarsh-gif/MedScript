@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, ShieldCheck, FileSignature, Stamp, Image as ImageIcon, XCircle } from 'lucide-react';
 import type { AppSettings, Prescription } from '../lib/types';
 import { Btn, Modal, useToast } from './ui';
-import { checkRx, disclaimer } from '../lib/safety';
+import { checkRx, disclaimer, isHidden } from '../lib/safety';
 import { computeQty, doseLabel, durationLabel, freqLabel, itemInstructions, itemIssues, timingMeta } from '../lib/dosage';
 import { makeSnapshot } from '../lib/snapshot';
 import { finalizeRx } from '../lib/db';
@@ -17,7 +17,9 @@ export default function ReviewModal({ rx, settings, onClose, onDone, onChangeTog
   const toast = useToast();
   const [ack, setAck] = useState(false);
   const [busy, setBusy] = useState(false);
-  const warnings = useMemo(() => checkRx(rx, { muted: settings.ixMuted, custom: settings.ixCustom }), [rx, settings.ixMuted, settings.ixCustom]);
+  const allWarnings = useMemo(() => checkRx(rx, { muted: settings.ixMuted, custom: settings.ixCustom }), [rx, settings.ixMuted, settings.ixCustom]);
+  const warnings = useMemo(() => allWarnings.filter((w) => !isHidden(w, rx.dismissedWarn)), [allWarnings, rx.dismissedWarn]);
+  const hiddenN = allWarnings.length - warnings.length;
   const snap = useMemo(() => makeSnapshot(settings, rx.clinicId), [settings, rx.clinicId]);
   const hasSig = !!settings.signature.dataUrl;
   const hasSeal = settings.seal.mode === 'uploaded' ? !!settings.seal.uploaded : settings.seal.mode === 'generated' ? !!snap.sealDataUrl : false;
@@ -81,6 +83,7 @@ export default function ReviewModal({ rx, settings, onClose, onDone, onChangeTog
             </ul>
           </div>
         )}
+        {hiddenN > 0 && <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">You hid {hiddenN} alert{hiddenN > 1 ? 's' : ''} as not relevant for this prescription. This is saved with the record.</div>}
         {brandFirst && <div className="rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900">Your layout prints brand names first. NMC regulations ask doctors to prescribe by generic name, legibly and preferably in capital letters. You can change this in Settings → Prescription layout.</div>}
 
         <div>

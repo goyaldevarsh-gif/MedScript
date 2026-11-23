@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import WarnBanner from './WarnBanner';
 import { ArrowDown, ArrowUp, ChevronDown, ChevronUp, Trash2, Plus, RotateCcw, Sparkles } from 'lucide-react';
 import type { Freq, Lang, RxItem, Timing } from '../lib/types';
 import { Badge, Chip, Field } from './ui';
@@ -13,9 +14,9 @@ const QTY_PRESETS = ['1 strip', '2 strips', '3 strips', '1 bottle', '1 tube', '1
 const NOTE_PRESETS = ['Swallow whole.', 'Do not crush or chew.', 'Avoid alcohol.', 'Take with plenty of water.', 'Complete the full course.', 'Apply a thin layer. Do not rub hard.', 'Shake well before use.', 'Stop if rash or swelling occurs.'];
 const UNITS = ['tablet', 'capsule', 'mL', 'drop', 'sachet', 'application', 'puff', 'patch', 'scoop', 'unit'];
 
-export default function ItemEditor({ it, index, total, open, onToggle, onChange, onRemove, onMove, lang, warnings, readOnly, caps, nameMode, weightKg }: {
+export default function ItemEditor({ it, index, total, open, onToggle, onChange, onRemove, onMove, lang, warnings, onHideWarn, readOnly, caps, nameMode, weightKg }: {
   it: RxItem; index: number; total: number; open: boolean; onToggle: () => void; onChange: (n: RxItem) => void; onRemove: () => void; onMove: (d: -1 | 1) => void;
-  lang: Lang; warnings: Warning[]; readOnly?: boolean; caps: boolean; nameMode: 'generic' | 'brand'; weightKg?: number;
+  lang: Lang; warnings: Warning[]; onHideWarn?: (w: Warning) => void; readOnly?: boolean; caps: boolean; nameMode: 'generic' | 'brand'; weightKg?: number;
 }) {
   const set = (p: Partial<RxItem>) => onChange({ ...it, ...p });
   const liquid = isLiquid(it);
@@ -68,9 +69,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
         <fieldset disabled={dis} className="space-y-2.5 border-t border-slate-100 p-3 pt-3">
           {warnings.length > 0 && (
             <div className="space-y-1.5">
-              {warnings.filter((w) => w.level !== 'info').map((w, i) => (
-                <div key={i} className={cx('rounded-lg px-3 py-2 text-[13px] font-semibold', w.level === 'danger' ? 'bg-danger-50 text-danger' : 'bg-amber-50 text-amber-900')}>{w.text}</div>
-              ))}
+              {warnings.filter((w) => w.level !== 'info').map((w, i) => <WarnBanner key={i} w={w} onHide={readOnly ? undefined : onHideWarn} />)}
             </div>
           )}
           {ped && (

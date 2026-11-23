@@ -26,7 +26,8 @@ import ProcedureNotes from '../components/ProcedureNote';
 import { splitTests, testKey } from '../data/tests';
 import PreviewModal from '../components/PreviewModal';
 import ReviewModal from '../components/ReviewModal';
-import { checkRx, disclaimer } from '../lib/safety';
+import { checkRx, disclaimer, isHidden, warnKey, type Warning } from '../lib/safety';
+import WarnBanner from '../components/WarnBanner';
 import { STARTERS } from '../data/templates';
 import { cx, fmtDateTime, norm, uid } from '../lib/util';
 
@@ -166,7 +167,25 @@ function Builder() {
     const w = parseFloat((rx?.patient.weight || '').replace(/[^\d.]/g, '')); const a = rx?.patient.age ? (rx.patient.ageUnit === 'M' ? parseFloat(rx.patient.age) / 12 : parseFloat(rx.patient.age)) : NaN;
     return w > 0 && (isNaN(a) ? w <= 40 : a < 15) ? w : undefined;
   }, [rx?.patient.weight, rx?.patient.age, rx?.patient.ageUnit]);
-  const warnings = useMemo(() => (rx ? checkRx(rx, { muted: settings?.ixMuted, custom: settings?.ixCustom }) : []), [rx, settings?.ixMuted, settings?.ixCustom]);
+  const allWarnings = useMemo(() => (rx ? checkRx(rx, { muted: settings?.ixMuted, custom: settings?.ixCustom }) : []), [rx, settings?.ixMuted, settings?.ixCustom]);
+  const warnings = useMemo(() => allWarnings.filter((w) => !isHidden(w, rx?.dismissedWarn)), [allWarnings, rx?.dismissedWarn]);
+  const hiddenCount = allWarnings.length - warnings.length;
+  const hideWarn = useCallback((w: Warning) => {
+    const k = warnKey(w);
+    update((r) => ({ ...r, dismissedWarn: [...new Set([...(r.dismissedWarn || []), k])] }));
+    toast('Alert hidden for this prescription', { action: { label: 'Undo', onClick: () => update((r) => ({ ...r, dismissedWarn: (r.dismissedWarn || []).filter((x) => x !== k) })) }, ms: 6000 });
+  }, [update, toast]);
+  /* a new red / amber alert pops up as a toast the moment it appears (not for alerts already there when the prescription was opened) */
+  const seenWarn = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (!rx || readOnly) return;
+    const live = warnings.filter((w) => w.level !== 'info' && !w.req);
+    if (seenWarn.current === null) { seenWarn.current = new Set(live.map(warnKey)); return; }
+    const fresh = live.filter((w) => !seenWarn.current!.has(warnKey(w)));
+    live.forEach((w) => seenWarn.current!.add(warnKey(w)));
+    if (!fresh.length) return;
+    toast(fresh.length === 1 ? '⚠ ' + fresh[0].text : `⚠ ${fresh.length} new alerts. See the red box above the medicines.`, { tone: 'err', ms: 7000 });
+  }, [warnings, readOnly]); // eslint-disable-line
   /* meds the doctor usually prescribes for this diagnosis (from own past prescriptions) */
   const usual = useMemo(() => {
     const dx = norm(rx?.clinical.diagnosis || '');
@@ -325,16 +344,15 @@ function Builder() {
             )}
             {(topWarn.length > 0 || itemWarnAll.length > 0) && (
               <div className="mt-3 space-y-1.5">
-                {[...topWarn, ...itemWarnAll].map((w, i) => (
-                  <div key={i} className={cx('rounded-lg px-3 py-2 text-[13px] font-semibold', w.level === 'danger' ? 'bg-danger-50 text-danger' : 'bg-amber-50 text-amber-900')}>{w.text}</div>
-                ))}
+                {[...topWarn, ...itemWarnAll].map((w, i) => <WarnBanner key={i} w={w} onHide={readOnly ? undefined : hideWarn} />)}
               </div>
             )}
+            {hiddenCount > 0 && !readOnly && <p className="mt-2 text-xs font-semibold text-slate-500">{hiddenCount} alert{hiddenCount > 1 ? 's' : ''} hidden as not relevant. <button className="font-bold text-brand underline" onClick={() => update((r) => ({ ...r, dismissedWarn: undefined }))}>Show again</button></p>}
             <div className="mt-3 space-y-2.5">
               {rx.items.map((it, i) => (
                 <ItemEditor key={it.id} it={it} index={i} total={rx.items.length} open={openItem === it.id} onToggle={() => setOpenItem(openItem === it.id ? null : it.id)}
                   onChange={(n) => update((r) => ({ ...r, items: r.items.map((x) => (x.id === n.id ? n : x)) }))} onRemove={() => removeItem(it)} onMove={(d) => move(i, d)}
-                  lang={rx.lang} warnings={itemWarn(it.id)} readOnly={!!readOnly} caps={settings.layout.genericCaps} nameMode={settings.layout.nameDisplay} weightKg={kidKg} />
+                  lang={rx.lang} warnings={itemWarn(it.id)} onHideWarn={hideWarn} readOnly={!!readOnly} caps={settings.layout.genericCaps} nameMode={settings.layout.nameDisplay} weightKg={kidKg} />
               ))}
               {!rx.items.length && <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm font-medium text-slate-500">No medicines yet. Search above, tap a favourite, or open the Library.</div>}
             </div>

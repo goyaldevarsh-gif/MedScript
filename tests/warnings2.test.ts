@@ -98,3 +98,22 @@ describe('condition words are matched however they are written', () => {
     ['Tramadol', 'Epilepsy', 'ctx-tramadol-seizure'], ['Ciprofloxacin', 'Epilepsy', 'ctx-fq-seizure'], ['Alendronate', 'Oesophagitis', 'ctx-bisphos-gi'],
   ])('%s with "%s" fires %s', (drug, comorb, id) => { expect(ids(rx([item(drug)], { comorb }))).toContain(id); });
 });
+
+import { isHidden, warnKey } from '../src/lib/safety';
+describe('hiding an alert as not relevant', () => {
+  it('hides one alert for this prescription only, never a missing-detail alert', () => {
+    const r = rx([item('Thiocolchicoside')], { comorb: 'Pregnant' });
+    const ws = checkRx(r); const w = ws.find((x) => x.ruleId === 'ctx-preg-thiocol')!;
+    expect(isHidden(w, [warnKey(w)])).toBe(true);
+    expect(isHidden(w, [])).toBe(false); expect(isHidden(w, undefined)).toBe(false);
+    const other = ws.find((x) => x.ruleId && x.ruleId !== 'ctx-preg-thiocol');
+    if (other) expect(isHidden(other, [warnKey(w)])).toBe(false);
+    const miss = checkRx(rx([item('Etoricoxib')], { age: '' })).find((x) => x.req)!;
+    expect(isHidden(miss, [warnKey(miss)])).toBe(false);
+  });
+  it('a changed alert (different medicine) is a new alert', () => {
+    const a = checkRx(rx([item('Thiocolchicoside')], { comorb: 'Pregnant' })).find((x) => x.ruleId === 'ctx-preg-thiocol')!;
+    const b = checkRx(rx([item('Thiocolchicoside'), item('Etoricoxib')], { comorb: 'Pregnant' })).find((x) => x.ruleId === 'ctx-preg-nsaid')!;
+    expect(isHidden(b, [warnKey(a)])).toBe(false);
+  });
+});

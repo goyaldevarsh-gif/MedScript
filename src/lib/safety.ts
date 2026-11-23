@@ -4,7 +4,10 @@ import { ALLERGY_CLASSES, MAX_DAILY_MG } from '../data/rules';
 import { timesPerDay } from './dosage';
 import { norm } from './util';
 
-export interface Warning { level: 'danger' | 'warn' | 'info'; text: string; itemId?: string; ruleId?: string }
+export interface Warning { level: 'danger' | 'warn' | 'info'; text: string; itemId?: string; ruleId?: string; /** missing details the prescription needs: cannot be hidden */ req?: boolean }
+/** a stable id for one alert, so the doctor can hide it for this prescription */
+export const warnKey = (w: Warning) => `${w.ruleId || w.level}|${w.text}`;
+export const isHidden = (w: Warning, hidden?: string[]) => !w.req && !!hidden?.includes(warnKey(w));
 export interface IxOpts { muted?: string[]; custom?: IxCustom[] }
 
 const baseName = (s: string) => norm(s.replace(/\(.*?\)/g, ''));
@@ -44,14 +47,14 @@ export function checkRx(rx: Prescription, opts: IxOpts = {}): Warning[] {
   const adult = !isNaN(ageYears) && ageYears >= 18;
 
   // --- Patient completeness
-  if (!p.name.trim()) w.push({ level: 'danger', text: 'Patient name is missing.' });
-  if (!p.age) w.push({ level: 'warn', text: 'Patient age is missing.' });
-  if (!p.sex) w.push({ level: 'warn', text: 'Patient sex is missing.' });
+  if (!p.name.trim()) w.push({ level: 'danger', req: true, text: 'Patient name is missing.' });
+  if (!p.age) w.push({ level: 'warn', req: true, text: 'Patient age is missing.' });
+  if (!p.sex) w.push({ level: 'warn', req: true, text: 'Patient sex is missing.' });
   if (!p.phone) w.push({ level: 'info', text: 'Phone number not entered (needed for WhatsApp sharing).' });
   if (!p.allergies.trim()) w.push({ level: 'info', text: 'Allergy status not recorded. Tap "No known allergies" if applicable.' });
   if (!isNaN(ageYears) && ageYears < 12 && !p.weight) w.push({ level: 'warn', text: 'Child patient: weight not entered. Verify weight-based dosing.' });
   if (!isNaN(ageYears) && ageYears < 18) w.push({ level: 'info', text: 'Patient is under 18: automatic maximum-dose checks are skipped. Verify paediatric doses yourself.' });
-  if (!rx.clinical.diagnosis.trim()) w.push({ level: 'warn', text: 'Diagnosis is empty.' });
+  if (!rx.clinical.diagnosis.trim()) w.push({ level: 'warn', req: true, text: 'Diagnosis is empty.' });
 
   // --- Allergies
   const allergyText = norm(p.allergies);

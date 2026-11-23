@@ -83,7 +83,7 @@ export interface Prescription {
   followUpDays: number; followUpDate: string; lang: Lang; toggles: PdfToggles;
   showInstr?: boolean; followUpManual?: boolean; qrUrl?: string; ovId?: string;
   createdAt: number; updatedAt: number; authorizedAt?: number; hash?: string;
-  doctorSnapshot?: DoctorSnapshot; warningsAtAuth?: string[];
+  doctorSnapshot?: DoctorSnapshot; warningsAtAuth?: string[]; /** alerts the doctor hid as not relevant for this prescription (kept with the record) */ dismissedWarn?: string[];
 }
 export interface Template {
   id: string; name: string; builtIn: boolean; sourceKey?: string; icon: string; favourite: boolean;
