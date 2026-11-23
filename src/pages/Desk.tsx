@@ -23,6 +23,19 @@ export default function Desk() {
     return () => { dead = true; clearTimeout(t); };
   }, [f.phone, f.name, id]);
   const short = !!seen.phone && !all; // known mobile: the doctor's app already has age, sex and allergies
+  const [q, setQ] = useState(''); const [qb, setQb] = useState(false); const [qr, setQr] = useState<{ kind: 'phone' | 'name' | 'none' | 'err'; at?: string; msg?: string } | null>(null);
+  const fmt = (d?: string) => (d && d.length === 10 ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+  async function find() {
+    const t = q.trim(); if (!t) return; setQb(true); setQr(null);
+    const dg = t.replace(/\D/g, '').slice(-10); const byPhone = dg.length === 10 && !/[a-z]/i.test(t);
+    try {
+      const r = await Promise.race([deskKnown(id, byPhone ? { phone: dg, name: '' } : { phone: '', name: t }), new Promise<never>((_, rej) => setTimeout(() => rej({ code: 'timeout' }), 12000))]);
+      if (byPhone && r.phone) { setQr({ kind: 'phone', at: r.phone }); set({ phone: dg, followUp: true }); }
+      else if (!byPhone && r.name) setQr({ kind: 'name', at: r.name });
+      else setQr({ kind: 'none', msg: byPhone ? '' : t.trim().split(/\s+/).length < 2 && t.length < 6 ? 'Type the full name or the 10-digit mobile.' : '' });
+    } catch (e) { setQr({ kind: 'err', msg: deskMsg(e) }); }
+    setQb(false);
+  }
   const set = (x: Partial<DeskIn>) => setF((c) => ({ ...c, ...x }));
   useEffect(() => {
     let off: (() => void) | undefined; let dead = false;
@@ -54,6 +67,14 @@ export default function Desk() {
           <div className="min-w-0"><div className="text-sm font-bold text-emerald-800">Sent to the doctor: {done.name}</div><div className="text-3xl font-extrabold text-emerald-900">Token {done.n}</div></div>
         </div>
       )}
+      <div className="card space-y-2 p-4">
+        <span className="lbl">Has this patient come before? Search</span>
+        <div className="flex gap-2"><input className="field" placeholder="10-digit mobile or full name" value={q} onChange={(e) => { setQ(e.target.value); setQr(null); }} onKeyDown={(e) => e.key === 'Enter' && find()} /><button type="button" disabled={qb || !q.trim()} onClick={find} className="rounded-xl bg-navy px-4 text-sm font-extrabold text-white disabled:opacity-50">{qb ? '…' : 'Search'}</button></div>
+        {qr?.kind === 'phone' && <div className="rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-900">Found: came before{fmt(qr.at) && `, last visit ${fmt(qr.at)}`}. Marked as follow-up. Now type the name below.</div>}
+        {qr?.kind === 'name' && <div className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900">A patient with this name came before{fmt(qr.at) && ` (last visit ${fmt(qr.at)})`}. Search again with the mobile number to be sure it is the same person.</div>}
+        {qr?.kind === 'none' && <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-600">Not found in earlier visits. {qr.msg || 'Register as a new patient below.'}</div>}
+        {qr?.kind === 'err' && <div className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900">{qr.msg}</div>}
+      </div>
       <div className="card space-y-3 p-4">
         <div><span className="lbl">Visit</span><div className="flex gap-1.5">{[['New patient', false], ['Follow-up', true]].map(([l, v]) => <button key={String(l)} type="button" onClick={() => set({ followUp: v as boolean })} className={cx('flex-1 rounded-full border px-2 py-2 text-sm font-bold', !!f.followUp === v ? 'border-brand bg-brand text-white' : 'border-slate-300 bg-white text-slate-700')}>{l}</button>)}</div></div>
         <label className="block"><span className="lbl">Patient name *</span><input className="field" autoComplete="off" value={f.name} onChange={(e) => set({ name: e.target.value })} /></label>
