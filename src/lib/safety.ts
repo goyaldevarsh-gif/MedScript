@@ -1,5 +1,5 @@
 import type { IxCustom, Prescription, RxItem } from './types';
-import { AGE_RULES, CLASSES, CTX_RULES, RULES } from '../data/interactions';
+import { AGE_RULES, CLASSES, COURSE_RULES, CTX_RULES, NSAID_GI, RULES } from '../data/interactions';
 import { ALLERGY_CLASSES, MAX_DAILY_MG } from '../data/rules';
 import { timesPerDay } from './dosage';
 import { norm } from './util';
@@ -175,13 +175,28 @@ function interactionWarnings(rx: Prescription, opts: IxOpts): Warning[] {
   for (const r of CTX_RULES) {
     if (muted.has(r.id) || !text || !r.cond.test(text)) continue;
     const A = members(r.cls); if (!A.length) continue;
-    out.push({ level: r.level, ruleId: r.id, text: `Patient has ${r.condLabel}: ${list(A)}: ${r.text}` });
+    out.push({ level: r.level, ruleId: r.id, text: `${r.lead || 'Patient has ' + r.condLabel}: ${list(A)}: ${r.text}` });
   }
   const age = rx.patient.age ? (rx.patient.ageUnit === 'M' ? parseFloat(rx.patient.age) / 12 : parseFloat(rx.patient.age)) : NaN;
   if (!isNaN(age)) for (const r of AGE_RULES) {
     if (muted.has(r.id) || (r.min !== undefined && age < r.min) || (r.max !== undefined && age >= r.max)) continue;
     const A = members(r.cls); if (!A.length) continue;
     out.push({ level: r.level, ruleId: r.id, text: `${age < 1 ? Math.round(age * 12) + ' months' : 'Age ' + Math.round(age)}: ${list(A)}: ${r.text}` });
+  }
+  // --- course length (oral medicines only; as-needed and tapered courses are skipped)
+  const days = (i: RxItem) => (i.duration || 0) * (i.durationUnit === 'weeks' ? 7 : i.durationUnit === 'months' ? 30 : 1);
+  const longest = (its: RxItem[]) => Math.max(0, ...its.filter((i) => i.route === 'Oral' && i.freq !== 'SOS' && !i.useTaper).map(days));
+  for (const r of COURSE_RULES) {
+    if (muted.has(r.id)) continue;
+    const A = members(r.cls).filter((i) => i.route === 'Oral' && i.freq !== 'SOS' && !i.useTaper && days(i) > r.maxDays); if (!A.length) continue;
+    out.push({ level: r.level, ruleId: r.id, text: `Course: ${list(A)} for ${longest(A)} days: ${r.text}` });
+  }
+  // --- NSAID by mouth with no stomach cover
+  if (!muted.has(NSAID_GI.id)) {
+    const N = members('nsaid').filter((i) => i.route === 'Oral'); const nd = longest(N);
+    const covered = members('gprot').length > 0 || on.has('gprot') || on.has('ppi');
+    const stomachNote = out.some((w) => w.ruleId === 'ctx-nsaid-gi' || w.ruleId === 'age-nsaid' && nd < 7);
+    if (N.length && !covered && !stomachNote && (nd >= 7 || (!isNaN(age) && age >= 60))) out.push({ level: NSAID_GI.level, ruleId: NSAID_GI.id, text: `${list(N)}: ${NSAID_GI.text}` });
   }
   for (const c of opts.custom || []) {
     if (!c.a.trim() || !c.b.trim()) continue;

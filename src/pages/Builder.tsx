@@ -20,6 +20,8 @@ import { MedicineSearch } from '../components/MedicineLibrary';
 import ItemEditor from '../components/ItemEditor';
 import TemplatePicker from '../components/TemplatePicker';
 import TestPicker from '../components/TestPicker';
+import CondChips from '../components/CondChips';
+import { dropWomenStatus } from '../lib/conditions';
 import ProcedureNotes from '../components/ProcedureNote';
 import { splitTests, testKey } from '../data/tests';
 import PreviewModal from '../components/PreviewModal';
@@ -153,7 +155,7 @@ function Builder() {
       const c = r.clinical; const pc = prev.clinical;
       next = { ...next, clinical: { ...c,
         diagnosis: c.diagnosis.trim() ? c.diagnosis : pc.diagnosis, side: c.side && c.side !== 'N/A' ? c.side : pc.side,
-        comorbidities: c.comorbidities?.trim() ? c.comorbidities : pc.comorbidities, injury: c.injury || pc.injury,
+        comorbidities: c.comorbidities?.trim() ? c.comorbidities : dropWomenStatus(pc.comorbidities || ''), injury: c.injury || pc.injury,
         bodyParts: c.bodyParts?.length ? c.bodyParts : pc.bodyParts, advice: c.advice.length ? c.advice : pc.advice } };
       if (!r.wound?.on && prev.wound?.on) next.wound = { ...JSON.parse(JSON.stringify(prev.wound)), status: undefined, sutureDays: undefined, note: undefined };
     }
@@ -293,7 +295,8 @@ function Builder() {
               <div className="text-sm font-extrabold uppercase tracking-wide text-slate-500">Clinical details</div>
               <Field label="Chief complaint"><input className="field" value={rx.clinical.complaint} onChange={(e) => setClin({ complaint: e.target.value })} placeholder="e.g. Pain in right knee for 3 months" /></Field>
               <Field label="Diagnosis"><input list="dx-list" className="field" value={rx.clinical.diagnosis} onChange={(e) => setClin({ diagnosis: e.target.value })} placeholder="Start typing…" /></Field>
-              <Field label="Comorbidities (optional)"><input className="field" value={rx.clinical.comorbidities || ''} onChange={(e) => setClin({ comorbidities: e.target.value })} placeholder="e.g. Diabetes, Hypertension, Anaemia" /></Field>
+              <Field label="Comorbidities (optional)"><input className="field" value={rx.clinical.comorbidities || ''} onChange={(e) => setClin({ comorbidities: e.target.value })} placeholder="e.g. Diabetes, Hypertension, Anaemia" />
+                <CondChips value={rx.clinical.comorbidities || ''} onChange={(v) => setClin({ comorbidities: v })} patient={rx.patient} /></Field>
               <datalist id="dx-list">{(ortho ? STARTERS : []).map((s) => <option key={s.key} value={s.clinical.diagnosis} />)}</datalist>
               {ortho && <div>
                 <span className="lbl">Side</span>

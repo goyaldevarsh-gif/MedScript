@@ -39,6 +39,10 @@ export const CLASSES: Record<string, { label: string; re: RegExp }> = {
   kidopioid: { label: 'tramadol / tapentadol / codeine', re: /\b(tramadol|tapentadol|codeine)/ },
   aspirin: { label: 'aspirin', re: /\b(aspirin|acetylsalicylic|ecosprin|disprin)/ },
   lithium: { label: 'lithium', re: /\blithium/ },
+  thiocol: { label: 'thiocolchicoside', re: /\bthiocolchicoside/ },
+  teratogen: { label: 'methotrexate / leflunomide', re: /\b(methotrexate|mtx|leflunomide|teriflunomide)/ },
+  /** anything that counts as stomach cover next to an NSAID */
+  gprot: { label: 'stomach protection', re: /\b(omeprazole|esomeprazole|pantoprazole|rabeprazole|lansoprazole|dexlansoprazole|ilaprazole|vonoprazan|tegoprazan|fexuprazan|keverprazan|famotidine|ranitidine|nizatidine|misoprostol)/ },
 };
 
 export interface IxRule { id: string; a: string; b: string; level: IxLevel; text: string; group: string; /** skip when this class is also on the prescription */ unless?: string }
@@ -89,24 +93,40 @@ export const RULES: IxRule[] = [
 ];
 
 /** Conditions typed under "Comorbidities" and what they mean for a class. Matched against the comorbidity text. */
-export interface CtxRule { id: string; cls: string; cond: RegExp; condLabel: string; level: IxLevel; text: string; group: string }
+export interface CtxRule { id: string; cls: string; cond: RegExp; condLabel: string; level: IxLevel; text: string; group: string; /** replaces "Patient has <condition>" at the start of the message */ lead?: string }
+/** how the Comorbidities text says it */
+export const PREG = /\b(pregnan\w*|expecting)\b/;
+export const BF = /\b(breast ?feed\w*|lactati\w*|nursing mother)\b/;
 export const CTX_RULES: CtxRule[] = [
-  { id: 'ctx-nsaid-kidney', group: 'Patient conditions', cls: 'nsaid', cond: /\b(kidney|ckd|renal|nephro|dialysis|creatinine)\b/, condLabel: 'kidney disease', level: 'danger', text: 'NSAIDs can worsen kidney function. Avoid; use paracetamol or non-drug measures.' },
+  { id: 'ctx-nsaid-kidney', group: 'Patient conditions', cls: 'nsaid', cond: /\b(kidney|ckd|renal|nephro\w*|dialysis|creatinine)\b/, condLabel: 'kidney disease', level: 'danger', text: 'NSAIDs can worsen kidney function. Avoid; use paracetamol or non-drug measures.' },
   { id: 'ctx-nsaid-gi', group: 'Patient conditions', cls: 'nsaid', cond: /\b(ulcer|gastritis|gerd|reflux|acidity|dyspepsia|gi bleed|melena|hematemesis|haematemesis|stomach)\b/, condLabel: 'stomach problems', level: 'warn', text: 'NSAIDs can cause stomach ulcers and bleeding. Prefer paracetamol, or add stomach protection and keep the course short.' },
   { id: 'ctx-nsaid-cvs', group: 'Patient conditions', cls: 'nsaid', cond: /\b(hypertension|htn|high bp|heart failure|cardiac|heart|ihd|cad|mi|stroke|angina)\b/, condLabel: 'heart or BP problem', level: 'warn', text: 'NSAIDs can raise BP, cause fluid retention and add heart risk. Use the lowest dose for the shortest time.' },
   { id: 'ctx-nsaid-asthma', group: 'Patient conditions', cls: 'nsaid', cond: /\basthma|copd|wheez/, condLabel: 'asthma', level: 'warn', text: 'NSAIDs can trigger an asthma attack in some patients.' },
   { id: 'ctx-nsaid-liver', group: 'Patient conditions', cls: 'nsaid', cond: /\b(liver|cirrhosis|hepatitis|jaundice)\b/, condLabel: 'liver disease', level: 'warn', text: 'NSAIDs need caution in liver disease (bleeding and fluid retention).' },
-  { id: 'ctx-steroid-dm', group: 'Patient conditions', cls: 'steroid', cond: /\b(diabet|dm|sugar|t2dm|t1dm)\b/, condLabel: 'diabetes', level: 'warn', text: 'steroids raise blood sugar. Advise monitoring, or avoid.' },
-  { id: 'ctx-steroid-inf', group: 'Patient conditions', cls: 'steroid', cond: /\b(tb|tuberculosis|infection|sepsis|hiv)\b/, condLabel: 'infection', level: 'warn', text: 'steroids can worsen an active infection.' },
+  { id: 'ctx-steroid-dm', group: 'Patient conditions', cls: 'steroid', cond: /\b(diabet\w*|dm|sugar|t2dm|t1dm)\b/, condLabel: 'diabetes', level: 'warn', text: 'steroids raise blood sugar. Advise monitoring, or avoid.' },
+  { id: 'ctx-steroid-inf', group: 'Patient conditions', cls: 'steroid', cond: /\b(tb|tuberculosis|infect\w*|sepsis|hiv)\b/, condLabel: 'infection', level: 'warn', text: 'steroids can worsen an active infection.' },
   { id: 'ctx-steroid-gi', group: 'Patient conditions', cls: 'steroid', cond: /\b(ulcer|gastritis|gi bleed)\b/, condLabel: 'stomach ulcer', level: 'warn', text: 'steroids can aggravate stomach ulcers.' },
-  { id: 'ctx-fq-seizure', group: 'Patient conditions', cls: 'fq', cond: /\b(epilep|seizure|fits|myasthenia)\b/, condLabel: 'epilepsy / myasthenia', level: 'danger', text: 'fluoroquinolones can trigger seizures and worsen myasthenia. Avoid.' },
-  { id: 'ctx-tramadol-seizure', group: 'Patient conditions', cls: 'tramadol', cond: /\b(epilep|seizure|fits)\b/, condLabel: 'epilepsy', level: 'danger', text: 'tramadol lowers the seizure threshold. Avoid.' },
+  { id: 'ctx-fq-seizure', group: 'Patient conditions', cls: 'fq', cond: /\b(epilep\w*|seizure\w*|fits|myasthenia)\b/, condLabel: 'epilepsy / myasthenia', level: 'danger', text: 'fluoroquinolones can trigger seizures and worsen myasthenia. Avoid.' },
+  { id: 'ctx-tramadol-seizure', group: 'Patient conditions', cls: 'tramadol', cond: /\b(epilep\w*|seizure\w*|fits)\b/, condLabel: 'epilepsy', level: 'danger', text: 'tramadol lowers the seizure threshold. Avoid.' },
   { id: 'ctx-gaba-kidney', group: 'Patient conditions', cls: 'gabapentinoid', cond: /\b(kidney|ckd|renal|dialysis)\b/, condLabel: 'kidney disease', level: 'warn', text: 'pregabalin / gabapentin are cleared by the kidneys. Reduce the dose.' },
   { id: 'ctx-opioid-resp', group: 'Patient conditions', cls: 'opioid', cond: /\b(copd|sleep apnea|sleep apnoea|respiratory|asthma)\b/, condLabel: 'breathing problem', level: 'warn', text: 'opioids can depress breathing. Use with caution.' },
   { id: 'ctx-benzo-resp', group: 'Patient conditions', cls: 'benzo', cond: /\b(copd|sleep apnea|sleep apnoea|respiratory)\b/, condLabel: 'breathing problem', level: 'warn', text: 'benzodiazepines can depress breathing. Avoid.' },
   { id: 'ctx-tizanidine-liver', group: 'Patient conditions', cls: 'tizanidine', cond: /\b(liver|cirrhosis|hepatitis)\b/, condLabel: 'liver disease', level: 'warn', text: 'tizanidine can affect the liver. Avoid or monitor liver tests.' },
-  { id: 'ctx-bisphos-gi', group: 'Patient conditions', cls: 'bisphos', cond: /\b(kidney|ckd|renal|gerd|reflux|oesophag|esophag|ulcer)\b/, condLabel: 'kidney or food-pipe problem', level: 'warn', text: 'oral bisphosphonates need caution here. Consider an injection or another option.' },
+  { id: 'ctx-bisphos-gi', group: 'Patient conditions', cls: 'bisphos', cond: /\b(kidney|ckd|renal|gerd|reflux|oesophag\w*|esophag\w*|ulcer)\b/, condLabel: 'kidney or food-pipe problem', level: 'warn', text: 'oral bisphosphonates need caution here. Consider an injection or another option.' },
   { id: 'ctx-metro-liver', group: 'Patient conditions', cls: 'metronidazole', cond: /\b(liver|cirrhosis)\b/, condLabel: 'liver disease', level: 'warn', text: 'metronidazole dose may need reduction in liver disease.' },
+  /* --- pregnancy and breastfeeding (the doctor taps Pregnant / Breastfeeding under Comorbidities) --- */
+  { id: 'ctx-preg-teratogen', group: 'Pregnancy and breastfeeding', cls: 'teratogen', cond: PREG, condLabel: 'pregnancy', lead: 'Pregnant', level: 'danger', text: 'can cause miscarriage and birth defects. Do not give in pregnancy.' },
+  { id: 'ctx-preg-thiocol', group: 'Pregnancy and breastfeeding', cls: 'thiocol', cond: PREG, condLabel: 'pregnancy', lead: 'Pregnant', level: 'danger', text: 'thiocolchicoside is not recommended in pregnancy. Choose another muscle relaxant or none.' },
+  { id: 'ctx-preg-tetra', group: 'Pregnancy and breastfeeding', cls: 'tetracycline', cond: PREG, condLabel: 'pregnancy', lead: 'Pregnant', level: 'danger', text: 'doxycycline / tetracyclines can harm the baby\'s teeth and bones. Avoid.' },
+  { id: 'ctx-preg-fq', group: 'Pregnancy and breastfeeding', cls: 'fq', cond: PREG, condLabel: 'pregnancy', lead: 'Pregnant', level: 'warn', text: 'fluoroquinolones are generally avoided in pregnancy. Choose another antibiotic if you can.' },
+  { id: 'ctx-preg-nsaid', group: 'Pregnancy and breastfeeding', cls: 'nsaid', cond: PREG, condLabel: 'pregnancy', lead: 'Pregnant', level: 'warn', text: 'NSAIDs are generally avoided in pregnancy, especially after 20 weeks. Paracetamol is the usual choice.' },
+  { id: 'ctx-preg-bisphos', group: 'Pregnancy and breastfeeding', cls: 'bisphos', cond: PREG, condLabel: 'pregnancy', lead: 'Pregnant', level: 'warn', text: 'bisphosphonates are not recommended in pregnancy.' },
+  { id: 'ctx-preg-opioid', group: 'Pregnancy and breastfeeding', cls: 'opioid', cond: PREG, condLabel: 'pregnancy', lead: 'Pregnant', level: 'warn', text: 'opioids in pregnancy: only if clearly needed, lowest dose, shortest time.' },
+  { id: 'ctx-bf-teratogen', group: 'Pregnancy and breastfeeding', cls: 'teratogen', cond: BF, condLabel: 'breastfeeding', lead: 'Breastfeeding', level: 'danger', text: 'passes into breast milk. Avoid while breastfeeding.' },
+  { id: 'ctx-bf-thiocol', group: 'Pregnancy and breastfeeding', cls: 'thiocol', cond: BF, condLabel: 'breastfeeding', lead: 'Breastfeeding', level: 'danger', text: 'thiocolchicoside is not recommended while breastfeeding.' },
+  { id: 'ctx-bf-fq', group: 'Pregnancy and breastfeeding', cls: 'fq', cond: BF, condLabel: 'breastfeeding', lead: 'Breastfeeding', level: 'warn', text: 'fluoroquinolones pass into breast milk. Prefer another antibiotic.' },
+  { id: 'ctx-bf-tetra', group: 'Pregnancy and breastfeeding', cls: 'tetracycline', cond: BF, condLabel: 'breastfeeding', lead: 'Breastfeeding', level: 'warn', text: 'doxycycline / tetracyclines pass into breast milk. Prefer another antibiotic, or keep the course short.' },
+  { id: 'ctx-bf-opioid', group: 'Pregnancy and breastfeeding', cls: 'kidopioid', cond: BF, condLabel: 'breastfeeding', lead: 'Breastfeeding', level: 'warn', text: 'tramadol / codeine can make the baby drowsy. Avoid, or use very briefly.' },
 ];
 /** age-based rules (years) */
 export const AGE_RULES: { id: string; cls: string; min?: number; max?: number; level: IxLevel; text: string; group: string }[] = [
@@ -121,3 +141,15 @@ export const AGE_RULES: { id: string; cls: string; min?: number; max?: number; l
   { id: 'kid-tetra', group: 'Children', cls: 'tetracycline', max: 8, level: 'warn', text: 'doxycycline / tetracyclines under 8 years can stain growing teeth.' },
   { id: 'kid-nsaid-infant', group: 'Children', cls: 'nsaid', max: 0.5, level: 'warn', text: 'NSAIDs under 6 months of age need a specialist decision.' },
 ];
+
+/** how long a course may run before the app speaks up (oral medicines, days) */
+export interface CourseRule { id: string; cls: string; maxDays: number; level: IxLevel; text: string; group: string; name: string }
+export const COURSE_RULES: CourseRule[] = [
+  { id: 'course-thiocol', group: 'Course length', cls: 'thiocol', maxDays: 7, level: 'warn', name: 'Thiocolchicoside, over 7 days', text: 'thiocolchicoside by mouth is usually limited to 7 days. Check the course length.' },
+  { id: 'course-nsaid', group: 'Course length', cls: 'nsaid', maxDays: 14, level: 'info', name: 'NSAID, over 14 days', text: 'a long NSAID course. Lowest dose, stomach cover, and check kidney function if it continues.' },
+  { id: 'course-kidopioid', group: 'Course length', cls: 'kidopioid', maxDays: 14, level: 'info', name: 'Tramadol / codeine, over 14 days', text: 'a long opioid course raises the risk of dependence. Review the need.' },
+  { id: 'course-steroid', group: 'Course length', cls: 'steroid', maxDays: 14, level: 'info', name: 'Oral steroid, over 14 days', text: 'oral steroid for more than 2 weeks raises sugar and BP, and the dose should be tapered.' },
+  { id: 'course-benzo', group: 'Course length', cls: 'benzo', maxDays: 14, level: 'info', name: 'Sleep / anxiety tablet, over 14 days', text: 'a long course can cause dependence. Review the need.' },
+];
+/** an NSAID by mouth for a week or more (or in an older patient) with nothing protecting the stomach */
+export const NSAID_GI = { id: 'nsaid-no-gi', group: 'NSAIDs', level: 'info' as IxLevel, name: 'NSAID without stomach protection', text: 'no stomach protection on this prescription. For a course of 7 days or more, or in an older patient, consider adding a PPI.' };
