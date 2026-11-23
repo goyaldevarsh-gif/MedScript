@@ -78,6 +78,15 @@ function load() {
    The cloud stores unreadable text; the desk opens it in the browser and searches locally. Only name, mobile, age, sex and last visit day are in it:
    no allergies, diagnosis, prescriptions or notes. */
 export interface DirRow { n: string; p: string; a: string; u: string; s: string; d: string }
+/** the doctor's name, clinic and a tiny logo travel inside the same encrypted directory, as one marked row */
+export interface DeskProf { n: string; q: string; c: string; l: string }
+export const PROF_TAG = '__prof';
+export const profRow = (p: DeskProf): DirRow => ({ n: JSON.stringify(p), p: '', a: '', u: '', s: '', d: PROF_TAG });
+export function splitProf(rows: DirRow[]): { rows: DirRow[]; prof: DeskProf | null } {
+  let prof: DeskProf | null = null;
+  const out = rows.filter((r) => { if (r.d !== PROF_TAG) return true; try { prof = JSON.parse(r.n) as DeskProf; } catch { /* ignore */ } return false; });
+  return { rows: out, prof };
+}
 const toB64 = (u: Uint8Array) => { let t = ''; for (let i = 0; i < u.length; i += 8192) t += String.fromCharCode(...u.subarray(i, i + 8192)); return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
 const fromB64 = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
 export const newDeskKey = () => toB64(crypto.getRandomValues(new Uint8Array(32)));
@@ -111,11 +120,11 @@ export function suggest(rows: DirRow[], q: string, max = 8): DirRow[] {
   return rows.map((r) => [r, sc(r)] as const).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1] || a[0].n.localeCompare(b[0].n)).slice(0, max).map(([r]) => r);
 }
 /** the desk: live, decrypted list of the doctor's patients (read only) */
-export async function deskDirWatch(id: string, k: string, cb: (r: DirRow[]) => void, onErr?: (e: unknown) => void): Promise<() => void> {
+export async function deskDirWatch(id: string, k: string, cb: (r: DirRow[], prof?: DeskProf | null) => void, onErr?: (e: unknown) => void): Promise<() => void> {
   if (!ok(id) || !validKey(k)) { onErr?.(new Error('This desk link is not valid.')); return () => {}; }
   const { fs, F } = await load();
   return F.onSnapshot(F.collection(fs, 'desks', id, 'directory'), async (snap) => {
-    try { const parts = snap.docs.sort((a, b) => Number(a.id.slice(1)) - Number(b.id.slice(1))).map((d) => String(d.data().c || '')).filter(Boolean); cb(parts.length ? await openDir(k, parts) : []); }
+    try { const parts = snap.docs.sort((a, b) => Number(a.id.slice(1)) - Number(b.id.slice(1))).map((d) => String(d.data().c || '')).filter(Boolean); const sp = splitProf(parts.length ? await openDir(k, parts) : []); cb(sp.rows, sp.prof); }
     catch (e) { onErr?.(e); }
   }, (e) => onErr?.(e));
 }
@@ -123,12 +132,12 @@ export async function deskDirWatch(id: string, k: string, cb: (r: DirRow[]) => v
 export async function deskDirSync(id: string, k: string, rows: DirRow[]): Promise<{ total: number; written: boolean }> {
   if (!ok(id) || !validKey(k)) return { total: 0, written: false };
   const sig = toB64(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(rows))))); const KEY = `ms-desk-dir:${id}`;
-  if (localStorage.getItem(KEY) === sig) return { total: rows.length, written: false };
+  if (localStorage.getItem(KEY) === sig) return { total: rows.filter((r) => r.d !== PROF_TAG).length, written: false };
   const parts = await sealDir(k, rows); const { fs, F } = await load();
   const b = F.writeBatch(fs); parts.forEach((c, i) => b.set(F.doc(fs, 'desks', id, 'directory', 'p' + i), { c }));
   (await F.getDocs(F.collection(fs, 'desks', id, 'directory'))).docs.forEach((d) => { if (Number(d.id.slice(1)) >= parts.length) b.delete(d.ref); });
   await b.commit(); try { localStorage.setItem(KEY, sig); } catch { /* ignore */ }
-  return { total: rows.length, written: true };
+  return { total: rows.filter((r) => r.d !== PROF_TAG).length, written: true };
 }
 /** removes the published directory (new link / desk turned off) */
 export async function deskWipe(id: string) { try { if (!ok(id)) return; const { fs, F } = await load(); await Promise.all((await F.getDocs(F.collection(fs, 'desks', id, 'directory'))).docs.map((d) => F.deleteDoc(d.ref))); localStorage.removeItem(`ms-desk-dir:${id}`); } catch { /* best effort */ } }

@@ -84,3 +84,13 @@ describe('reception directory: encrypted, searchable by 2-3 characters', () => {
     expect(blk).toMatch(/hasOnly\(\['c'\]\)/); expect(DESK_RULES).not.toMatch(/\/known\//);
   });
 });
+
+import { profRow, splitProf } from '../src/lib/desk';
+describe('desk doctor profile', () => {
+  it('travels encrypted with the directory and is split back out', async () => {
+    const k = newDeskKey(); const rows: DirRow[] = [profRow({ n: 'Dr. Devarsh Goyal', q: 'MS Ortho', c: 'Mittal Clinic', l: 'data:image/jpeg;base64,AAAA' }), { n: 'Sharma', p: '9876543210', a: '40', u: 'Y', s: 'Male', d: '2026-11-20' }];
+    const parts = await sealDir(k, rows); expect(parts[0]).not.toContain('Mittal');
+    const sp = splitProf(await openDir(k, parts)); expect(sp.prof?.c).toBe('Mittal Clinic'); expect(sp.rows).toHaveLength(1);
+    expect(splitProf([rows[1]]).prof).toBeNull();
+  });
+});

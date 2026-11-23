@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Clock, Hourglass, ListChecks, Repeat, Search, Trash2, UserPlus, Users, X } from 'lucide-react';
-import { deskDirWatch, deskMsg, deskRemove, deskSubmit, deskWatch, suggest, validKey, type DeskIn, type DeskItem, type DirRow } from '../lib/desk';
+import { deskDirWatch, deskMsg, deskRemove, deskSubmit, deskWatch, suggest, validKey, type DeskIn, type DeskItem, type DeskProf, type DirRow } from '../lib/desk';
+import { useUpdate } from '../lib/pwa';
 import { cx } from '../lib/util';
 
 const REASONS = ['Knee pain', 'Back pain', 'Neck pain', 'Shoulder pain', 'Hip pain', 'Fall / injury', 'Fracture follow-up', 'Post-op follow-up', 'Report show'];
@@ -19,12 +20,16 @@ export default function Desk() {
   const [done, setDone] = useState<{ n: number; name: string } | null>(null);
   const [list, setList] = useState<DeskItem[]>([]); const [lerr, setLerr] = useState('');
   const [now, setNow] = useState(Date.now());
-  const [dir, setDir] = useState<DirRow[] | null>(null); const [derr, setDerr] = useState('');
+  const [prof, setProf] = useState<DeskProf | null>(null); const [dir, setDir] = useState<DirRow[] | null>(null); const [derr, setDerr] = useState('');
   const [open, setOpen] = useState(false); const [tab, setTab] = useState<'w' | 'a'>('w');
   const [q, setQ] = useState(''); const [picked, setPicked] = useState<DirRow | null>(null);
   const sug = useMemo(() => (dir && q.trim().length >= 2 ? suggest(dir, q) : []), [dir, q]);
   const set = (x: Partial<DeskIn>) => setF((c) => ({ ...c, ...x }));
 
+  // the desk keeps nothing that an update can lose: pick up a new version by itself, but never in the middle of a check-in
+  const upd = useUpdate();
+  useEffect(() => { const t = setInterval(() => { upd.check().catch(() => {}); }, 10 * 60 * 1000); upd.check().catch(() => {}); return () => clearInterval(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (upd.available && !open && !busy) { const t = setTimeout(() => { upd.apply(); }, 1500); return () => clearTimeout(t); } }, [upd.available, open, busy]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(t); }, []);
   useEffect(() => {
     let off: (() => void) | undefined; let dead = false;
@@ -33,7 +38,7 @@ export default function Desk() {
   }, [id]);
   useEffect(() => {
     let off: (() => void) | undefined; let dead = false;
-    deskDirWatch(id, key, (r) => { if (!dead) { setDir(r); setDerr(''); } }, (e) => !dead && setDerr(deskMsg(e))).then((u) => { if (dead) u(); else off = u; }).catch((e) => setDerr(deskMsg(e)));
+    deskDirWatch(id, key, (r, p) => { if (!dead) { setDir(r); setProf(p ?? null); setDerr(''); } }, (e) => !dead && setDerr(deskMsg(e))).then((u) => { if (dead) u(); else off = u; }).catch((e) => setDerr(deskMsg(e)));
     return () => { dead = true; off?.(); };
   }, [id, key]);
   // a full 10-digit mobile typed in the form that matches a saved patient marks the visit as a follow-up
@@ -71,8 +76,12 @@ export default function Desk() {
     <div className="flex min-h-full bg-slate-100">
       {/* ---------- dark rail ---------- */}
       <aside className="hidden w-60 shrink-0 flex-col bg-navy p-5 text-white lg:flex">
-        <div className="mt-2 text-center"><div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-xl font-extrabold">Rx</div>
-          <div className="mt-3 text-lg font-extrabold">Reception</div><div className="text-xs font-semibold text-white/60">Check-in desk</div></div>
+        <div className="mt-2 text-center">
+          {prof?.l ? <img src={prof.l} alt="" className="mx-auto h-16 w-16 rounded-2xl bg-white object-contain p-1" /> : <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-xl font-extrabold">{(prof?.n || prof?.c || 'R').replace(/^Dr\.?\s*/i, '').slice(0, 1).toUpperCase()}</div>}
+          <div className="mt-3 text-lg font-extrabold leading-tight">{prof?.n ? (/^dr\b/i.test(prof.n) ? prof.n : 'Dr. ' + prof.n) : 'Reception'}</div>
+          {prof?.q && <div className="mt-0.5 text-xs font-semibold text-white/70">{prof.q}</div>}
+          {prof?.c && <div className="mt-1 text-xs font-bold text-teal-200">{prof.c}</div>}
+          <div className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-white/50">Reception desk</div></div>
                 <button type="button" onClick={() => { setOpen(true); setPicked(null); }} className="mt-8 flex items-center justify-center gap-2 rounded-xl bg-teal px-4 py-3 text-base font-extrabold shadow hover:brightness-110"><UserPlus size={19} /> New patient</button>
         <div className="mt-6 space-y-1 text-sm font-bold">
           <button type="button" onClick={() => setTab('w')} className={cx('flex w-full items-center justify-between rounded-lg px-3 py-2.5', tab === 'w' ? 'bg-white/15' : 'text-white/70 hover:bg-white/10')}>Waiting <span>{waiting.length}</span></button>
