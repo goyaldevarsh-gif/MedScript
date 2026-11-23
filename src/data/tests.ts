@@ -4,32 +4,32 @@ import { norm } from '../lib/util';
 /** {s} is replaced with "right " / "left " / "bilateral " (or nothing) from the Side chosen on the form. */
 type Region = { key: string; re: RegExp; parts: string[]; tests: string[] };
 const R: Region[] = [
-  { key: 'shoulder', re: /shoulder|rotator|cuff|clavic|acromio|\bac joint|humerus.*prox|prox.*humer|slap|bankart|frozen|capsulitis|supraspin|labr/i, parts: ['shoulder'], tests: [
+  { key: 'shoulder', re: /shoulder|rotator|cuff|clavic|acromio|\bac joint|humerus.*prox|prox.*humer|slap|bankart|frozen|capsulitis|supraspin|labr|subacromial|subscap|glenoid|axillary nerve|brachial plexus|parsonage|pectoral|(?<!femoris )biceps tend|long head of biceps|scapul|serratus|sprengel|scapula/i, parts: ['shoulder'], tests: [
     'X-ray {s}shoulder AP and axillary view', 'X-ray {s}shoulder AP, Grashey and scapular Y views', 'MRI {s}shoulder', 'USG {s}shoulder', 'CT {s}shoulder'] },
   { key: 'clavicle', re: /clavic|\bac joint|acromioclav/i, parts: [], tests: ['X-ray {s}clavicle AP and cephalic tilt view', 'X-ray both shoulders AP (Zanca view)'] },
-  { key: 'elbow', re: /elbow|epicondyl|olecran|radial head|supracond|cubital|tennis|golfer|humerus.*distal|distal.*humer/i, parts: ['elbow'], tests: [
+  { key: 'elbow', re: /elbow|epicondyl|olecran|radial head|supracond|cubital|tennis|golfer|humerus.*distal|distal.*humer|coronoid|capitellum|panner|pronator|interosseous|cubitus|triceps|radial nerve|distal biceps|radial tunnel/i, parts: ['elbow'], tests: [
     'X-ray {s}elbow AP and lateral', 'MRI {s}elbow', 'USG {s}elbow', 'Nerve conduction study of the ulnar nerve'] },
   { key: 'arm', re: /humerus|humeral|arm fracture/i, parts: ['arm'], tests: ['X-ray {s}humerus AP and lateral'] },
   { key: 'forearm', re: /forearm|both bone|radius|ulna|monteggia|galeazzi/i, parts: ['forearm'], tests: ['X-ray {s}forearm with elbow and wrist AP and lateral', 'X-ray {s}wrist AP and lateral'] },
-  { key: 'wrist', re: /wrist|scaphoid|carpal|dequervain|de quervain|tfcc|distal radius|colles|ganglion|buckle/i, parts: ['wrist'], tests: [
+  { key: 'wrist', re: /wrist|scaphoid|carpal|dequervain|de quervain|tfcc|distal radius|colles|ganglion|buckle|smith fracture|barton|chauffeur|lunate|kienb|hamate|triquetr|preiser|flexor carpi|volkmann|ulnar styloid|\bdrUJ|distal radioulnar/i, parts: ['wrist'], tests: [
     'X-ray {s}wrist AP and lateral', 'X-ray {s}wrist with scaphoid views', 'MRI {s}wrist', 'USG {s}wrist', 'Nerve conduction study of the median nerve', 'CT {s}wrist'] },
-  { key: 'hand', re: /hand|finger|thumb|metacarp|phalan|trigger|mallet|boxer|dupuytren|gamekeeper|tendon repair/i, parts: ['hand', 'finger', 'thumb'], tests: [
+  { key: 'hand', re: /hand|finger|thumb|metacarp|phalan|trigger|mallet|boxer|dupuytren|gamekeeper|tendon repair|bennett|rolando|boutonni|swan.?neck|extensor tendon|flexor tendon|fight bite|clenched|camptodactyly|clinodactyly|syndactyly|polydactyly|heberden|bouchard|palm|nail bed|fingertip|paronychia/i, parts: ['hand', 'finger', 'thumb'], tests: [
     'X-ray {s}hand AP, oblique and lateral', 'X-ray {s}finger AP and lateral', 'X-ray {s}thumb AP and lateral', 'USG {s}hand'] },
-  { key: 'cervical', re: /cervical|(?<!femoral )neck(?! of femur)|whiplash|torticoll|wryneck|cerv/i, parts: ['neck', 'cervical'], tests: [
+  { key: 'cervical', re: /cervical|(?<!femoral )neck(?! of femur)|whiplash|torticoll|wryneck|cerv|odontoid|atlantoaxial|klippel|cervico/i, parts: ['neck', 'cervical'], tests: [
     'X-ray cervical spine AP and lateral', 'X-ray cervical spine flexion and extension views', 'MRI cervical spine', 'Nerve conduction study / EMG of the upper limb'] },
   { key: 'thoracic', re: /thoracic|dorsal spine|mid.?back|rib\b|ribs|chest wall/i, parts: ['thoracic'], tests: ['X-ray thoracic spine AP and lateral', 'MRI thoracic spine', 'Chest X-ray PA view'] },
-  { key: 'lumbar', re: /lumbar|lumbo|back pain|\bLBP\b|disc|sciatica|radicul|canal stenosis|spondyl|coccy|sacro|\bsi joint|spine|vertebr|scolio/i, parts: ['lumbar', 'spine', 'back'], tests: [
+  { key: 'lumbar', re: /lumbar|lumbo|back pain|\bLBP\b|disc|sciatica|radicul|canal stenosis|spondyl|coccy|sacro|\bsi joint|spine|vertebr|scolio|cauda equina|chance fracture|epidural|spinal (?:metast|tumou?r|cord|fusion|instrument)|failed back|back strain|flat back|hyperostosis|laminectomy|discectomy|kyphosis|lordosis/i, parts: ['lumbar', 'spine', 'back'], tests: [
     'X-ray LS spine AP and lateral', 'X-ray LS spine flexion and extension views', 'MRI lumbosacral spine', 'Nerve conduction study / EMG of the lower limb', 'CT lumbosacral spine'] },
-  { key: 'pelvis', re: /pelvi|acetabul|pubic|\bsi joint|sacroil|coccy/i, parts: ['pelvis'], tests: ['X-ray pelvis AP', 'X-ray pelvis AP, inlet and outlet views', 'CT pelvis', 'MRI sacroiliac joints'] },
-  { key: 'hip', re: /\bhip|femoral neck|femoral head|trochant|groin|avn|perthes|ddh|scfe|thr\b|neck of femur|\bnof\b|impingement|fai\b|piriformis/i, parts: ['hip', 'groin'], tests: [
+  { key: 'pelvis', re: /pelvi|acetabul|pubic|\bsi joint|sacroil|coccy|sacral|sacrum|pubalgia|sports hernia|ischial/i, parts: ['pelvis'], tests: ['X-ray pelvis AP', 'X-ray pelvis AP, inlet and outlet views', 'CT pelvis', 'MRI sacroiliac joints'] },
+  { key: 'hip', re: /\bhip|femoral neck|femoral head|trochant|groin|avn|perthes|ddh|scfe|thr\b|neck of femur|\bnof\b|impingement|fai\b|piriformis|slipped capital|gluteal|trochanter|periprosthetic hip|hemiarthroplasty|ischial|adductor|iliopsoas|snapping hip|coxa/i, parts: ['hip', 'groin'], tests: [
     'X-ray pelvis with both hips AP', 'X-ray {s}hip lateral view', 'MRI {s}hip', 'MRI both hips', 'USG {s}hip'] },
-  { key: 'thigh', re: /(?<!neck of )femur|femoral shaft|thigh|hamstring|quadric|contusion|meralgia/i, parts: ['thigh'], tests: ['X-ray {s}femur AP and lateral', 'USG {s}thigh', 'MRI {s}thigh'] },
-  { key: 'knee', re: /knee|patell|menisc|\bacl\b|\bpcl\b|\bmcl\b|\blcl\b|cruciate|collateral|tibial plateau|distal femur|baker|osgood|chondral|cartilage|genu|\btkr\b|jumper|iliotibial|\bitb\b|cyst/i, parts: ['knee'], tests: [
+  { key: 'thigh', re: /(?<!neck of )femur|femoral shaft|thigh|hamstring|quadric|contusion|meralgia|femoral nerve|sciatic nerve|lateral femoral cutaneous|obturator|biceps femoris|rectus femoris|adductor longus/i, parts: ['thigh'], tests: ['X-ray {s}femur AP and lateral', 'USG {s}thigh', 'MRI {s}thigh'] },
+  { key: 'knee', re: /knee|patell|menisc|\bacl\b|\bpcl\b|\bmcl\b|\blcl\b|cruciate|collateral|tibial plateau|distal femur|baker|osgood|chondral|cartilage|genu|\btkr\b|jumper|iliotibial|\bitb\b|cyst|pes anserine|plica|hoffa|popliteus|pellegrini|mpfl|trochlear|sinding|femoral physeal|blount|tibial tubercle|infrapatellar/i, parts: ['knee'], tests: [
     'X-ray {s}knee standing AP and lateral', 'X-ray {s}knee AP and lateral', 'X-ray {s}knee skyline view', 'X-ray both knees standing AP', 'MRI {s}knee', 'USG {s}knee', 'CT {s}knee', 'X-ray full-length both lower limbs standing (scanogram)'] },
   { key: 'leg', re: /tibia|fibula|shin|leg fracture|calf|compartment/i, parts: ['leg', 'calf', 'shin'], tests: ['X-ray {s}leg with knee and ankle AP and lateral', 'USG {s}calf'] },
-  { key: 'ankle', re: /ankle|achilles|malleol|syndesm|peroneal|talus|sprain|tibialis|tarsal tunnel/i, parts: ['ankle'], tests: [
+  { key: 'ankle', re: /ankle|achilles|malleol|syndesm|peroneal|talus|sprain|tibialis|tarsal tunnel|pilon|syndesmo|ankle|haglund|retrocalcaneal|subtalar|triple arthrodesis|sinus tarsi|flexor hallucis|baxter/i, parts: ['ankle'], tests: [
     'X-ray {s}ankle AP, lateral and mortise views', 'X-ray {s}ankle weight-bearing', 'MRI {s}ankle', 'USG {s}ankle', 'CT {s}ankle'] },
-  { key: 'foot', re: /foot|heel|plantar|calcane|metatars|toe\b|toes|hallux|bunion|morton|flat ?foot|sever|ctev|clubfoot|lisfranc|navicular/i, parts: ['foot', 'heel', 'toe'], tests: [
+  { key: 'foot', re: /foot|heel|plantar|calcane|metatars|toe\b|toes|hallux|bunion|morton|flat ?foot|sever|ctev|clubfoot|lisfranc|navicular|cuboid|tarsal coalition|jones fracture|freiberg|kohler|sesamoid|ingrown|ledderhose|pes planus|pes cavus|in-?toeing|out-?toeing|talipes|haglund|metatarsus|iselin|forefoot|midfoot|hindfoot/i, parts: ['foot', 'heel', 'toe'], tests: [
     'X-ray {s}foot AP, oblique and lateral', 'X-ray {s}foot weight-bearing AP and lateral', 'X-ray {s}heel lateral and axial view', 'MRI {s}foot', 'USG {s}heel / plantar fascia', 'CT {s}foot'] },
 ];
 
