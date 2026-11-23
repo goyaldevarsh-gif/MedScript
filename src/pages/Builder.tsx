@@ -3,6 +3,7 @@ import { eduUrl } from '../data/eduMap';
 import { isOrtho } from '../lib/defaults';
 import { markSent, ovMsg, sendRx } from '../lib/ovcloud';
 import OvInbox from '../components/OvInbox';
+import { matchPatient, mergeAllergy } from '../lib/desk';
 import { decodeDesk, decodeOvIn, ovSaveUrl, ovSex, ovSide } from '../lib/orthovault';
 import BodyPicker from '../components/BodyPicker';
 import WoundCard from '../components/WoundCard';
@@ -95,7 +96,8 @@ function Builder() {
         const o = decodeOvIn(ovq);
         if (o) {
           const d10 = (o.phone || '').replace(/\D/g, '').slice(-10);
-          const known = (await db.patients.toArray()).find((p) => (o.id && p.ovId === o.id) || (d10.length === 10 && p.phone.replace(/\D/g, '').slice(-10) === d10) || norm(p.name) === norm(o.name));
+          const all = await db.patients.toArray();
+          const known = all.find((p) => o.id && p.ovId === o.id) || matchPatient(all, { name: o.name, phone: o.phone, age: o.age, sex: ovSex(o.sex) });
           if (known) { r.patient = { ...known, ovId: o.id || known.ovId }; r.patientId = known.id; }
           else r.patient = { ...r.patient, name: o.name.trim(), age: o.age || '', ageUnit: o.ageUnit === 'M' ? 'M' : 'Y', sex: ovSex(o.sex) as Prescription['patient']['sex'], phone: d10, weight: o.weight || '', ovId: o.id };
           r.ovId = o.id;
@@ -107,9 +109,9 @@ function Builder() {
         const o = decodeDesk(dkq);
         if (o) {
           const ph = (o.phone || '').replace(/\D/g, '').slice(-10);
-          const known = (await db.patients.toArray()).find((p) => (ph.length === 10 && p.phone.replace(/\D/g, '').slice(-10) === ph) || norm(p.name) === norm(o.name));
-          if (known) r.patient = { ...known, weight: o.weight || known.weight, allergies: o.allergies?.trim() || known.allergies }; // today's weight and allergy answer win
-          else r.patient = { ...r.patient, name: o.name.trim(), age: o.age || '', ageUnit: o.ageUnit === 'M' ? 'M' : 'Y', sex: (['Male', 'Female', 'Other'].includes(o.sex) ? o.sex : '') as Prescription['patient']['sex'], phone: ph, weight: o.weight || '', allergies: o.allergies?.trim() || '' };
+          const known = matchPatient(await db.patients.toArray(), { name: o.name, phone: o.phone, age: o.age, sex: o.sex });
+          if (known) r.patient = { ...known, weight: o.weight || known.weight, allergies: mergeAllergy(known.allergies, o.allergies) }; // today's weight wins; allergies are only ever added to
+          else r.patient = { ...r.patient, name: o.name.trim(), age: o.age || '', ageUnit: o.ageUnit === 'M' ? 'M' : 'Y', sex: (['Male', 'Female', 'Other'].includes(o.sex) ? o.sex : '') as Prescription['patient']['sex'], phone: ph, weight: o.weight || '', allergies: mergeAllergy('', o.allergies) };
           if (known) r.patientId = known.id;
           r.clinical = { ...r.clinical, complaint: o.reason || '', notes: [o.bp && `BP ${o.bp}`, o.sugar && `Sugar ${o.sugar}`].filter(Boolean).join(', ') && 'Vitals at reception: ' + [o.bp && `BP ${o.bp}`, o.sugar && `Sugar ${o.sugar}`].filter(Boolean).join(', ') };
         }
