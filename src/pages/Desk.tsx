@@ -9,7 +9,6 @@ const blank = (): DeskIn => ({ name: '', age: '', ageUnit: 'Y', sex: '', phone: 
 const fmt = (d?: string) => (d && d.length === 10 ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const mins = (t: number, now: number) => Math.max(0, Math.round((now - t) / 60000));
 const hue = (m: number) => (m >= 45 ? 'bg-red-50 text-red-700' : m >= 20 ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700');
-const hello = (now: number) => { const h = new Date(now).getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
 const initials = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() || '').join('') || '?';
 const ago = (t: number, now: number) => { const m = Math.max(0, Math.round((now - t) / 60000)); return m < 1 ? 'just now' : m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`; };
 
@@ -83,8 +82,7 @@ export default function Desk() {
 
       <main className="min-w-0 flex-1 p-4 sm:p-6">
         <header className="mb-4 flex flex-wrap items-end gap-3">
-          <div className="mr-auto"><div className="text-xs font-extrabold uppercase tracking-wide text-slate-500">{hello(now)}</div>
-            <h1 className="text-2xl font-extrabold text-navy sm:text-3xl">Reception</h1>
+          <div className="mr-auto"><h1 className="text-2xl font-extrabold text-navy sm:text-3xl">Today's queue</h1>
             <div className="text-sm font-semibold text-slate-500">{new Date(now).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div></div>
           <button type="button" onClick={() => { setOpen(true); setPicked(null); }} className="flex items-center gap-2 rounded-xl bg-teal px-4 py-2.5 font-extrabold text-white shadow lg:hidden"><UserPlus size={18} /> New</button>
         </header>
