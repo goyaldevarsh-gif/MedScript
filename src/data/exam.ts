@@ -88,8 +88,8 @@ export const EXAM: Record<string, ExamGroup> = {
 
 /** things that must not be missed. They show as red chips; "Present" raises a note. */
 export const RED: Record<string, ExamItem[]> = {
-  lumbar: [flag('Bladder / bowel disturbance', ['bladder bowel', 'bladder', 'bowel']), flag('Saddle anaesthesia', ['saddle']), flag('Progressive or bilateral weakness', ['progressive weakness']), flag('Fever / weight loss / night pain', ['constitutional', 'fever weight loss night pain'])],
-  cervical: [flag('Myelopathy signs (clumsy hands, gait)', ['myelopathy']), flag('Progressive weakness', ['progressive weakness']), flag('Fever / weight loss / night pain', ['constitutional', 'fever weight loss night pain'])],
+  lumbar: [flag('Bladder / bowel disturbance', ['bladder bowel', 'bladder', 'bowel']), flag('Saddle anaesthesia', ['saddle']), flag('Progressive or bilateral weakness', ['progressive weakness'])],
+  cervical: [flag('Myelopathy signs (clumsy hands, gait)', ['myelopathy'])],
   trauma: [flag('Compartment syndrome signs (pain on passive stretch, tense swelling)', ['compartment']), flag('Absent distal pulse', ['absent pulse']), flag('Open wound', ['open wound'])],
   joint: [flag('Hot, red, swollen joint with fever', ['septic joint', 'hot swollen joint'])],
   hipchild: [flag('Unable to bear weight with fever', ['septic hip'])],
