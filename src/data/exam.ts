@@ -150,6 +150,22 @@ const GENERAL_RED: ExamItem[] = [
 ];
 export const RED_GENERAL = GENERAL_RED;
 
+
+/** the history and red-flag lines (ADL, night pain, fever...) print on their own line, and only when something is present. "None / absent" answers print nothing. Everything else stays in Examination. */
+export function splitHistory(text: string): { hist: string; exam: string } {
+  const items = [...EXAM.flags.items.slice(0, 4), ...GENERAL_RED];
+  const exam: string[] = []; const pos: string[] = [];
+  for (const l of (text || '').split(/\n/)) {
+    const i = l.indexOf(':'); const val = i < 0 ? '' : l.slice(i + 1).trim();
+    const it = i < 0 ? undefined : items.find((x) => ids(x).includes(lineLabel(l)));
+    if (!it) { exam.push(l); continue; }
+    if (!val) continue;
+    if (parseVal(it, val).opt === it.normal) continue;
+    pos.push(it.opts.length === 2 && it.opts[1] === 'Present' ? it.label : `${it.label}: ${val}`);
+  }
+  return { hist: pos.join('; '), exam: exam.join('\n') };
+}
+
 /** the tabs to show for a problem: its regions, injury and nerve tabs where they fit, and the red flags that matter */
 export function examFor(c: Pick<Clinical, 'diagnosis' | 'complaint' | 'bodyParts' | 'injury'>): { groups: ExamGroup[]; red: ExamItem[] } {
   const text = `${c.diagnosis || ''} ${c.complaint || ''}`;

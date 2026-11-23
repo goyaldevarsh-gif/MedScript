@@ -1,3 +1,4 @@
+import { splitHistory } from '../src/data/exam';
 import { describe, expect, it } from 'vitest';
 import { EXAM, RED, examFor, getVal, setVal, parseVal, buildVal, isFinding } from '../src/data/exam';
 import { STARTERS } from '../src/data/templates';
@@ -55,5 +56,12 @@ describe('examination chips', () => {
   it('ids unique inside every tab and every option list has its normal answer', () => {
     for (const g of Object.values(EXAM)) { expect(new Set(g.items.map((i) => i.id)).size, g.key).toBe(g.items.length); for (const i of g.items) { expect(i.opts, i.label).toContain(i.normal); if (i.note) i.note.when.forEach((w) => expect(i.opts, i.label).toContain(w)); } }
     for (const r of Object.values(RED).flat()) expect(r.opts).toContain(r.normal);
+  });
+  it('history and red-flag lines print on their own line, and only when something is present', () => {
+    const r = splitHistory('Gait: Antalgic\nNight pain: Present\nFever / chills: Absent\nWeight loss / loss of appetite: Absent\nADL affected: Moderate - stairs, dressing\nTenderness:\nNeer test: Positive');
+    expect(r.hist).toBe('Night pain; ADL affected: Moderate - stairs, dressing');
+    expect(r.exam).toBe('Gait: Antalgic\nTenderness:\nNeer test: Positive');
+    expect(splitHistory('ADL affected: None\nNight pain: Absent').hist).toBe('');
+    expect(splitHistory('Gait: Normal').hist).toBe('');
   });
 });

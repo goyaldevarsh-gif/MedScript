@@ -32,6 +32,8 @@ import ReviewModal from '../components/ReviewModal';
 import { checkRx, disclaimer, isHidden, warnKey, type Warning } from '../lib/safety';
 import WarnBanner from '../components/WarnBanner';
 import { STARTERS } from '../data/templates';
+import { DIAGNOSES } from '../data/diagnoses';
+const DX_ALL = [...new Set([...STARTERS.map((s) => s.clinical.diagnosis), ...DIAGNOSES])];
 import { cx, fmtDateTime, norm, uid } from '../lib/util';
 
 // a draft is only worth keeping once a medicine is added (stops empty duplicate drafts)
@@ -337,7 +339,7 @@ function Builder() {
               <Field label="Diagnosis"><input list="dx-list" className="field" value={rx.clinical.diagnosis} onChange={(e) => setClin({ diagnosis: e.target.value })} placeholder="Start typing…" /></Field>
               <Field label="Comorbidities (optional)"><input className="field" value={rx.clinical.comorbidities || ''} onChange={(e) => setClin({ comorbidities: e.target.value })} placeholder="e.g. Diabetes, Hypertension, Anaemia" />
                 <CondChips value={rx.clinical.comorbidities || ''} onChange={(v) => setClin({ comorbidities: v })} patient={rx.patient} /></Field>
-              <datalist id="dx-list">{(ortho ? STARTERS : []).map((s) => <option key={s.key} value={s.clinical.diagnosis} />)}</datalist>
+              <datalist id="dx-list">{(ortho ? DX_ALL : []).map((d) => <option key={d} value={d} />)}</datalist>
               {ortho && <div>
                 <span className="lbl">Side</span>
                 <div className="flex flex-wrap gap-2">{(['Left', 'Right', 'Bilateral', 'N/A'] as Side[]).map((s) => <Chip key={s} active={rx.clinical.side === s} onClick={() => setClin({ side: s })}>{s}</Chip>)}</div>

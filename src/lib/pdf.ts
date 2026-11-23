@@ -1,3 +1,4 @@
+import { splitHistory } from '../data/exam';
 import type { DoctorSnapshot, Prescription, RxItem } from './types';
 import { imageSize, renderSeal } from './imaging';
 import { fmtMobile, phoneList } from './phone';
@@ -231,7 +232,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   if (rx.print.complaint) row('Complaint', c.complaint);
   if (c.diagnosis.trim()) row('Diagnosis', c.diagnosis + (c.side && c.side !== 'N/A' ? ` (${c.side})` : ''));
   row('Comorbidities', c.comorbidities || '');
-  if (rx.print.examination) row('Examination', c.examination.split(/[;\n]/).map((x) => x.trim()).filter((x) => x && !/:\s*$/.test(x)).join('; '));
+  if (rx.print.examination) { const sh = splitHistory(c.examination); row('History / red flags', sh.hist); row('Examination', sh.exam.split(/[;\n]/).map((x) => x.trim()).filter((x) => x && !/:\s*$/.test(x)).join('; ')); }
   if (rx.print.investigations) row('Investigations', printTests(c.investigations));
   { const pl = procLine(rx); if (pl) row('Procedure', pl); }
   { const wl = woundLine(rx); if (wl) row('Wound', wl + (rx.wound?.pins?.length ? '  (marked on figure)' : '')); }

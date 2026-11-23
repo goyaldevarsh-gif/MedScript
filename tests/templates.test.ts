@@ -30,3 +30,12 @@ describe('starter templates', () => {
     for (const s of STARTERS) expect((s as any).items ?? [], s.key).toHaveLength(0);
   });
 });
+
+import { DIAGNOSES } from '../src/data/diagnoses';
+describe('diagnosis list', () => {
+  it('is large, has no blanks and no exact repeats', () => {
+    expect(DIAGNOSES.length).toBeGreaterThanOrEqual(500);
+    expect(DIAGNOSES.every((d) => d.trim() === d && d.length > 3)).toBe(true);
+    expect(new Set(DIAGNOSES.map((d) => d.toLowerCase())).size).toBe(DIAGNOSES.length);
+  });
+});
