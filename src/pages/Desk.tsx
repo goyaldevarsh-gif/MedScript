@@ -73,7 +73,8 @@ export default function Desk() {
       <aside className="hidden w-60 shrink-0 flex-col bg-navy p-5 text-white lg:flex">
         <div className="mt-2 text-center"><div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-xl font-extrabold">Rx</div>
           <div className="mt-3 text-lg font-extrabold">Reception</div><div className="text-xs font-semibold text-white/60">Check-in desk</div></div>
-        <div className="mt-8 space-y-1 text-sm font-bold">
+                <button type="button" onClick={() => { setOpen(true); setPicked(null); }} className="mt-8 flex items-center justify-center gap-2 rounded-xl bg-teal px-4 py-3 text-base font-extrabold shadow hover:brightness-110"><UserPlus size={19} /> New patient</button>
+        <div className="mt-6 space-y-1 text-sm font-bold">
           <button type="button" onClick={() => setTab('w')} className={cx('flex w-full items-center justify-between rounded-lg px-3 py-2.5', tab === 'w' ? 'bg-white/15' : 'text-white/70 hover:bg-white/10')}>Waiting <span>{waiting.length}</span></button>
           <button type="button" onClick={() => setTab('a')} className={cx('flex w-full items-center justify-between rounded-lg px-3 py-2.5', tab === 'a' ? 'bg-white/15' : 'text-white/70 hover:bg-white/10')}>All today <span>{list.length}</span></button>
         </div>
@@ -84,7 +85,7 @@ export default function Desk() {
         <header className="mb-4 flex flex-wrap items-end gap-3">
           <div className="mr-auto"><h1 className="text-2xl font-extrabold text-navy sm:text-3xl">Today's queue</h1>
             <div className="text-sm font-semibold text-slate-500">{new Date(now).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div></div>
-          <button type="button" onClick={() => { setOpen(true); setPicked(null); }} className="flex items-center gap-2 rounded-xl bg-teal px-4 py-2.5 font-extrabold text-white shadow lg:hidden"><UserPlus size={18} /> New</button>
+          <button type="button" onClick={() => { setOpen(true); setPicked(null); }} className="flex items-center gap-2 rounded-xl bg-teal px-4 py-2.5 font-extrabold text-white shadow lg:hidden"><UserPlus size={18} /> New patient</button>
         </header>
 
         <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -140,7 +141,6 @@ export default function Desk() {
               {dir && !derr && !dir.length && <div className="mt-2 text-xs font-semibold text-slate-500">No saved patients yet.</div>}
               {!dir && !derr && <div className="mt-2 text-xs font-semibold text-slate-500">Loading…</div>}
             </div>
-            <button type="button" onClick={() => { setOpen(true); setPicked(null); }} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-navy py-4 text-lg font-extrabold text-white shadow hover:brightness-110"><UserPlus size={21} /> New check-in</button>
           </section>
         </div>
       </main>
