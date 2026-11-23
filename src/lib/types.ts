@@ -33,7 +33,7 @@ export interface RxItem {
 export interface Clinical {
   complaint: string; diagnosis: string; side: Side; notes: string;
   examination: string; investigations: string; advice: string[];
-  comorbidities?: string; nextTests?: string; injury?: 'trauma' | 'nontrauma' | ''; bodyParts?: string[];
+  comorbidities?: string; /** examination findings / tests the doctor chose to keep in the record but leave off the printed prescription (keys, see data/printpick.ts) */ hideFromRx?: string[]; nextTests?: string; injury?: 'trauma' | 'nontrauma' | ''; bodyParts?: string[];
 }
 export interface PrintOpts { complaint: boolean; examination: boolean; investigations: boolean; notes: boolean }
 export interface PdfToggles { signature: boolean; stamp: boolean; logo: boolean }

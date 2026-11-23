@@ -19,6 +19,8 @@ import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../comp
 import { MedicineSearch } from '../components/MedicineLibrary';
 import ItemEditor from '../components/ItemEditor';
 import TemplatePicker from '../components/TemplatePicker';
+import PrintPick from '../components/PrintPick';
+import { examLines, testLines } from '../data/printpick';
 import ExamPicker from '../components/ExamPicker';
 import TestPicker from '../components/TestPicker';
 import CondChips from '../components/CondChips';
@@ -328,8 +330,10 @@ function Builder() {
                 <div className="flex flex-wrap gap-2">{(['Left', 'Right', 'Bilateral', 'N/A'] as Side[]).map((s) => <Chip key={s} active={rx.clinical.side === s} onClick={() => setClin({ side: s })}>{s}</Chip>)}</div>
               </div>}
               <PrintField label="Examination findings" value={rx.clinical.examination} onChange={(v) => setClin({ examination: v })} on={rx.print.examination} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, examination: b } }))} />
+              {!readOnly && rx.print.examination && <PrintPick lines={examLines(rx.clinical.examination)} hide={rx.clinical.hideFromRx} onChange={(h) => setClin({ hideFromRx: h })} />}
               {!readOnly && isOrtho(settings) && <ExamPicker clin={rx.clinical} value={rx.clinical.examination} onChange={(v) => setClin({ examination: v })} />}
               <PrintField label="Investigations" value={rx.clinical.investigations} onChange={(v) => setClin({ investigations: v })} on={rx.print.investigations} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, investigations: b } }))} />
+              {!readOnly && rx.print.investigations && <PrintPick lines={testLines(rx.clinical.investigations)} hide={rx.clinical.hideFromRx} onChange={(h) => setClin({ hideFromRx: h })} />}
               {!readOnly && <TestPicker clin={rx.clinical} value={rx.clinical.investigations} onChange={(v) => setClin({ investigations: v })} usual={usualTests} patient={rx.patient} />}
               <PrintField label="Clinical notes (private by default)" value={rx.clinical.notes} onChange={(v) => setClin({ notes: v })} on={rx.print.notes} setOn={(b) => update((r) => ({ ...r, print: { ...r.print, notes: b } }))} />
               <label className="flex items-center gap-2 text-xs font-semibold text-slate-600"><input type="checkbox" checked={rx.print.complaint} onChange={(e) => update((r) => ({ ...r, print: { ...r.print, complaint: e.target.checked } }))} /> Print chief complaint on prescription</label>
