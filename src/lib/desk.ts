@@ -79,31 +79,37 @@ function load() {
 const hex = async (t: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t))), (x) => x.toString(16).padStart(2, '0')).join('');
 export const phoneKey = (p: string) => { const d = d10(p); return d.length === 10 ? d : ''; };
 export const nameKey = (n: string) => nm(n).split(' ').filter(Boolean).sort().join(' ');
-export const keyHash = (id: string, kind: 'p' | 'n', v: string) => hex(`${id}|${kind}|${v}`);
+export const nameTokens = (n: string) => [...new Set(nm(n).split(' ').filter((t) => t.length >= 3))].slice(0, 4);
+export const keyHash = (id: string, kind: 'p' | 'n' | 't', v: string) => hex(`${id}|${kind}|${v}`);
 export interface Seen { phone?: string; name?: string }
 /** at = day of last visit (yyyy-mm-dd) when found */
 export async function deskKnown(id: string, q: { phone: string; name: string }): Promise<Seen> {
   if (!ok(id)) return {};
   const { fs, F } = await load(); const out: Seen = {};
-  const get = async (kind: 'p' | 'n', v: string) => { const s = await F.getDoc(F.doc(fs, 'desks', id, 'known', await keyHash(id, kind, v))); return s.exists() ? String(s.data().at || '') || '-' : undefined; };
+  const get = async (kind: 'p' | 'n' | 't', v: string) => { const s = await F.getDoc(F.doc(fs, 'desks', id, 'known', await keyHash(id, kind, v))); return s.exists() ? String(s.data().at || '') || '-' : undefined; };
   const pk = phoneKey(q.phone), nk = nameKey(q.name);
   if (pk) out.phone = await get('p', pk);
-  if (nk.length >= 3 && nk.includes(' ') || nk.length >= 6) out.name = await get('n', nk);
+  if (nk.length >= 2) {
+    out.name = await get('n', nk);                                                   // the whole name
+    if (!out.name) for (const t of nameTokens(q.name).slice(0, 3)) { out.name = await get('t', t); if (out.name) break; } // or any one word of it (first name, surname)
+  }
   return out;
 }
 /** doctor's app: keeps the hashed index up to date (only changed entries are written) */
-export async function deskSyncKnown(id: string, rows: { name: string; phone: string; at: string }[]) {
-  if (!ok(id)) return;
-  const KEY = `ms-desk-known:${id}`; let done: Record<string, string> = {};
+export async function deskSyncKnown(id: string, rows: { name: string; phone: string; at: string }[]): Promise<{ total: number; written: number }> {
+  if (!ok(id)) return { total: 0, written: 0 };
+  const KEY = `ms-desk-known2:${id}`; let done: Record<string, string> = {};
   try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { /* start fresh */ }
-  const todo: [string, string][] = [];
+  const want = new Map<string, string>(); // hash -> latest visit day
+  const add = (h: string, at: string) => { if (at > (want.get(h) || '')) want.set(h, at); };
   for (const r of rows) {
-    for (const [kind, v] of [['p', phoneKey(r.phone)], ['n', nameKey(r.name)]] as const) {
-      if (!v) continue; const h = await keyHash(id, kind, v);
-      if (done[h] !== r.at) todo.push([h, r.at]);
-    }
+    const pk = phoneKey(r.phone), nk = nameKey(r.name);
+    if (pk) add(await keyHash(id, 'p', pk), r.at);
+    if (nk) add(await keyHash(id, 'n', nk), r.at);
+    for (const t of nameTokens(r.name)) add(await keyHash(id, 't', t), r.at);
   }
-  if (!todo.length) return;
+  const todo = [...want].filter(([h, at]) => done[h] !== at);
+  if (!todo.length) return { total: rows.length, written: 0 };
   const { fs, F } = await load();
   for (let i = 0; i < todo.length; i += 400) {
     const b = F.writeBatch(fs); const part = todo.slice(i, i + 400);
@@ -111,6 +117,7 @@ export async function deskSyncKnown(id: string, rows: { name: string; phone: str
     await b.commit(); part.forEach(([h, at]) => { done[h] = at; });
     try { localStorage.setItem(KEY, JSON.stringify(done)); } catch { /* ignore */ }
   }
+  return { total: rows.length, written: todo.length };
 }
 const ok = (id: string) => /^[a-z0-9]{20,40}$/.test(id);
 

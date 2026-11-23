@@ -74,3 +74,10 @@ describe('reception "seen before" lookup stores no readable patient data', () =>
     expect(block).toMatch(/allow get/); expect(block).not.toMatch(/allow read|allow list/); expect(block).toMatch(/hasOnly\(\['at'\]\)/);
   });
 });
+
+import { nameTokens } from '../src/lib/desk';
+describe('name search words', () => {
+  it('any one word of the name can be searched, short words ignored', () => {
+    expect(nameTokens('Ram Kumar Sharma')).toEqual(['ram', 'kumar', 'sharma']); expect(nameTokens('Ravi  K.')).toEqual(['ravi']); expect(nameTokens('Sita Sita Devi')).toEqual(['sita', 'devi']);
+  });
+});

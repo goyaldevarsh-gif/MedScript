@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Copy, ConciergeBell } from 'lucide-react';
 import { updateSettings } from '../lib/db';
-import { DESK_RULES, deskLink, newDeskId } from '../lib/desk';
+import { DESK_RULES, deskLink, deskMsg, deskSyncKnown, newDeskId } from '../lib/desk';
+import { deskRows } from './DeskSync';
 import type { AppSettings } from '../lib/types';
 import { Btn, Card, useToast } from './ui';
 
 /** Settings: switch the reception desk on, get its secret link. */
 export default function DeskCard({ s }: { s: AppSettings }) {
-  const toast = useToast(); const [rules, setRules] = useState(false);
+  const toast = useToast(); const [rules, setRules] = useState(false); const [chk, setChk] = useState('');
   const copy = async (t: string, m: string) => { try { await navigator.clipboard.writeText(t); toast(m); } catch { toast('Copy did not work. Select the text and copy it.', { tone: 'err' }); } };
   return (
     <Card className="space-y-3 p-5">
@@ -20,8 +21,10 @@ export default function DeskCard({ s }: { s: AppSettings }) {
             <Btn onClick={() => copy(deskLink(s.deskId!), 'Desk link copied')}><Copy size={15} /> Copy link</Btn>
             <Btn variant="secondary" onClick={() => window.open(deskLink(s.deskId!), '_blank')}>Open desk</Btn>
             <Btn variant="secondary" onClick={() => { if (confirm('Make a new link? The old link will stop working and the reception must open the new one.')) updateSettings((x) => { x.deskId = newDeskId(); }); }}>New link</Btn>
+            <Btn variant="secondary" onClick={async () => { setChk('Checking…'); try { const r = await deskSyncKnown(s.deskId!, await deskRows()); setChk(`Search ready: ${r.total} patient${r.total === 1 ? '' : 's'}.`); } catch (e) { setChk('Search not ready: ' + deskMsg(e)); } }}>Check search</Btn>
             <Btn variant="secondary" onClick={() => { if (confirm('Turn the reception desk off?')) updateSettings((x) => { x.deskId = ''; }); }}>Turn off</Btn>
           </div>
+          {chk && <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold">{chk}</div>}
           <p className="text-xs font-semibold text-slate-600">Open this link once on the reception computer and bookmark it. Anyone with the link can add patients to your list, so share it only with your reception.</p>
           <button type="button" className="text-sm font-bold text-brand underline" onClick={() => setRules((v) => !v)}>{rules ? 'Hide' : 'One-time cloud setup (needed once)'}</button>
           {rules && (
