@@ -7,6 +7,10 @@ import { cx } from '../lib/util';
 const REASONS = ['Knee pain', 'Back pain', 'Neck pain', 'Shoulder pain', 'Hip pain', 'Fall / injury', 'Fracture follow-up', 'Post-op follow-up', 'Report show'];
 const blank = (): DeskIn => ({ name: '', age: '', ageUnit: 'Y', sex: '', phone: '', weight: '', allergies: '', reason: '', bp: '', sugar: '', followUp: false, toOv: false });
 const fmt = (d?: string) => (d && d.length === 10 ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+const mins = (t: number, now: number) => Math.max(0, Math.round((now - t) / 60000));
+const hue = (m: number) => (m >= 45 ? 'bg-red-50 text-red-700' : m >= 20 ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700');
+const hello = (now: number) => { const h = new Date(now).getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
+const initials = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() || '').join('') || '?';
 const ago = (t: number, now: number) => { const m = Math.max(0, Math.round((now - t) / 60000)); return m < 1 ? 'just now' : m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`; };
 
 /** The reception desk. Opened from the doctor's secret link, it has no menu and holds no patient history: it checks patients in to the doctor's waiting list. */
@@ -58,7 +62,7 @@ export default function Desk() {
     <div className="min-h-full bg-slate-100">
       <header className="border-b border-slate-200 bg-white py-3">
         <div className="mx-auto flex max-w-7xl flex-wrap px-4 sm:px-8 items-center gap-x-6 gap-y-2">
-          <div className="mr-auto"><div className="text-xs font-extrabold uppercase tracking-wide text-slate-500">Reception</div><h1 className="text-2xl font-extrabold text-navy">{new Date(now).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
+          <div className="mr-auto"><div className="text-xs font-extrabold uppercase tracking-wide text-slate-500">{hello(now)}</div><h1 className="text-2xl font-extrabold text-navy">{new Date(now).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
           {[['Waiting', waiting.length, 'text-teal'], ['Seen', seenList.length, 'text-slate-600'], ['Total', list.length, 'text-navy']].map(([l, v, c]) => <div key={String(l)} className="text-center"><div className={cx('text-3xl font-extrabold leading-none', c as string)}>{v}</div><div className="text-[11px] font-bold uppercase text-slate-500">{l}</div></div>)}
         </div>
       </header>
@@ -68,18 +72,19 @@ export default function Desk() {
         <section className="lg:col-span-5">
           <h2 className="mb-2 flex items-center gap-2 text-lg font-extrabold"><Users size={19} /> Waiting <span className="rounded-full bg-teal px-2.5 py-0.5 text-sm text-white">{waiting.length}</span></h2>
           {lerr && <div className="mb-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900">{lerr}</div>}
-          {!lerr && !waiting.length && <div className="card p-8 text-center text-slate-500">No one waiting</div>}
+          {!lerr && !waiting.length && <div className="card p-10 text-center"><div className="text-4xl">☕</div><div className="mt-2 text-lg font-extrabold text-slate-700">All clear</div><div className="text-sm text-slate-500">New check-ins show up here</div></div>}
           <div className="space-y-2.5">
-            {waiting.map((it) => (
-              <div key={it.id} className="card flex items-center gap-4 border-l-4 border-l-teal p-3.5">
-                <div className="w-12 shrink-0 text-center"><div className="text-[10px] font-bold uppercase text-slate-500">Token</div><div className="text-3xl font-extrabold leading-none text-teal">{it.token}</div></div>
+            {waiting.map((it, ix) => (
+              <div key={it.id} className={cx('card flex items-center gap-3 border-l-4 p-3.5 transition-shadow hover:shadow-md', ix === 0 ? 'border-l-teal ring-1 ring-teal/30' : 'border-l-slate-300')}>
+                <div className="w-11 shrink-0 text-center"><div className="text-[10px] font-bold uppercase text-slate-500">{ix === 0 ? 'Next' : 'Token'}</div><div className="text-3xl font-extrabold leading-none text-teal">{it.token}</div></div>
+                <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy/10 text-sm font-extrabold text-navy sm:flex">{initials(it.name)}</div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-1.5"><span className="truncate text-base font-extrabold">{it.name}</span>
                     {it.followUp ? <span className="rounded bg-blue-50 px-1.5 text-[10px] font-extrabold uppercase text-blue-700">Follow-up</span> : <span className="rounded bg-emerald-50 px-1.5 text-[10px] font-extrabold uppercase text-emerald-700">New</span>}
                     {it.toOv && <span className="rounded bg-violet-50 px-1.5 text-[10px] font-extrabold uppercase text-violet-700">OrthoVault</span>}</div>
                   <div className="truncate text-sm text-slate-600">{[it.age && `${it.age}${it.ageUnit === 'M' ? 'm' : 'y'}`, it.sex, it.reason || '-'].filter(Boolean).join(' · ')}</div>
                 </div>
-                <div className="shrink-0 text-right"><div className="text-sm font-extrabold">{ago(it.createdAt, now)}</div></div>
+                <div className={cx('shrink-0 rounded-full px-2.5 py-1 text-xs font-extrabold', hue(mins(it.createdAt, now)))}>{ago(it.createdAt, now)}</div>
                 <button aria-label="Remove" title="Remove" className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" onClick={() => deskRemove(id, it.id).catch((e) => setLerr(deskMsg(e)))}><Trash2 size={18} /></button>
               </div>
             ))}
@@ -93,7 +98,7 @@ export default function Desk() {
         {/* ---------- right: find a patient, check in ---------- */}
         <section className="space-y-3 lg:col-span-7">
           {done && (
-            <div className="flex items-center gap-4 rounded-2xl border border-emerald-300 bg-emerald-50 p-4">
+            <div className="flex animate-[pop_.25s_ease-out] items-center gap-4 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 shadow-sm">
               <CheckCircle2 className="shrink-0 text-emerald-600" size={36} />
               <div className="min-w-0 flex-1"><div className="text-sm font-bold text-emerald-800">Sent · {done.name}</div><div className="text-4xl font-extrabold leading-tight text-emerald-900">Token {done.n}</div></div>
               <button className="text-sm font-bold text-emerald-800 underline" onClick={() => setDone(null)}>OK</button>

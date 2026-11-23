@@ -3,6 +3,7 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
+      keyframes: { pop: { '0%': { transform: 'scale(.96)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } } },
       colors: {
         navy: { DEFAULT: '#10243A', 800: '#17324d', 700: '#1f3f5f', 600: '#2c5078' },
         brand: { DEFAULT: '#2563EB', 600: '#1d4ed8', 50: '#eff5ff', 100: '#dbe8ff' },
