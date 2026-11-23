@@ -134,7 +134,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       if (opts.showLogo && clinic.logo && logoSize) {
         const box = clinic.logoSize === 'S' ? { w: 26, h: 18 } : clinic.logoSize === 'L' ? { w: 46, h: 30 } : { w: 36, h: 24 }; const k = Math.min(box.w / logoSize.w, box.h / logoSize.h);
         const w = logoSize.w * k, h = logoSize.h * k;
-        doc.addImage(clinic.logo, 'PNG', M, top + (box.h - h) / 2, w, h, undefined, 'FAST');
+        try { doc.addImage(clinic.logo, 'PNG', M, top + (box.h - h) / 2, w, h, undefined, 'FAST'); } catch { /* an unreadable image must not stop the prescription from being made */ }
         leftX = M + box.w + 4; hLogo = box.h;
       }
       const cw = Math.max(40, 92 - (leftX - M));
@@ -340,7 +340,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   if (showSig && sigSize) {
     let w = Math.min(snap.signature.widthMm, colW); let h = w * (sigSize.h / sigSize.w);
     if (h > 20) { h = 20; w = h * (sigSize.w / sigSize.h); }
-    doc.addImage(snap.signature.dataUrl, 'PNG', sigRight - colW / 2 - w / 2 + snap.signature.offsetX, lineY - h - 0.5 + snap.signature.offsetY, w, h, undefined, 'FAST');
+    try { doc.addImage(snap.signature.dataUrl, 'PNG', sigRight - colW / 2 - w / 2 + snap.signature.offsetX, lineY - h - 0.5 + snap.signature.offsetY, w, h, undefined, 'FAST'); } catch { /* an unreadable image must not stop the prescription from being made */ }
   }
   doc.setDrawColor(...NAVY); doc.setLineWidth(0.3); doc.line(sigLeft, lineY, sigRight, lineY);
   font('bold', 9.3 * sc, NAVY); doc.text(clean(drName(snap.doctor.fullName)), sigRight - colW / 2, lineY + 4.2, { align: 'center' });
@@ -355,7 +355,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     font('bold', 8.4 * sc, NAVY);
     doc.text(clean('Reg. No.: ' + snap.doctor.regNo + (snap.doctor.regCouncil ? ' (' + snap.doctor.regCouncil + ')' : '')), cx, imgTop - 2, { align: 'center' });
   }
-  if (showSeal && sealSize) doc.addImage(sealUrl, 'PNG', sealX + snap.seal.offsetX, sealBottom - sealH + snap.seal.offsetY, sealW, sealH, undefined, 'FAST');
+  if (showSeal && sealSize) try { doc.addImage(sealUrl, 'PNG', sealX + snap.seal.offsetX, sealBottom - sealH + snap.seal.offsetY, sealW, sealH, undefined, 'FAST'); } catch { /* unreadable seal image: skip it */ }
   if (qrList.length) {
     const n = qrList.length, qs = n > 1 ? 15 : 16, qy = sigBottom - qs - 7;
     const avail0 = Math.max(24, Math.min(showSeal ? sealX : sigLeft, sigLeft) - M - 3);
