@@ -152,12 +152,12 @@ function Builder() {
     return () => { document.removeEventListener('visibilitychange', vis); window.removeEventListener('pagehide', flush); flush(); };
   }, []);
 
-  /* follow-up date follows the longest medicine duration unless the doctor sets it by hand */
+  /* medicines run exactly until the next visit: their days follow the follow-up days, unless the doctor sets a medicine by hand */
   useEffect(() => {
-    if (!rx || readOnly || rx.followUpManual) return;
-    const days = Math.max(0, ...rx.items.filter((i) => i.freq !== 'SOS' || i.duration).map((i) => (i.useTaper ? i.taper.reduce((a, t) => a + t.days, 0) : (i.duration || 0) * (i.durationUnit === 'weeks' ? 7 : i.durationUnit === 'months' ? 30 : 1))));
-    if (days > 0 && days !== rx.followUpDays) update((r) => ({ ...r, followUpDays: Math.min(days, 90) }));
-  }, [rx?.items]); // eslint-disable-line
+    if (!rx || readOnly || !(rx.followUpDays > 0)) return;
+    const d = rx.followUpDays;
+    if (rx.items.some((i) => needsFuDays(i, d))) update((r) => ({ ...r, items: r.items.map((i) => (needsFuDays(i, d) ? { ...i, duration: d, durationUnit: 'days' as const } : i)) }));
+  }, [rx?.followUpDays, rx?.items]); // eslint-disable-line
 
   /* ---------- helpers ---------- */
   function applyTpl(r: Prescription, t: Template) {
@@ -393,7 +393,7 @@ function Builder() {
               </Field>
               <Field label="Tests to bring on next visit (optional)"><input className="field" value={rx.clinical.nextTests || ''} onChange={(e) => setClin({ nextTests: e.target.value })} placeholder="e.g. CBC, ESR" /></Field>
               <div>
-                <span className="lbl">Next visit {rx.followUpManual ? <button className="ml-1 text-xs font-bold text-brand underline" onClick={() => update((r) => ({ ...r, followUpManual: false }))}>use medicine duration</button> : <span className="text-xs font-semibold normal-case text-slate-400">(auto from medicine duration)</span>}</span>
+                <span className="lbl">Next visit <span className="text-xs font-semibold normal-case text-slate-400">(medicines run until this day)</span></span>
                 <div className="flex flex-wrap items-center gap-2">
                   {FU.map((d) => <Chip key={d} tone="teal" active={rx.followUpDays === d} onClick={() => update((r) => ({ ...r, followUpDays: d, followUpManual: true }))}>{fuLabel(d)}</Chip>)}
                   <input type="number" min="0" className="field w-24" value={rx.followUpDays || ''} placeholder="days" onChange={(e) => update((r) => ({ ...r, followUpDays: Number(e.target.value) || 0, followUpManual: true }))} aria-label="Custom follow-up days" />
@@ -431,6 +431,8 @@ function Builder() {
   );
 }
 
+/** a medicine that should run until the next visit: not SOS, not a taper, not set by hand */
+const needsFuDays = (i: RxItem, d: number) => !i.durManual && !i.useTaper && i.freq !== 'SOS' && (i.duration !== d || i.durationUnit !== 'days');
 const blankRxPatient = (): Patient => ({ id: '', pid: '', name: '', age: '', ageUnit: 'Y', sex: '', phone: '', weight: '', allergies: '', createdAt: Date.now(), updatedAt: Date.now() });
 
 function PrintField({ label, value, onChange, on, setOn }: { label: string; value: string; onChange: (v: string) => void; on: boolean; setOn: (b: boolean) => void }) {

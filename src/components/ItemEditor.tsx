@@ -18,7 +18,7 @@ export default function ItemEditor({ it, index, total, open, onToggle, onChange,
   it: RxItem; index: number; total: number; open: boolean; onToggle: () => void; onChange: (n: RxItem) => void; onRemove: () => void; onMove: (d: -1 | 1) => void;
   lang: Lang; warnings: Warning[]; onHideWarn?: (w: Warning) => void; readOnly?: boolean; caps: boolean; nameMode: 'generic' | 'brand'; weightKg?: number;
 }) {
-  const set = (p: Partial<RxItem>) => onChange({ ...it, ...p });
+  const set = (p: Partial<RxItem>) => onChange({ ...it, ...p, ...('duration' in p || 'durationUnit' in p ? { durManual: true } : {}) });
   const liquid = isLiquid(it);
   const solidDoses = it.doseUnit === 'application' ? [] : liquid ? (it.doseUnit === 'drop' ? [1, 2, 3] : [2.5, 5, 10]) : [0.5, 1, 2];
   const qty = computeQty(it);

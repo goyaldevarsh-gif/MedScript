@@ -119,7 +119,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const drawHeader = () => {
     if (LH) { y = LH.top + 1; return; }
     const top = 11;
-    const rule = (yy: number) => { doc.setDrawColor(...BLUE); doc.setLineWidth(0.7); doc.line(M, yy, PW - M, yy); doc.setDrawColor(...TEAL); doc.setLineWidth(0.3); doc.line(M, yy + 0.9, PW - M, yy + 0.9); };
+    const rule = (yy: number) => { doc.setDrawColor(...TEAL); doc.setLineWidth(0.5); doc.line(M, yy, PW - M, yy); };
     // doctor lines
     const docLines: { t: string; st: 'bold' | 'normal'; sz: number; col: [number, number, number] }[] = [];
     const nm = clean(drName(snap.doctor.fullName)) || 'Doctor name not set';
@@ -142,10 +142,8 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       const cw = Math.max(40, 92 - (leftX - M));
       if (clinic.name) { font('bold', 12 * sc, NAVY); wrap(clinic.name, cw).forEach((l) => { doc.text(l, leftX, ly + 4.6); ly += 5; }); }
       font('normal', 8.4 * sc, GREY);
-      if (clinic.address) wrap(clinic.address, cw).forEach((l) => { doc.text(l, leftX, ly + 3.6); ly += 3.9; });
-      if (cPhones.length) wrap('Ph: ' + cPhones.join('  |  '), cw).forEach((l) => { doc.text(l, leftX, ly + 3.6); ly += 3.9; });
-      if (clinic.email) { doc.text(clean(clinic.email), leftX, ly + 3.6); ly += 3.9; }
-      if (clinic.timings) wrap('Timings: ' + clinic.timings, cw).forEach((l) => { doc.text(l, leftX, ly + 3.6); ly += 3.9; });
+      // name and timings only: the address is in the footer and on the location QR
+      if (clinic.timings) { font('normal', 8.8 * sc, GREY); wrap(clinic.timings, cw).forEach((l, i) => { doc.text((i === 0 ? 'Timings: ' : '') + l, leftX, ly + 4); ly += 4; }); }
     } else if (opts.showLogo && clinic.logo && logoSize) { /* logo without details: keep left */ }
     // doctor block (right when a clinic is shown, otherwise left)
     let ry = top;
@@ -156,8 +154,8 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       wrap(l.t, dw).forEach((ln) => { doc.text(ln, rxPos, ry + l.sz * 0.3528 * 0.9, { align }); ry += lh(l.sz) * 0.95; });
       if (l === docLines[0]) ry += 0.6;
     });
-    y = Math.max(ly, ry, top + hLogo) + 2.2;
-    rule(y); y += 4.2;
+    y = Math.max(ly, ry, top + hLogo) + 1.8;
+    rule(y); y += 4.6;
   };
   const drawContHeader = () => {
     y = LH ? LH.top + 1 : 10;
@@ -247,7 +245,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   /* ---------- medicines (compact) ---------- */
   if (rx.items.length) {
     ensure(22);
-    font('bolditalic', 20 * sc, BLUE); doc.text('Rx', M, y + 6.5);
+    font('bolditalic', 17 * sc, TEAL); doc.text('Rx', M, y + 6);
     doc.setDrawColor(210, 218, 228); doc.setLineWidth(0.25); doc.line(M + 12, y + 5, PW - M, y + 5);
     y += 9.5;
     const showIns = rx.showInstr !== false;
@@ -272,7 +270,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       if (it.freq === 'SOS' && it.sosMax) parts.push(`max ${it.sosMax}/day`);
       if (it.route && it.route !== 'Oral') parts.push(it.route);
       if (qty.text) parts.push(`Qty ${qty.text}`);
-      const partsLine = parts.join('  |  ');
+      const partsLine = parts.join('   ·   ');
       const ins = showIns ? itemInstructions(it, lang) : { en: '', hi: '', schedule: '' };
       const insText = lang === 'hi' ? ins.hi : ins.en;
       const nameFull = t.main + (t.sub ? '  ' + t.sub : '');
@@ -285,7 +283,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       const nameLines = wrap(t.main, w);
       nameLines.forEach((l, i) => { font('bold', (brandFirst ? 11 : 10.2) * sc * ms, NAVY); ensure(lh(10.2 * sc * ms)); doc.text(l, indent, y + nb); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc * ms, GREY); doc.text(clean(t.sub), indent + tw, y + nb); } y += lh(10.2 * sc * ms); });
       if (compLine) para(compLine, indent, w, 'normal', brandFirst ? 7.2 * sc * ms : 7.8 * sc * ms, [128, 138, 152]);
-      para(partsLine, indent, w, 'bold', 8.6 * sc * ms, [30, 64, 110]);
+      para(partsLine, indent, w, 'normal', 8.8 * sc * ms, [30, 64, 110]);
       if (it.useTaper && it.taper.length) {
         const steps = it.taper.map((s, i) => `Step ${i + 1}: ${s.dose} ${it.doseUnit}${s.dose > 1 ? 's' : ''} x ${s.timesPerDay}/day for ${s.days} day${s.days > 1 ? 's' : ''}`).join('   ');
         para(steps, indent, w, 'normal', 8.4 * sc * ms, NAVY);
@@ -301,9 +299,10 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   if (advice.length) {
     ensure(12);
     font('bold', 7.4 * sc, TEAL); doc.text('ADVICE', M, y + 2.6); y += 3.8;
+    // one language for the whole advice block: Hindi only when every line has a Hindi version, else all lines stay as written
+    const hiAll = lang === 'hi' && advice.every((a) => DEV.test(a) || adviceHi(a));
     advice.forEach((a) => {
-      const hi = lang === 'hi' && !DEV.test(a) ? adviceHi(a) : '';
-      const text = hi || a;
+      const text = hiAll && !DEV.test(a) ? adviceHi(a) : a;
       doc.setFillColor(...NAVY); doc.circle(M + 1.6, y + 2, 0.5, 'F');
       if (DEV.test(text)) hiPara(text, M + 5, CW - 5, 9 * sc, NAVY, false, 0.5);
       else { para(text, M + 5, CW - 5, 'normal', 9 * sc, NAVY, 0.5); }
@@ -352,7 +351,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   /* registration number: one line above both the stamp and the signature */
   const sealBottom = sigBottom - 1;
   const imgTop = Math.min(lineY - 20, showSeal ? sealBottom - sealH : lineY - 20);
-  if (snap.doctor.regNo) {
+  if (snap.doctor.regNo && LH) {
     const cx = showSeal ? (Math.min(sealX, sigLeft) + sigRight) / 2 : sigRight - colW / 2;
     font('bold', 8.4 * sc, NAVY);
     doc.text(clean('Reg. No.: ' + snap.doctor.regNo + (snap.doctor.regCouncil ? ' (' + snap.doctor.regCouncil + ')' : '')), cx, imgTop - 2, { align: 'center' });
@@ -402,7 +401,8 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     doc.setDrawColor(210, 218, 228); doc.setLineWidth(0.25); doc.line(M, PH - 12, PW - M, PH - 12);
     doc.text(clean(left), M, PH - 8);
     if (total > 1) doc.text(`Page ${i} of ${total}`, PW - M, PH - 8, { align: 'right' });
-    if (L.footerNote.trim()) { font('italic', 7.5, GREY); doc.text(clean(L.footerNote), PW / 2, PH - 4.5, { align: 'center', maxWidth: CW }); }
+    const foot = [[clinic.name, clinic.address].filter((x) => x && x.trim()).join(', '), L.footerNote.trim()].filter(Boolean).join('   ·   ');
+    if (foot) { let fs = 7.2; font('normal', fs, GREY); while (fs > 5.6 && doc.getTextWidth(clean(foot)) > CW) { fs -= 0.2; font('normal', fs, GREY); } doc.text(clean(foot), PW / 2, PH - 4.5, { align: 'center', maxWidth: CW }); }
   }
   return { blob: doc.output('blob'), pages: total };
 }
