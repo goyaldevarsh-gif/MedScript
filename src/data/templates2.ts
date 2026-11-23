@@ -1,12 +1,4 @@
-import { t, type StarterTemplate } from './starter';
-import type { Side } from '../lib/types';
-
-/** compact builder: exam = labels separated by |, investigations = tests separated by ; (no medicines are ever added by a template) */
-const e = (key: string, name: string, icon: string, fu: number, complaint: string, diagnosis: string, exam: string, inv: string, advice: string[], side: Side = 'N/A'): StarterTemplate =>
-  t(key, name, icon, fu, { complaint, diagnosis, examination: exam.split('|').map((x) => x + ': ').join('\n'), investigations: inv, advice }, side);
-const RF_NERVE = 'Come back immediately if you develop new weakness, numbness or loss of grip or balance.';
-const RF_WOUND = 'Come back immediately for fever, wound redness or discharge, increasing pain or swelling, or numbness / colour change in the limb.';
-const RF_INJ = 'Come back immediately for severe pain, tight swelling, numbness, pale or blue fingers / toes, or if the cast feels too tight.';
+import { e, RF_NERVE, RF_WOUND, RF_INJ, type StarterTemplate } from './starter';
 
 /** 100 more starters, grouped from the neck downwards */
 export const STARTERS2: StarterTemplate[] = [

@@ -6,7 +6,7 @@ const META = /\b(only if|usually|if suspected|if persistent|if not improving|as 
 
 describe('starter templates', () => {
   it('has unique keys, names and diagnoses', () => {
-    expect(STARTERS.length).toBeGreaterThanOrEqual(251);
+    expect(STARTERS.length).toBeGreaterThanOrEqual(321);
     for (const f of ['key', 'name'] as const) expect(new Set(STARTERS.map((s) => s[f])).size).toBe(STARTERS.length);
     const dx = STARTERS.map((s) => s.clinical.diagnosis); expect(new Set(dx).size).toBe(dx.length);
   });
@@ -37,5 +37,13 @@ describe('diagnosis list', () => {
     expect(DIAGNOSES.length).toBeGreaterThanOrEqual(500);
     expect(DIAGNOSES.every((d) => d.trim() === d && d.length > 3)).toBe(true);
     expect(new Set(DIAGNOSES.map((d) => d.toLowerCase())).size).toBe(DIAGNOSES.length);
+  });
+});
+
+import { TOP10 } from '../src/data/templates';
+describe('top 10', () => {
+  it('names ten real, distinct templates', () => {
+    expect(TOP10).toHaveLength(10); expect(new Set(TOP10).size).toBe(10);
+    for (const k of TOP10) expect(STARTERS.some((s) => s.key === k), k).toBe(true);
   });
 });

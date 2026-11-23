@@ -1961,4 +1961,8 @@ const BASE: StarterTemplate[] = [
 ];
 
 import { STARTERS2 } from './templates2';
-export const STARTERS: StarterTemplate[] = [...BASE, ...STARTERS2];
+import { STARTERS3 } from './templates3';
+export const STARTERS: StarterTemplate[] = [...BASE, ...STARTERS2, ...STARTERS3];
+
+/** the ten most common OPD problems: shown first and starred for a new install */
+export const TOP10 = ['knee-oa', 'lbp', 'cervical', 'frozen-shoulder', 'plantar-fasciitis', 'ankle-sprain', 'fracture-fu', 'pivd', 'tennis-elbow', 'carpal-tunnel'];

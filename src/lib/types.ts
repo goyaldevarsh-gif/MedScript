@@ -65,7 +65,7 @@ export interface AppSettings {
   signature: SignatureCfg; seal: SealCfg; layout: LayoutCfg;
   defaultLang: Lang; defaultFollowUpDays: number; lastBackupAt: number;
   /** doctor's own interaction rules and the built-in rule ids switched off */ ixCustom?: IxCustom[]; ixMuted?: string[];
-  rxCounter: number; patientCounter: number; seeded: boolean; /** first-run setup wizard finished or skipped */ setupDone?: boolean; specialtyKey?: SpecialtyKey; orthovaultUrl?: string; ovEmail?: string; /** secret id of this doctor's reception desk link; empty = desk off */ deskId?: string; /** secret key (in the desk link only) that unlocks the encrypted patient directory */ deskKey?: string;
+  rxCounter: number; patientCounter: number; seeded: boolean; /** first-run setup wizard finished or skipped */ setupDone?: boolean; specialtyKey?: SpecialtyKey; orthovaultUrl?: string; ovEmail?: string; /** secret id of this doctor's reception desk link; empty = desk off */ deskId?: string; /** secret key (in the desk link only) that unlocks the encrypted patient directory */ deskKey?: string; /** the ten most common templates were starred once */ top10Done?: boolean;
 }
 export interface DoctorSnapshot {
   doctor: Doctor; clinic: Clinic; signature: SignatureCfg; sealDataUrl: string; seal: SealCfg; layout: LayoutCfg;

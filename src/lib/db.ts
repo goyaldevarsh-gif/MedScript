@@ -2,7 +2,7 @@ import Dexie, { type Table } from 'dexie';
 import { useLiveQuery } from 'dexie-react-hooks';
 import type { AppSettings, AuditEntry, DoctorSnapshot, MedMeta, Medicine, Patient, Prescription, RxItem, Template } from './types';
 import { defaultSettings } from './defaults';
-import { STARTERS } from '../data/templates';
+import { STARTERS, TOP10 } from '../data/templates';
 import { CATALOGUE } from '../data/catalogue';
 import { sha256, uid } from './util';
 import { itemFromMedicine } from './defaults';
@@ -66,7 +66,7 @@ export async function seedIfNeeded() {
   if (add.length) {
     await db.templates.bulkPut(
       add.map((st) => ({
-        id: 'tpl-' + st.key, name: st.name, builtIn: true, sourceKey: st.key, icon: st.icon, favourite: fresh && ['knee-oa', 'lbp', 'cervical', 'frozen-shoulder', 'plantar-fasciitis', 'ankle-sprain', 'fracture-fu'].includes(st.key),
+        id: 'tpl-' + st.key, name: st.name, builtIn: true, sourceKey: st.key, icon: st.icon, favourite: fresh && TOP10.includes(st.key),
         clinical: st.clinical, followUpDays: st.followUpDays, items: [], createdAt: now, updatedAt: now,
       }))
     );
@@ -76,6 +76,7 @@ export async function seedIfNeeded() {
     const st = t.builtIn ? STARTERS.find((x) => x.key === t.sourceKey) : undefined;
     if (st && t.updatedAt === t.createdAt && JSON.stringify(t.clinical) !== JSON.stringify(st.clinical)) await db.templates.put({ ...t, name: st.name, clinical: st.clinical, followUpDays: st.followUpDays });
   }
+  if (!s.top10Done) { for (const k of TOP10) { const t = await db.templates.get('tpl-' + k); if (t && !t.favourite) await db.templates.put({ ...t, favourite: true }); } await updateSettings((x) => { x.top10Done = true; }); }
   if (fresh) await updateSettings((x) => { x.seeded = true; });
 }
 export async function resetBuiltInTemplate(id: string) {

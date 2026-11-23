@@ -31,7 +31,7 @@ import PreviewModal from '../components/PreviewModal';
 import ReviewModal from '../components/ReviewModal';
 import { checkRx, disclaimer, isHidden, warnKey, type Warning } from '../lib/safety';
 import WarnBanner from '../components/WarnBanner';
-import { STARTERS } from '../data/templates';
+import { STARTERS, TOP10 } from '../data/templates';
 import { DIAGNOSES } from '../data/diagnoses';
 const DX_ALL = [...new Set([...STARTERS.map((s) => s.clinical.diagnosis), ...DIAGNOSES])];
 import { cx, fmtDateTime, norm, uid } from '../lib/util';
@@ -64,7 +64,7 @@ function Builder() {
   const [preview, setPreview] = useState(false);
   const [review, setReview] = useState(false);
   const [tplPicker, setTplPicker] = useState(false);
-  const starterRank = (t: Template) => { const i = STARTERS.findIndex((s) => s.key === t.sourceKey); return i < 0 ? 999 : i; };
+  const starterRank = (t: Template) => { const top = TOP10.indexOf(t.sourceKey || ''); if (top >= 0) return top; const i = STARTERS.findIndex((s) => s.key === t.sourceKey); return i < 0 ? 999 : 10 + i; };
   const pastRx = useLiveQuery(() => db.prescriptions.orderBy('updatedAt').reverse().limit(400).toArray(), []) || [];
   const quickTpls = (useLiveQuery(() => db.templates.toArray(), []) || []).filter((t) => isOrtho(settings) || !t.builtIn).sort((a, b) => Number(b.favourite) - Number(a.favourite) || Number(b.items.length > 0) - Number(a.items.length > 0) || starterRank(a) - starterRank(b) || a.name.localeCompare(b.name)).slice(0, 7);
   const [saveTpl, setSaveTpl] = useState(false);
