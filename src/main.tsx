@@ -10,6 +10,7 @@ import Patients from './pages/Patients';
 import PatientDetail from './pages/PatientDetail';
 import Templates from './pages/Templates';
 import SettingsPage from './pages/Settings';
+import Desk from './pages/Desk';
 import { seedIfNeeded } from './lib/db';
 import { initUpdates } from './lib/pwa';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -19,11 +20,13 @@ try { navigator.storage?.persist?.(); } catch { /* ignore */ }
 
 function Boot() {
   const [ready, setReady] = React.useState(false);
-  React.useEffect(() => { seedIfNeeded().finally(() => setReady(true)); }, []);
+  // the reception desk screen holds no MedScript data, so it does not set up the library
+  React.useEffect(() => { if (window.location.hash.startsWith('#/desk')) { setReady(true); return; } seedIfNeeded().finally(() => setReady(true)); }, []);
   if (!ready) return <div className="flex h-full items-center justify-center text-slate-500">Loading MedScript…</div>;
   return (
     <HashRouter>
       <Routes>
+        <Route path="desk" element={<Desk />} />
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="new" element={<Builder />} />

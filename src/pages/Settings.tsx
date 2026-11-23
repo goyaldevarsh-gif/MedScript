@@ -4,6 +4,7 @@ import { BadgeCheck, Building2, Cloud, Download, Eye, FileSignature, Layout as L
 import type { AppSettings, Clinic, Doctor, Lang, Prescription } from '../lib/types';
 import { db, exportAll, importAll, toggleFavourite, updateSettings, useMedicineIndex, useSettings, wipeAll } from '../lib/db';
 import OvLinkCard from '../components/OvLinkCard';
+import DeskCard from '../components/DeskCard';
 import SafetyRules from '../components/SafetyRules';
 import { Badge, Btn, Card, Chip, Field, Modal, Spinner, useToast } from '../components/ui';
 import SignaturePad from '../components/SignaturePad';
@@ -49,7 +50,7 @@ export default function SettingsPage() {
           {tab === 'favs' && <FavCard />}
           {tab === 'safety' && <SafetyRules s={s} />}
           {tab === 'backup' && <BackupCard s={s} />}
-          {tab === 'app' && <><OvLinkCard s={s} /><AppCard /></>}
+          {tab === 'app' && <><OvLinkCard s={s} /><DeskCard s={s} /><AppCard /></>}
         </div>
       </div>
     </div>

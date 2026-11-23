@@ -4,7 +4,7 @@ import { ovPayload, type OvIn } from './orthovault';
 /* Private link to the doctor's OWN OrthoVault account (Firebase project orthovault02).
    Everything lives under users/{uid}/..., where uid is the signed-in doctor, and Firestore rules
    restrict that path to its owner. Firebase is loaded only after the doctor links an account. */
-const CFG = {
+export const CFG = {
   apiKey: 'AIzaSyAehCjdYB6sHZN5Hdw7kTiy2L5dtOPfqWA', authDomain: 'orthovault02.firebaseapp.com', projectId: 'orthovault02',
   storageBucket: 'orthovault02.firebasestorage.app', messagingSenderId: '251974181391', appId: '1:251974181391:web:348e0e07d0e53ec672f97a',
 };

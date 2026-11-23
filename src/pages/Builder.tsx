@@ -3,7 +3,7 @@ import { eduUrl } from '../data/eduMap';
 import { isOrtho } from '../lib/defaults';
 import { markSent, ovMsg, sendRx } from '../lib/ovcloud';
 import OvInbox from '../components/OvInbox';
-import { decodeOvIn, ovSaveUrl, ovSex, ovSide } from '../lib/orthovault';
+import { decodeDesk, decodeOvIn, ovSaveUrl, ovSex, ovSide } from '../lib/orthovault';
 import BodyPicker from '../components/BodyPicker';
 import WoundCard from '../components/WoundCard';
 import FollowUpCard from '../components/FollowUpCard';
@@ -81,7 +81,7 @@ function Builder() {
         toast('Prescription not found', { tone: 'err' }); nav('/', { replace: true }); return;
       }
       const r = blankRx(settings.defaultClinicId, settings.defaultLang, settings.defaultFollowUpDays);
-      const pid = sp.get('patient'); const tid = sp.get('template'); const mid = sp.get('med'); const ovq = sp.get('ov');
+      const pid = sp.get('patient'); const tid = sp.get('template'); const mid = sp.get('med'); const ovq = sp.get('ov'); const dkq = sp.get('desk');
       if (pid) { const p = await db.patients.get(pid); if (p) { r.patient = { ...p }; r.patientId = p.id; } }
       if (tid) { const t = await db.templates.get(tid); if (t) applyTpl(r, t); }
       if (mid) {
@@ -103,8 +103,19 @@ function Builder() {
           if (o.back && /^https:\/\//.test(o.back) && o.back !== settings.orthovaultUrl) updateSettings((s) => { s.orthovaultUrl = o.back; }).catch(() => {});
         }
       }
+      if (dkq) {
+        const o = decodeDesk(dkq);
+        if (o) {
+          const ph = (o.phone || '').replace(/\D/g, '').slice(-10);
+          const known = (await db.patients.toArray()).find((p) => (ph.length === 10 && p.phone.replace(/\D/g, '').slice(-10) === ph) || norm(p.name) === norm(o.name));
+          if (known) r.patient = { ...known, weight: o.weight || known.weight, allergies: o.allergies?.trim() || known.allergies }; // today's weight and allergy answer win
+          else r.patient = { ...r.patient, name: o.name.trim(), age: o.age || '', ageUnit: o.ageUnit === 'M' ? 'M' : 'Y', sex: (['Male', 'Female', 'Other'].includes(o.sex) ? o.sex : '') as Prescription['patient']['sex'], phone: ph, weight: o.weight || '', allergies: o.allergies?.trim() || '' };
+          if (known) r.patientId = known.id;
+          r.clinical = { ...r.clinical, complaint: o.reason || '', notes: [o.bp && `BP ${o.bp}`, o.sugar && `Sugar ${o.sugar}`].filter(Boolean).join(', ') && 'Vitals at reception: ' + [o.bp && `BP ${o.bp}`, o.sugar && `Sugar ${o.sugar}`].filter(Boolean).join(', ') };
+        }
+      }
       setRx(r);
-      if (tid || pid || mid || ovq) setRev(1);
+      if (tid || pid || mid || ovq || dkq) setRev(1);
     })();
   }, [settings]); // eslint-disable-line
 

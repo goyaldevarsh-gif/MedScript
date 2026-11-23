@@ -6,6 +6,9 @@ import { doseLabel, dosePattern, durationLabel, freqLabel, timingMeta } from './
 export const enc = (o: unknown) => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const dec = (s: string) => JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/')))));
 
+/** what a reception desk entry looks like when it is handed to the prescription builder */
+export const decodeDesk = (s: string): Record<string, string> | null => { try { const o = dec(s); return o && typeof o.name === 'string' && o.name.trim() ? o : null; } catch { return null; } };
+
 export interface OvIn { id?: string; name: string; age?: string; ageUnit?: 'Y' | 'M'; sex?: string; phone?: string; weight?: string; dx?: string; cc?: string; side?: string; back?: string }
 export function decodeOvIn(s: string): OvIn | null {
   try { const o = dec(s); return o && typeof o.name === 'string' && o.name.trim() ? (o as OvIn) : null; } catch { return null; }

@@ -7,6 +7,7 @@ import RxRow from '../components/RxRow';
 import { isToday } from '../lib/util';
 import { TemplateIcon } from '../components/TemplateIcon';
 import OvInbox from '../components/OvInbox';
+import DeskQueue from '../components/DeskQueue';
 import SampleRx from '../components/SampleRx';
 import FollowUpDue from '../components/FollowUpDue';
 
@@ -44,6 +45,7 @@ export default function Dashboard() {
       <button onClick={() => nav('/new', { state: { t: Date.now() } })} className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-brand to-brand-600 px-6 py-6 text-xl font-extrabold text-white shadow-lg shadow-brand/25 transition active:scale-[.99] sm:py-7">
         <Plus size={28} /> Create New Prescription
       </button>
+      <DeskQueue />
       <OvInbox />
       <div className="flex justify-center"><SampleRx /></div>
 
