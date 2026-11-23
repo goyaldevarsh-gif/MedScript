@@ -1,4 +1,5 @@
 import type { Patient } from './types';
+import { affirmed } from './negation';
 
 /** one-tap conditions under Comorbidities. The chip writes plain words into the same box the safety rules read. */
 export interface CondChip { label: string; re: RegExp; women?: boolean }
@@ -21,7 +22,7 @@ export function showWomenChips(p: Pick<Patient, 'sex' | 'age' | 'ageUnit'>): boo
   const a = p.age ? (p.ageUnit === 'M' ? parseFloat(p.age) / 12 : parseFloat(p.age)) : NaN;
   return isNaN(a) || (a >= 12 && a <= 50);
 }
-export const chipActive = (value: string, c: CondChip) => c.re.test(value || '');
+export const chipActive = (value: string, c: CondChip) => c.re.test(affirmed(value || ''));
 /** adds the chip's words, or removes them again - only when the chip itself wrote them */
 export function toggleChip(value: string, c: CondChip): string {
   const parts = split(value);

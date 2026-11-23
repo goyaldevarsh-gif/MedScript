@@ -175,17 +175,22 @@ function Builder() {
     update((r) => ({ ...r, dismissedWarn: [...new Set([...(r.dismissedWarn || []), k])] }));
     toast('Alert hidden for this prescription', { action: { label: 'Undo', onClick: () => update((r) => ({ ...r, dismissedWarn: (r.dismissedWarn || []).filter((x) => x !== k) })) }, ms: 6000 });
   }, [update, toast]);
-  /* a new red / amber alert pops up as a toast the moment it appears (not for alerts already there when the prescription was opened) */
+  /* a new red / amber alert pops up as a toast the moment it appears. Not for alerts already there when the prescription was opened,
+     and not while the doctor is still typing (age "6" then "62" is one alert, not two). */
   const seenWarn = useRef<Set<string> | null>(null);
+  const seenKey = (w: Warning) => (w.ruleId ? `${w.ruleId}|${w.itemId || ''}` : w.text);
   useEffect(() => {
-    if (!rx || readOnly) return;
+    if (!rx || !settings || readOnly) return;
     const live = warnings.filter((w) => w.level !== 'info' && !w.req);
-    if (seenWarn.current === null) { seenWarn.current = new Set(live.map(warnKey)); return; }
-    const fresh = live.filter((w) => !seenWarn.current!.has(warnKey(w)));
-    live.forEach((w) => seenWarn.current!.add(warnKey(w)));
-    if (!fresh.length) return;
-    toast(fresh.length === 1 ? '⚠ ' + fresh[0].text : `⚠ ${fresh.length} new alerts. See the red box above the medicines.`, { tone: 'err', ms: 7000 });
-  }, [warnings, readOnly]); // eslint-disable-line
+    if (seenWarn.current === null) { seenWarn.current = new Set(live.map(seenKey)); return; }
+    const t = setTimeout(() => {
+      const fresh = live.filter((w) => !seenWarn.current!.has(seenKey(w)));
+      live.forEach((w) => seenWarn.current!.add(seenKey(w)));
+      if (!fresh.length) return;
+      toast(fresh.length === 1 ? '⚠ ' + fresh[0].text : `⚠ ${fresh.length} new alerts. See the red box above the medicines.`, { tone: 'err', ms: 7000 });
+    }, 700);
+    return () => clearTimeout(t);
+  }, [warnings, readOnly, !!settings]); // eslint-disable-line
   /* meds the doctor usually prescribes for this diagnosis (from own past prescriptions) */
   const usual = useMemo(() => {
     const dx = norm(rx?.clinical.diagnosis || '');
@@ -304,7 +309,7 @@ function Builder() {
       )}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <div className="space-y-4 lg:col-span-5">
-          <PatientCard p={p} nextPid={nextPid} readOnly={!!readOnly} setPatient={setPatient} onPick={(pt) => update((r) => ({ ...r, patient: { ...pt }, patientId: pt.id }))} onClear={() => update((r) => ({ ...r, patient: { ...blankRxPatient(), id: uid() }, patientId: '' }))} />
+          <PatientCard p={p} nextPid={nextPid} readOnly={!!readOnly} setPatient={setPatient} onPick={(pt) => update((r) => ({ ...r, patient: { ...pt }, patientId: pt.id, dismissedWarn: undefined }))} onClear={() => update((r) => ({ ...r, patient: { ...blankRxPatient(), id: uid() }, patientId: '', dismissedWarn: undefined }))} />
           {ortho && <Card className="p-4">
             <div className="mb-2 text-sm font-extrabold uppercase tracking-wide text-slate-500">Site of complaint</div>
             <BodyPicker clin={rx.clinical} set={setClin} readOnly={!!readOnly} />

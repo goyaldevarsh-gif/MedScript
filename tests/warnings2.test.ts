@@ -117,3 +117,54 @@ describe('hiding an alert as not relevant', () => {
     expect(isHidden(b, [warnKey(a)])).toBe(false);
   });
 });
+
+describe('audit: negated words do not switch a condition on', () => {
+  it.each([
+    ['Etoricoxib', 'Not pregnant', 'ctx-preg-nsaid'], ['Etoricoxib', 'Non-pregnant', 'ctx-preg-nsaid'], ['Doxycycline', 'Pregnancy test negative', 'ctx-preg-tetra'],
+    ['Prednisolone', 'No diabetes, no hypertension', 'ctx-steroid-dm'], ['Prednisolone', 'Non-diabetic', 'ctx-steroid-dm'], ['Etoricoxib', 'No h/o kidney disease', 'ctx-nsaid-kidney'],
+    ['Etoricoxib', 'Not on warfarin', 'nsaid-anticoag'],
+  ])('%s with "%s" does not fire %s', (drug, comorb, id) => { expect(ids(rx([item(drug)], { comorb, sex: 'Female', age: '30' }))).not.toContain(id); });
+  it.each([
+    ['Prednisolone', 'Diabetes not controlled', 'ctx-steroid-dm'], ['Prednisolone', 'Non-insulin dependent diabetes', 'ctx-steroid-dm'], ['Etoricoxib', 'Non-healing gastric ulcer', 'ctx-nsaid-gi'],
+    ['Prednisolone', 'No hypertension, diabetes', 'ctx-steroid-dm'], ['Etoricoxib', 'Not well controlled hypertension', 'ctx-nsaid-cvs'],
+  ])('%s with "%s" still fires %s', (drug, comorb, id) => { expect(ids(rx([item(drug)], { comorb }))).toContain(id); });
+});
+
+describe('audit: interaction rules', () => {
+  it('omeprazole only matters with clopidogrel, not aspirin', () => {
+    expect(ids(rx([item('Aspirin'), item('Omeprazole')]))).not.toContain('clopidogrel-ppi');
+    expect(ids(rx([item('Clopidogrel'), item('Omeprazole')]))).toContain('clopidogrel-ppi');
+  });
+  it('omeprazole added for a patient who already takes clopidogrel (from Comorbidities)', () => {
+    expect(ids(rx([item('Omeprazole')], { comorb: 'on clopidogrel' }))).toContain('clopidogrel-ppi');
+  });
+  it('the second medicine alone is caught when the first is ongoing: calcium for a patient on levothyroxine', () => {
+    expect(ids(rx([item('Calcium carbonate')], { comorb: 'Hypothyroid on levothyroxine' }))).toContain('levo-cation');
+  });
+  it('tizanidine danger is for ciprofloxacin, not every fluoroquinolone', () => {
+    expect(ids(rx([item('Ciprofloxacin'), item('Tizanidine')]))).toContain('fq-tizanidine');
+    expect(ids(rx([item('Levofloxacin'), item('Tizanidine')]))).not.toContain('fq-tizanidine');
+  });
+  it('"iron deficiency" is a condition, not a tablet the patient takes', () => {
+    expect(ids(rx([item('Ciprofloxacin')], { comorb: 'Anaemia (iron deficiency)' }))).not.toContain('fq-cation');
+    expect(ids(rx([item('Ciprofloxacin')], { comorb: 'on iron tablets' }))).toContain('fq-cation');
+  });
+});
+
+describe('audit: pregnancy not recorded', () => {
+  const ask = (items: any[], o: any) => ids(rx(items, o)).includes('preg-ask');
+  it('asks for a woman of child-bearing age given thiocolchicoside, doxycycline or methotrexate', () => {
+    for (const d of ['Thiocolchicoside', 'Doxycycline', 'Methotrexate']) expect(ask([item(d)], { sex: 'Female', age: '22' })).toBe(true);
+  });
+  it('stays quiet for men, children, older women and a recorded answer', () => {
+    expect(ask([item('Thiocolchicoside')], { sex: 'Male', age: '22' })).toBe(false);
+    expect(ask([item('Thiocolchicoside')], { sex: 'Female', age: '9' })).toBe(false);
+    expect(ask([item('Thiocolchicoside')], { sex: 'Female', age: '58' })).toBe(false);
+    expect(ask([item('Thiocolchicoside')], { sex: 'Female', age: '22', comorb: 'Not pregnant' })).toBe(false);
+    expect(ask([item('Thiocolchicoside')], { sex: 'Female', age: '22', comorb: 'Pregnant' })).toBe(false);
+    expect(ask([item('Etoricoxib')], { sex: 'Female', age: '22' })).toBe(false);
+  });
+  it('can be muted', () => {
+    expect(ids(rx([item('Thiocolchicoside')], { sex: 'Female', age: '22' }), { muted: ['preg-ask'] })).not.toContain('preg-ask');
+  });
+});

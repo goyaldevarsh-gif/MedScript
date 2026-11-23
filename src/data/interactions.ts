@@ -39,6 +39,8 @@ export const CLASSES: Record<string, { label: string; re: RegExp }> = {
   kidopioid: { label: 'tramadol / tapentadol / codeine', re: /\b(tramadol|tapentadol|codeine)/ },
   aspirin: { label: 'aspirin', re: /\b(aspirin|acetylsalicylic|ecosprin|disprin)/ },
   lithium: { label: 'lithium', re: /\blithium/ },
+  cipro: { label: 'ciprofloxacin', re: /\b(ciprofloxacin|cifran|ciplox)/ },
+  clopidogrel: { label: 'clopidogrel', re: /\b(clopidogrel|plavix|clopilet)/ },
   thiocol: { label: 'thiocolchicoside', re: /\bthiocolchicoside/ },
   teratogen: { label: 'methotrexate / leflunomide', re: /\b(methotrexate|mtx|leflunomide|teriflunomide)/ },
   /** anything that counts as stomach cover next to an NSAID */
@@ -64,7 +66,7 @@ export const RULES: IxRule[] = [
   { id: 'fq-steroid', group: 'Antibiotics', a: 'fq', b: 'steroid', level: 'warn', text: 'fluoroquinolone with a steroid raises the risk of tendon rupture (Achilles). Consider another antibiotic.' },
   { id: 'fq-cation', group: 'Antibiotics', a: 'fq', b: 'cation', level: 'warn', text: 'calcium / iron / antacid / zinc stops the antibiotic from being absorbed. Give the antibiotic 2 hours before or 6 hours after.' },
   { id: 'tetra-cation', group: 'Antibiotics', a: 'tetracycline', b: 'cation', level: 'warn', text: 'calcium / iron / antacid / zinc stops doxycycline from being absorbed. Keep them at least 2-3 hours apart.' },
-  { id: 'fq-tizanidine', group: 'Antibiotics', a: 'fq', b: 'tizanidine', level: 'danger', text: 'ciprofloxacin / fluoroquinolones can raise tizanidine levels many times (very low BP, drowsiness). Avoid the combination.' },
+  { id: 'fq-tizanidine', group: 'Antibiotics', a: 'cipro', b: 'tizanidine', level: 'danger', text: 'ciprofloxacin can raise tizanidine levels many times (very low BP, drowsiness). Avoid the combination.' },
   { id: 'fq-sulfonylurea', group: 'Antibiotics', a: 'fq', b: 'sulfonylurea', level: 'warn', text: 'fluoroquinolone with a sulfonylurea can cause low blood sugar.' },
   { id: 'fq-anticoag', group: 'Antibiotics', a: 'fq', b: 'anticoag', level: 'warn', text: 'fluoroquinolone can raise the effect of warfarin. Check INR.' },
   { id: 'metro-anticoag', group: 'Antibiotics', a: 'metronidazole', b: 'anticoag', level: 'warn', text: 'metronidazole can raise the effect of warfarin. Check INR.' },
@@ -89,7 +91,7 @@ export const RULES: IxRule[] = [
   { id: 'bisphos-cation', group: 'Bone and gout', a: 'bisphos', b: 'cation', level: 'warn', text: 'calcium / antacid blocks absorption of alendronate-type tablets. Take alendronate alone with water, 30 minutes before food and other tablets.' },
   { id: 'levo-cation', group: 'Bone and gout', a: 'levothyroxine', b: 'cation', level: 'info', text: 'calcium / iron reduces levothyroxine absorption. Keep 4 hours apart.' },
   { id: 'colchicine-statin', group: 'Bone and gout', a: 'colchicine', b: 'statin', level: 'warn', text: 'colchicine with a statin can cause muscle damage. Watch for muscle pain and weakness.' },
-  { id: 'clopidogrel-ppi', group: 'Bone and gout', a: 'antiplatelet', b: 'omeprazole', level: 'warn', text: 'omeprazole / esomeprazole can reduce the effect of clopidogrel. Pantoprazole is the safer choice.' },
+  { id: 'clopidogrel-ppi', group: 'Bone and gout', a: 'clopidogrel', b: 'omeprazole', level: 'warn', text: 'omeprazole / esomeprazole can reduce the effect of clopidogrel. Pantoprazole is the safer choice.' },
 ];
 
 /** Conditions typed under "Comorbidities" and what they mean for a class. Matched against the comorbidity text. */
@@ -153,3 +155,6 @@ export const COURSE_RULES: CourseRule[] = [
 ];
 /** an NSAID by mouth for a week or more (or in an older patient) with nothing protecting the stomach */
 export const NSAID_GI = { id: 'nsaid-no-gi', group: 'NSAIDs', level: 'info' as IxLevel, name: 'NSAID without stomach protection', text: 'no stomach protection on this prescription. For a course of 7 days or more, or in an older patient, consider adding a PPI.' };
+
+/** a woman of child-bearing age is given a medicine that is unsafe in pregnancy and nothing about pregnancy is written */
+export const PREG_ASK = { id: 'preg-ask', group: 'Pregnancy and breastfeeding', level: 'warn' as IxLevel, name: 'Pregnancy not recorded (thiocolchicoside, doxycycline, methotrexate)', classes: ['thiocol', 'tetracycline', 'teratogen'], text: 'pregnancy is not recorded. Tap Pregnant or Breastfeeding under Comorbidities, or type "not pregnant".' };

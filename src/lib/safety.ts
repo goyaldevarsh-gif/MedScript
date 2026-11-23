@@ -1,5 +1,6 @@
 import type { IxCustom, Prescription, RxItem } from './types';
-import { AGE_RULES, CLASSES, COURSE_RULES, CTX_RULES, NSAID_GI, RULES } from '../data/interactions';
+import { AGE_RULES, CLASSES, COURSE_RULES, CTX_RULES, NSAID_GI, PREG_ASK, RULES } from '../data/interactions';
+import { affirmed } from './negation';
 import { ALLERGY_CLASSES, MAX_DAILY_MG } from '../data/rules';
 import { timesPerDay } from './dosage';
 import { norm } from './util';
@@ -144,7 +145,8 @@ function inClass(it: RxItem, cls: string, custom?: string): boolean {
 }
 /** things the patient already takes, read from the Comorbidities box (e.g. "on warfarin, telmisartan") */
 function ongoing(rx: Prescription): Set<string> {
-  const t = norm(`${rx.clinical.comorbidities || ''}`); const out = new Set<string>();
+  // "iron deficiency" / "calcium deficiency" are conditions, not tablets the patient takes
+  const t = norm(affirmed(rx.clinical.comorbidities || '')).replace(/\b(iron|calcium|zinc|magnesium) (deficiency|deficient|def)\b/g, ''); const out = new Set<string>();
   if (!t) return out;
   for (const [k, c] of Object.entries(CLASSES)) if (c.re.test(t)) out.add(k);
   if (/\b(blood thinner|anticoag|on thinners|blood thinners)\b/.test(t)) out.add('anticoag');
@@ -160,7 +162,15 @@ function interactionWarnings(rx: Prescription, opts: IxOpts): Warning[] {
   const list = (its: RxItem[]) => [...new Set(its.map(shown))].filter(Boolean).join(' + ');
   for (const r of RULES) {
     if (muted.has(r.id)) continue;
-    const A = members(r.a); if (!A.length) continue;
+    const A = members(r.a);
+    if (!A.length) {
+      // the patient already takes the first medicine (from Comorbidities) and this prescription adds the second
+      if (r.a !== r.b && on.has(r.a) && !(r.unless && has(r.unless))) {
+        const B2 = members(r.b);
+        if (B2.length) out.push({ level: r.level, ruleId: r.id, text: `Interaction: ${list(B2)} with ${CLASSES[r.a].label} the patient already takes (from Comorbidities): ${r.text}` });
+      }
+      continue;
+    }
     if (r.unless && has(r.unless)) continue;
     if (r.a === r.b) {
       const gen = [...new Map(A.map((i) => [baseName(i.generic || i.brand), i])).values()];
@@ -174,7 +184,7 @@ function interactionWarnings(rx: Prescription, opts: IxOpts): Warning[] {
     if (Bx.length) out.push({ level: r.level, ruleId: r.id, text: `Interaction: ${list(A)} + ${list(Bx)}: ${r.text}` });
     else if (!B.length && on.has(r.b)) out.push({ level: r.level, ruleId: r.id, text: `Interaction: ${list(A)} with ${CLASSES[r.b].label} the patient already takes (from Comorbidities): ${r.text}` });
   }
-  const text = norm(rx.clinical.comorbidities || '');
+  const text = norm(affirmed(rx.clinical.comorbidities || ''));
   for (const r of CTX_RULES) {
     if (muted.has(r.id) || !text || !r.cond.test(text)) continue;
     const A = members(r.cls); if (!A.length) continue;
@@ -185,6 +195,11 @@ function interactionWarnings(rx: Prescription, opts: IxOpts): Warning[] {
     if (muted.has(r.id) || (r.min !== undefined && age < r.min) || (r.max !== undefined && age >= r.max)) continue;
     const A = members(r.cls); if (!A.length) continue;
     out.push({ level: r.level, ruleId: r.id, text: `${age < 1 ? Math.round(age * 12) + ' months' : 'Age ' + Math.round(age)}: ${list(A)}: ${r.text}` });
+  }
+  // --- woman of child-bearing age, pregnancy not recorded
+  if (!muted.has(PREG_ASK.id) && rx.patient.sex === 'Female' && (isNaN(age) || (age >= 12 && age <= 50)) && !/pregnan|breast ?feed|lactat|\blmp\b|contracept|expecting/i.test(rx.clinical.comorbidities || '')) {
+    const R = PREG_ASK.classes.flatMap((c) => members(c));
+    if (R.length) out.push({ level: PREG_ASK.level, ruleId: PREG_ASK.id, text: `${list(R)}: ${PREG_ASK.text}` });
   }
   // --- course length (oral medicines only; as-needed and tapered courses are skipped)
   const days = (i: RxItem) => (i.duration || 0) * (i.durationUnit === 'weeks' ? 7 : i.durationUnit === 'months' ? 30 : 1);
