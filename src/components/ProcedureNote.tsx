@@ -17,7 +17,7 @@ export default function ProcedureNotes({ rx, update, readOnly }: { rx: Prescript
           <span>{procText(p)}{p.consent && <span className="ml-1 text-teal-700">· consent taken</span>}{!p.print && <span className="ml-1 text-slate-400">· not printed</span>}</span>
           {!readOnly && <button aria-label="Remove procedure" className="text-slate-400 hover:text-danger" onClick={() => update((r) => ({ ...r, procedures: (r.procedures || []).filter((x) => x.id !== p.id) }))}><X size={14} /></button>}
         </div>))}
-      {!readOnly && <button className="flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-brand" onClick={() => setOpen(true)}><Plus size={13} /> Procedure done today (plaster, injection, dressing…)</button>}
+      {!readOnly && <button className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-teal/50 bg-teal-50/70 px-3 py-2.5 text-sm font-bold text-teal-800 hover:bg-teal-50" onClick={() => setOpen(true)}><Plus size={15} /> Procedure done today (plaster, injection, dressing…)</button>}
       {open && <ProcModal rx={rx} onClose={() => setOpen(false)} onSave={(p) => { update((r) => ({ ...r, procedures: [...(r.procedures || []), p] })); setOpen(false); }} />}
     </div>
   );
