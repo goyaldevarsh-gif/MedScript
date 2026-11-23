@@ -121,13 +121,13 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     const top = 11;
     const rule = (yy: number) => { doc.setDrawColor(...TEAL); doc.setLineWidth(0.5); doc.line(M, yy, PW - M, yy); };
     // doctor lines
-    const docLines: { t: string; st: 'bold' | 'normal'; sz: number; col: [number, number, number] }[] = [];
+    const docLines: { t: string; st: 'bold' | 'normal'; sz: number; col: [number, number, number]; cs?: number; gap?: number }[] = [];
     const nm = clean(drName(snap.doctor.fullName)) || 'Doctor name not set';
-    docLines.push({ t: nm, st: 'bold', sz: 15 * sc, col: NAVY });
-    if (snap.doctor.qualifications) docLines.push({ t: snap.doctor.qualifications, st: 'normal', sz: 9.3 * sc, col: NAVY });
-    if (snap.doctor.specialty) docLines.push({ t: snap.doctor.specialty, st: 'bold', sz: 9.3 * sc, col: TEAL });
-    if (snap.doctor.regNo) docLines.push({ t: `Reg. No.: ${snap.doctor.regNo}${snap.doctor.regCouncil ? ' (' + snap.doctor.regCouncil + ')' : ''}`, st: 'bold', sz: 8.8 * sc, col: NAVY });
-    if (dPhones.length) docLines.push({ t: 'Mob: ' + dPhones.join('  |  '), st: 'normal', sz: 8.6 * sc, col: GREY });
+    docLines.push({ t: nm, st: 'bold', sz: 18 * sc, col: NAVY, gap: 1.2 });
+    if (snap.doctor.qualifications) docLines.push({ t: snap.doctor.qualifications, st: 'normal', sz: 9.4 * sc, col: [70, 82, 100], gap: 0.8 });
+    if (snap.doctor.specialty) docLines.push({ t: snap.doctor.specialty.toUpperCase(), st: 'bold', sz: 7.8 * sc, col: TEAL, cs: 0.35, gap: 1.6 });
+    if (snap.doctor.regNo) docLines.push({ t: `Reg. No. ${snap.doctor.regNo}${snap.doctor.regCouncil ? ' (' + snap.doctor.regCouncil + ')' : ''}`, st: 'bold', sz: 8.6 * sc, col: NAVY });
+    if (dPhones.length) docLines.push({ t: dPhones.join('   |   '), st: 'normal', sz: 8.6 * sc, col: GREY });
     if (snap.doctor.email && !hasClinic) docLines.push({ t: snap.doctor.email, st: 'normal', sz: 8.6 * sc, col: GREY });
     const dw = hasClinic ? 92 : CW - 4;
     let leftX = M, hLogo = 0;
@@ -151,8 +151,8 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     const rxPos = hasClinic ? PW - M : M;
     docLines.forEach((l) => {
       font(l.st, l.sz, l.col);
-      wrap(l.t, dw).forEach((ln) => { doc.text(ln, rxPos, ry + l.sz * 0.3528 * 0.9, { align }); ry += lh(l.sz) * 0.95; });
-      if (l === docLines[0]) ry += 0.6;
+      wrap(l.t, dw).forEach((ln) => { if (l.cs) { const w = doc.getTextWidth(ln) + l.cs * 0.3528 * ln.length; doc.text(ln, align === 'right' ? rxPos - w : rxPos, ry + l.sz * 0.3528 * 0.9, { charSpace: l.cs * 0.3528 }); } else doc.text(ln, rxPos, ry + l.sz * 0.3528 * 0.9, { align }); ry += lh(l.sz) * 0.95; });
+      ry += l.gap || 0;
     });
     y = Math.max(ly, ry, top + hLogo) + 1.8;
     rule(y); y += 4.6;
@@ -358,9 +358,9 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   }
   if (showSeal && sealSize) try { doc.addImage(sealUrl, 'PNG', sealX + snap.seal.offsetX, sealBottom - sealH + snap.seal.offsetY, sealW, sealH, undefined, 'FAST'); } catch { /* unreadable seal image: skip it */ }
   if (qrList.length) {
-    const n = qrList.length, qs = n > 1 ? 15 : 16, qy = sigBottom - qs - 7;
+    const n = qrList.length, qs = n > 1 ? 11.5 : 13, qy = sigBottom - qs - 7;
     const avail0 = Math.max(24, Math.min(showSeal ? sealX : sigLeft, sigLeft) - M - 3);
-    const cw = n > 1 ? Math.min(27, avail0 / n) : avail0;
+    const cw = n > 1 ? Math.min(23, avail0 / n) : avail0;
     const caps = {
       guide: n > 1 ? T('Scan: your condition guide', 'स्कैन करें: बीमारी की जानकारी') : T('Scan to learn about your condition', 'अपनी बीमारी के बारे में जानने के लिए स्कैन करें'),
       map: T('Scan: clinic location', 'स्कैन करें: क्लिनिक का पता'),
@@ -401,8 +401,9 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     doc.setDrawColor(210, 218, 228); doc.setLineWidth(0.25); doc.line(M, PH - 12, PW - M, PH - 12);
     doc.text(clean(left), M, PH - 8);
     if (total > 1) doc.text(`Page ${i} of ${total}`, PW - M, PH - 8, { align: 'right' });
-    const foot = [[clinic.name, clinic.address].filter((x) => x && x.trim()).join(', '), L.footerNote.trim()].filter(Boolean).join('   ·   ');
-    if (foot) { let fs = 7.2; font('normal', fs, GREY); while (fs > 5.6 && doc.getTextWidth(clean(foot)) > CW) { fs -= 0.2; font('normal', fs, GREY); } doc.text(clean(foot), PW / 2, PH - 4.5, { align: 'center', maxWidth: CW }); }
+    const addr = [clinic.name, clinic.address].filter((x) => x && x.trim()).join(', ');
+    if (addr) { let fs = 7.8; font('bold', fs, NAVY); while (fs > 5.8 && doc.getTextWidth(clean(addr)) > CW) { fs -= 0.2; font('bold', fs, NAVY); } doc.text(clean(addr), PW / 2, PH - 4.2, { align: 'center', maxWidth: CW }); }
+    if (L.footerNote.trim()) { font('italic', 7, GREY); doc.text(clean(L.footerNote), PW / 2, PH - 8, { align: 'center', maxWidth: 80 }); }
   }
   return { blob: doc.output('blob'), pages: total };
 }
