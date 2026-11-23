@@ -68,3 +68,12 @@ describe('children', () => {
     expect(kid('Ibuprofen', '4', 'M').some((w) => w.ruleId === 'kid-nsaid-infant')).toBe(true);
   });
 });
+
+describe('P-CAB counts as stomach protection', () => {
+  it('NSAID + steroid is quiet with vonoprazan, as with pantoprazole', () => {
+    const ids = (ppi: string) => checkRx(rx([item('Etoricoxib'), item('Prednisolone'), item(ppi)])).map((w) => w.ruleId);
+    expect(ids('Pantoprazole')).not.toContain('nsaid-steroid');
+    expect(ids('Vonoprazan')).not.toContain('nsaid-steroid');
+    expect(ids('Cetirizine')).toContain('nsaid-steroid');
+  });
+});

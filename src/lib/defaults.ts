@@ -73,7 +73,7 @@ export function itemFromMedicine(m: { id?: string; brand: string; generic: strin
   const base: Pick<RxItem, 'freq' | 'timesPerDay' | 'timing' | 'duration' | 'durationUnit'> = is60k
     ? { freq: 'WEEKLY', timesPerDay: 1, timing: 'after', duration: 8, durationUnit: 'weeks' }
     : supp ? { freq: ppi ? 'OD' : 'BD', timesPerDay: 2, timing: 'after', duration: 30, durationUnit: 'days' }
-    : { freq: ppi ? 'OD' : 'BD', timesPerDay: ppi ? 1 : 2, timing: ppi ? 'before' : 'after', duration: 5, durationUnit: 'days' };
+    : { freq: ppi ? 'OD' : 'BD', timesPerDay: ppi ? 1 : 2, timing: ppi && !/p-cab/.test(cat) ? 'before' : 'after', duration: 5, durationUnit: 'days' };
   return {
     id: uid(), medId: m.id, brand: m.brand, generic: m.generic, ingredients: m.ingredients, strength: m.strength,
     form: m.form, route: m.route || routeForForm(m.form), manufacturer: m.manufacturer, verified: m.verified, src: m.source,

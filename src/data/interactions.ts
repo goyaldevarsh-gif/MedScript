@@ -26,7 +26,7 @@ export const CLASSES: Record<string, { label: string; re: RegExp }> = {
   calcium: { label: 'calcium', re: /\b(calcium|shelcal)/ },
   tetracycline: { label: 'doxycycline / tetracycline', re: /\b(doxycycline|minocycline|tetracycline|lymecycline)/ },
   bisphos: { label: 'oral bisphosphonate', re: /\b(alendronate|risedronate|ibandronate)/ },
-  ppi: { label: 'acid-reducing tablet (PPI)', re: /\b(omeprazole|esomeprazole|pantoprazole|rabeprazole|lansoprazole|dexlansoprazole|ilaprazole)/ },
+  ppi: { label: 'acid-reducing tablet (PPI / P-CAB)', re: /\b(omeprazole|esomeprazole|pantoprazole|rabeprazole|lansoprazole|dexlansoprazole|ilaprazole|vonoprazan|tegoprazan|fexuprazan|keverprazan)/ },
   omeprazole: { label: 'omeprazole / esomeprazole', re: /\b(omeprazole|esomeprazole)/ },
   macrolide: { label: 'clarithromycin / erythromycin', re: /\b(clarithromycin|erythromycin)/ },
   azithro: { label: 'azithromycin', re: /\bazithromycin/ },

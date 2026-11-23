@@ -63,6 +63,7 @@ const singles: Row[] = [
   // Gastro-protection / antiemetic
   ['Pantoprazole', ['20 mg', '40 mg'], 'Tablet', 'Oral', 'PPI'],
   ['Pantoprazole', ['40 mg'], 'Injection', 'IV', 'PPI'],
+  ['Vonoprazan', ['10 mg', '20 mg'], 'Tablet', 'Oral', 'PPI (P-CAB)'],
   ['Rabeprazole', ['20 mg'], 'Tablet', 'Oral', 'PPI'],
   ['Esomeprazole', ['20 mg', '40 mg'], 'Tablet', 'Oral', 'PPI'],
   ['Omeprazole', ['20 mg'], 'Capsule', 'Oral', 'PPI'],
