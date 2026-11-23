@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { ArrowLeft, Pencil, Plus, Trash2, Copy, Send, Check } from 'lucide-react';
 import { db, duplicateRx, useSettings } from '../lib/db';
 import { markSent, ovMsg, sendRx, wasSent } from '../lib/ovcloud';
+import { ovSendable } from '../lib/orthovault';
 import { Btn, Card, Empty, useToast } from '../components/ui';
 import PatientForm from '../components/PatientForm';
 import RxRow from '../components/RxRow';
@@ -20,7 +21,7 @@ export default function PatientDetail() {
   const [sending, setSending] = useState(false);
   const inOv = rxs.some((r) => wasSent(r.id));
   async function toOv() {
-    const all = rxs.filter((x) => x.status === 'final' && x.items.length > 0).sort((x, y) => (x.authorizedAt || x.updatedAt) - (y.authorizedAt || y.updatedAt));
+    const all = rxs.filter((x) => x.status === 'final' && ovSendable(x)).sort((x, y) => (x.authorizedAt || x.updatedAt) - (y.authorizedAt || y.updatedAt));
     if (!settings?.ovEmail) return;
     if (!all.length) return toast('Finalize a prescription with at least one medicine first. OrthoVault only accepts those.', { tone: 'err' });
     setSending(true);

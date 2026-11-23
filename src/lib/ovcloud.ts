@@ -1,5 +1,5 @@
 import type { Prescription } from './types';
-import { ovPayload, type OvIn } from './orthovault';
+import { ovPayload, ovSendable, type OvIn } from './orthovault';
 
 /* Private link to the doctor's OWN OrthoVault account (Firebase project orthovault02).
    Everything lives under users/{uid}/..., where uid is the signed-in doctor, and Firestore rules
@@ -28,7 +28,7 @@ async function me() {
 }
 export const ovMsg = (e: unknown) => {
   const c = (e as { code?: string })?.code || '';
-  if (c.includes('no-meds')) return 'OrthoVault only accepts a prescription that has at least one medicine. Add a medicine first.';
+  if (c.includes('no-meds')) return 'OrthoVault needs a medicine, or advice or a diagnosis, to save a visit.';
   if (c.includes('permission-denied')) return 'OrthoVault cloud refused access (Firestore rules need a small update).';
   if (c.includes('invalid-credential') || c.includes('wrong-password') || c.includes('user-not-found') || c.includes('invalid-email')) return 'Email or password is wrong.';
   if (c.includes('network') || c.includes('unavailable')) return 'No internet right now.';
@@ -58,7 +58,7 @@ export async function dropInbox(id: string, email: string) {
 }
 /** Sends an authorised prescription to the linked OrthoVault account; clears the inbox entry for that patient. */
 export async function sendRx(rx: Prescription, email: string): Promise<void> {
-  if (!rx.items.length) throw Object.assign(new Error('No medicines'), { code: 'no-meds' });
+  if (!ovSendable(rx)) throw Object.assign(new Error('No medicines'), { code: 'no-meds' });
   const { fs, F, user } = await me();
   if (!user || (user.email || '').toLowerCase() !== email.toLowerCase()) throw Object.assign(new Error('Not linked'), { code: 'not-linked' });
   await F.setDoc(F.doc(fs, 'users', user.uid, 'mvReturn', rx.id), { ...ovPayload(rx), sentAt: Date.now() });

@@ -47,3 +47,6 @@ export function ovSaveUrl(base: string, rx: Prescription): string {
   const payload = ovPayload(rx);
   return `${base.replace(/#.*$/, '').replace(/\/?$/, '/')}#mvrx=${enc(payload)}`;
 }
+
+/** OrthoVault accepts a visit with medicines, or a note-only visit that has advice or a diagnosis. */
+export const ovSendable = (rx: Prescription) => (rx.items?.length ?? 0) > 0 || (rx.clinical?.advice ?? []).some((a) => String(a).trim()) || !!String(rx.clinical?.diagnosis ?? '').trim();

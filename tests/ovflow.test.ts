@@ -18,3 +18,14 @@ describe('OrthoVault follow-through', () => {
     await db.prescriptions.bulkPut([rx('r1', 'B')]); await flushOv('doc@x.com'); expect(calls).toEqual([]);
   });
 });
+
+import { ovSendable } from '../src/lib/orthovault';
+describe('note-only visit', () => {
+  it('sends with advice or diagnosis, not when empty', () => {
+    const base = { items: [], clinical: { advice: [], diagnosis: '' } } as never;
+    expect(ovSendable(base)).toBe(false);
+    expect(ovSendable({ items: [], clinical: { advice: ['Rest'], diagnosis: '' } } as never)).toBe(true);
+    expect(ovSendable({ items: [], clinical: { advice: [], diagnosis: 'ACL tear' } } as never)).toBe(true);
+    expect(ovSendable({ items: [{ id: 'm' }], clinical: {} } as never)).toBe(true);
+  });
+});
