@@ -271,8 +271,13 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       if (it.route && it.route !== 'Oral') parts.push(it.route);
       if (qty.text) parts.push(`Qty ${qty.text}`);
       const partsLine = parts.join('   ·   ');
+      const leadTxt = it.useTaper && it.taper.length ? 'Tapering schedule' : `${doseLabel(it) || '-'}    ${freqLabel(it)}${dosePattern(it) ? '  ' + dosePattern(it) : ''}`;
+      const restTxt = [tm && tm.label, !it.useTaper && durationLabel(it), it.freq === 'SOS' && it.sosMax ? `max ${it.sosMax}/day` : '', it.route && it.route !== 'Oral' ? it.route : ''].filter(Boolean).join('   ·   ');
+      const qtyTxt = qty.text ? `Qty ${qty.text}` : '';
       const ins = showIns ? itemInstructions(it, lang) : { en: '', hi: '', schedule: '' };
-      const insText = lang === 'hi' ? ins.hi : ins.en;
+      let insText = lang === 'hi' ? ins.hi : ins.en;
+      // the course length is already on the line above: do not say it twice (a hand-written instruction is left as typed)
+      if (insText && !it.instructionOverride.trim() && !it.useTaper && it.duration) insText = insText.replace(/\s+for \d+ (?:day|days|week|weeks|month|months)(?=\W*$)/i, '').replace(/\s*\d+ (?:दिन|हफ़्ते|हफ्ते|सप्ताह|महीने|महीना|हफ्ता|दिनों) तक/, '');
       const nameFull = t.main + (t.sub ? '  ' + t.sub : '');
       let need = heightOf(`${idx + 1}. ` + nameFull, w, (brandFirst ? 11 : 10.2) * sc * ms, 'bold') + (compLine ? heightOf(compLine, w, 7.8 * sc * ms) : 0) + heightOf(partsLine, w, 8.6 * sc * ms, 'bold') + 2;
       if (insText) need += lang === 'hi' ? hiBlock(insText, w - 2, 8.8 * sc * ms, NAVY).h : heightOf(insText, w - 2, 8.5 * sc * ms, 'italic');
@@ -283,13 +288,26 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
       const nameLines = wrap(t.main, w);
       nameLines.forEach((l, i) => { font('bold', (brandFirst ? 11 : 10.2) * sc * ms, NAVY); ensure(lh(10.2 * sc * ms)); doc.text(l, indent, y + nb); if (i === nameLines.length - 1 && t.sub) { const tw = doc.getTextWidth(l + '  '); font('normal', 8.8 * sc * ms, GREY); doc.text(clean(t.sub), indent + tw, y + nb); } y += lh(10.2 * sc * ms); });
       if (compLine) para(compLine, indent, w, 'normal', brandFirst ? 7.2 * sc * ms : 7.8 * sc * ms, [128, 138, 152]);
-      para(partsLine, indent, w, 'normal', 8.8 * sc * ms, [30, 64, 110]);
+      { // dose and pattern stand out; the rest is quieter; quantity is for the chemist, small and grey at the right
+        const big = 9.6 * sc * ms, sm = 8.6 * sc * ms, qs2 = 7.4 * sc * ms;
+        font('bold', big, NAVY); const lw = doc.getTextWidth(clean(leadTxt));
+        font('normal', sm, [30, 64, 110]); const rw = restTxt ? doc.getTextWidth(clean(restTxt)) : 0;
+        font('normal', qs2, GREY); const qw = qtyTxt ? doc.getTextWidth(qtyTxt) : 0;
+        const base = y + big * 0.3528 * 0.9;
+        font('bold', big, NAVY); doc.text(clean(leadTxt), indent, base);
+        const oneLine = lw + (rw ? 6 + rw : 0) + (qw ? 8 + qw : 0) <= w;
+        if (oneLine) { if (rw) { font('normal', sm, [30, 64, 110]); doc.text(clean(restTxt), indent + lw + 6, base); } }
+        if (qtyTxt) { font('normal', qs2, GREY); doc.text(qtyTxt, indent + w, base, { align: 'right' }); }
+        y += lh(big);
+        if (!oneLine && restTxt) para(restTxt, indent, w, 'normal', sm, [30, 64, 110]);
+      }
       if (it.useTaper && it.taper.length) {
         const steps = it.taper.map((s, i) => `Step ${i + 1}: ${s.dose} ${it.doseUnit}${s.dose > 1 ? 's' : ''} x ${s.timesPerDay}/day for ${s.days} day${s.days > 1 ? 's' : ''}`).join('   ');
         para(steps, indent, w, 'normal', 8.4 * sc * ms, NAVY);
       }
       if (insText) { if (lang === 'hi') hiPara(insText, indent, w - 2, 8.8 * sc * ms, [70, 82, 100], false); else para(insText, indent, w - 2, 'italic', 8.5 * sc * ms, [70, 82, 100]); }
       y += (1.7 + (ms - 1) * 6) * Math.min(1, 0.5 + fit / 2);
+      if (idx < rx.items.length - 1) { try { doc.setDrawColor(215, 222, 232); doc.setLineWidth(0.2); (doc as any).setLineDashPattern([0.6, 0.9], 0); doc.line(indent, y - 0.9, PW - M, y - 0.9); (doc as any).setLineDashPattern([], 0); } catch { /* cosmetic */ } }
     });
     y += 0.5;
   }
@@ -317,10 +335,11 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   if (fuDate) {
     ensure(14);
     const wd = fuDate.toLocaleDateString('en-GB', { weekday: 'long' });
-    doc.setFillColor(234, 245, 243); doc.roundedRect(M, y, CW, 5.8, 1.2, 1.2, 'F');
-    font('bold', 9.6 * sc, TEAL);
-    doc.text(`${T('Next visit', 'Next visit')}: ${fmtDate(fuDate)} (${wd})`, M + 3, y + 4);
-    y += 7;
+    doc.setFillColor(228, 243, 240); doc.roundedRect(M, y, CW, 7.6, 1.4, 1.4, 'F');
+    doc.setFillColor(...TEAL); doc.roundedRect(M, y, 1.3, 7.6, 0.6, 0.6, 'F');
+    font('bold', 10.6 * sc, TEAL);
+    doc.text(`Next visit: ${fmtDate(fuDate)} (${wd})   ·   in ${rx.followUpDays} days`, M + 4, y + 5.1);
+    y += 9;
     const note = T('Please bring this prescription and your previous reports on the next visit.', 'अगली बार यह पर्चा और पुरानी जाँच रिपोर्ट साथ लाएँ।') + (nt ? (lang === 'hi' ? ` जाँच: ${nt}` : ` Tests: ${nt}.`) : '');
     para(note, M, CW, 'normal', 8.2 * sc, GREY, 0.6);
   } else if (nt) para(`Tests: ${nt}`, M, CW, 'normal', 8.4 * sc, GREY, 0.6);
