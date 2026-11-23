@@ -8,9 +8,12 @@ export async function flushOv(email: string | undefined, also?: Prescription) {
   if (!email || running) return;
   running = true;
   try {
-    const recent = await db.prescriptions.orderBy('updatedAt').reverse().limit(150).toArray();
-    const list = recent.filter((r) => r.status === 'final' && (r.patient.ovId || r.ovId) && !wasSent(r.id));
-    if (also && also.status === 'final' && (also.patient.ovId || also.ovId) && !list.some((r) => r.id === also.id) && !wasSent(also.id)) list.push(also);
+    const recent = await db.prescriptions.orderBy('updatedAt').reverse().limit(400).toArray();
+    // a patient who has gone to OrthoVault once lives there from then on: every later authorised Rx follows automatically
+    const moved = new Set(recent.filter((r) => wasSent(r.id)).map((r) => r.patientId));
+    const goes = (r: Prescription) => r.status === 'final' && r.items.length > 0 && !wasSent(r.id) && !!(r.patient.ovId || r.ovId || moved.has(r.patientId));
+    const list = recent.filter(goes).sort((a, b) => (a.authorizedAt || a.updatedAt) - (b.authorizedAt || b.updatedAt));
+    if (also && goes(also) && !list.some((r) => r.id === also.id)) list.push(also);
     for (const r of list) { try { await sendRx(r, email); markSent(r.id); } catch { break; } }
   } finally { running = false; }
 }

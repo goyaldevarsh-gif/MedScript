@@ -20,11 +20,14 @@ export default function PatientDetail() {
   const [sending, setSending] = useState(false);
   const inOv = rxs.some((r) => wasSent(r.id));
   async function toOv() {
-    const r = rxs.find((x) => x.status === 'final') || rxs[0];
-    if (!r || !settings?.ovEmail) return;
+    const all = rxs.filter((x) => x.status === 'final' && x.items.length > 0).sort((x, y) => (x.authorizedAt || x.updatedAt) - (y.authorizedAt || y.updatedAt));
+    if (!settings?.ovEmail) return;
+    if (!all.length) return toast('Finalize a prescription with at least one medicine first. OrthoVault only accepts those.', { tone: 'err' });
     setSending(true);
-    try { await sendRx({ ...r, patient: { ...r.patient, name: p!.name, age: p!.age, ageUnit: p!.ageUnit, sex: p!.sex, phone: p!.phone, weight: p!.weight } }, settings.ovEmail); markSent(r.id); bump((n) => n + 1); toast('Sent to OrthoVault'); }
-    catch (e) { toast(ovMsg(e), { tone: 'err' }); }
+    try {
+      for (const r of all) { await sendRx({ ...r, patient: { ...r.patient, name: p!.name, age: p!.age, ageUnit: p!.ageUnit, sex: p!.sex, phone: p!.phone, weight: p!.weight, allergies: p!.allergies } }, settings.ovEmail); markSent(r.id); }
+      bump((n) => n + 1); toast(`Sent to OrthoVault: ${all.length} visit${all.length > 1 ? 's' : ''}. Later prescriptions will follow automatically.`);
+    } catch (e) { toast(ovMsg(e), { tone: 'err' }); }
     setSending(false);
   }
   if (p === undefined) return null;
@@ -46,7 +49,7 @@ export default function PatientDetail() {
             <div className="text-sm font-medium text-slate-600">{p.pid} · {p.age}{p.age && p.ageUnit} · {p.sex || '—'}{p.phone && ` · ${p.phone}`}{p.weight && ` · ${p.weight} kg`}</div>
             {p.allergies && <div className="mt-1 text-sm font-bold text-danger">Allergies: {p.allergies}</div>}
           </div>
-          <div className="flex flex-wrap gap-2">{settings?.ovEmail && rxs.length > 0 && <Btn variant="secondary" size="sm" disabled={sending} onClick={toOv}>{inOv ? <Check size={15} /> : <Send size={15} />} {sending ? 'Sending…' : inOv ? 'In OrthoVault · send again' : 'To OrthoVault'}</Btn>}<Btn variant="secondary" size="sm" onClick={() => setEdit(true)}><Pencil size={15} /> Edit</Btn><Btn size="sm" onClick={() => nav(`/new?patient=${p.id}`)}><Plus size={15} /> New prescription</Btn></div>
+          <div className="flex flex-wrap gap-2">{settings?.ovEmail && rxs.length > 0 && <Btn variant="secondary" size="sm" disabled={sending} onClick={toOv}>{inOv ? <Check size={15} /> : <Send size={15} />} {sending ? 'Sending…' : inOv ? 'In OrthoVault · resend all' : 'To OrthoVault'}</Btn>}<Btn variant="secondary" size="sm" onClick={() => setEdit(true)}><Pencil size={15} /> Edit</Btn><Btn size="sm" onClick={() => nav(`/new?patient=${p.id}`)}><Plus size={15} /> New prescription</Btn></div>
         </div>
       </Card>
       <div>

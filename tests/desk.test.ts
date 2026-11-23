@@ -47,3 +47,14 @@ describe('desk safety', () => {
     expect(DESK_RULES).toMatch(/hasOnly\(\['name'/); expect(DESK_RULES).not.toMatch(/if true/); expect(DESK_RULES).not.toMatch(/users/);
   });
 });
+
+import { ccText } from '../src/lib/orthovault';
+describe('what OrthoVault receives', () => {
+  const rx = (o: object) => ({ patient: { allergies: 'Penicillin' }, clinical: { complaint: 'Knee pain', examination: 'ROM 0-110\nLachman +', investigations: 'MRI knee' }, ...o }) as never;
+  it('extra clinical lines ride only in the complaint text', () => {
+    expect(ccText(rx({}))).toBe('Knee pain\nAllergy: Penicillin\nExamination: ROM 0-110; Lachman +\nInvestigations advised: MRI knee');
+  });
+  it('nothing extra when nothing was filled', () => {
+    expect(ccText({ patient: { allergies: '' }, clinical: { complaint: 'Back pain', examination: '', investigations: '' } } as never)).toBe('Back pain');
+  });
+});
