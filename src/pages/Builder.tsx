@@ -468,8 +468,8 @@ function PatientCard({ onTemplates, p, nextPid, readOnly, setPatient, onPick, on
         )}
         <Field label="Patient name *"><input className="field" value={p.name} onChange={(e) => setPatient({ name: e.target.value })} placeholder="Full name" autoComplete="off" /></Field>
         <div className="grid grid-cols-5 gap-2">
-          <Field label="Age" className="col-span-2"><AgeInput age={p.age} unit={p.ageUnit} onChange={(v) => setPatient(v)} compact /></Field>
-          <div className="col-span-3"><span className="lbl">Sex</span><div className="flex gap-1.5">{(['Male', 'Female', 'Other'] as const).map((s) => <Chip key={s} className="flex-1 !px-2" active={p.sex === s} onClick={() => setPatient({ sex: s })}>{s}</Chip>)}</div></div>
+          <Field label="Age" className="col-span-5"><AgeInput age={p.age} unit={p.ageUnit} onChange={(v) => setPatient(v)} compact /></Field>
+          <div className="col-span-5"><span className="lbl">Sex</span><div className="flex gap-1.5">{(['Male', 'Female', 'Other'] as const).map((s) => <Chip key={s} className="flex-1 !px-2" active={p.sex === s} onClick={() => setPatient({ sex: s })}>{s}</Chip>)}</div></div>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Field label="Phone"><input className="field" type="tel" inputMode="tel" value={p.phone} onChange={(e) => setPatient({ phone: e.target.value })} placeholder="10-digit mobile" /></Field>

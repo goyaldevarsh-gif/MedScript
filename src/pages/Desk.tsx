@@ -174,10 +174,10 @@ export default function Desk() {
               <label className="block"><span className="lbl">Mobile</span><input className="field" type="tel" inputMode="tel" value={f.phone} onChange={(e) => set({ phone: e.target.value })} />
                 {known && <span className="mt-1 block text-xs font-bold text-blue-700">✓ Found · {fmt(known.d)}</span>}</label>
             </div>
+              <div className="block"><span className="lbl">Age</span><AgeInput age={f.age} unit={f.ageUnit} onChange={(v) => set(v)} compact /></div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="block"><span className="lbl">Age</span><AgeInput age={f.age} unit={f.ageUnit} onChange={(v) => set(v)} compact /></div>
                 <label className="block"><span className="lbl">Weight (kg)</span><input className="field" type="number" inputMode="decimal" value={f.weight} onChange={(e) => set({ weight: e.target.value })} /></label>
-                <div className="col-span-2"><span className="lbl">Sex</span><div className="flex gap-1.5">{['Male', 'Female', 'Other'].map((s) => <button key={s} type="button" onClick={() => set({ sex: f.sex === s ? '' : s })} className={cx('flex-1 rounded-lg border px-2 py-2.5 text-sm font-bold', f.sex === s ? 'border-teal bg-teal text-white' : 'border-slate-300 bg-white text-slate-700')}>{s}</button>)}</div></div>
+                <div className="col-span-2 sm:col-span-3"><span className="lbl">Sex</span><div className="flex gap-1.5">{['Male', 'Female', 'Other'].map((s) => <button key={s} type="button" onClick={() => set({ sex: f.sex === s ? '' : s })} className={cx('flex-1 rounded-lg border px-2 py-2.5 text-sm font-bold', f.sex === s ? 'border-teal bg-teal text-white' : 'border-slate-300 bg-white text-slate-700')}>{s}</button>)}</div></div>
               </div>
             <div>
               <span className="lbl">Reason</span>
