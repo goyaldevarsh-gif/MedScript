@@ -4,6 +4,7 @@ import { isOrtho } from '../lib/defaults';
 import { markSent, ovMsg, sendRx } from '../lib/ovcloud';
 import OvInbox from '../components/OvInbox';
 import { matchPatient, mergeAllergy } from '../lib/desk';
+import { findPatients } from '../lib/find';
 import { decodeDesk, decodeOvIn, ovSaveUrl, ovSex, ovSide } from '../lib/orthovault';
 import BodyPicker from '../components/BodyPicker';
 import WoundCard from '../components/WoundCard';
@@ -440,7 +441,12 @@ function PrintField({ label, value, onChange, on, setOn }: { label: string; valu
 function PatientCard({ onTemplates, p, nextPid, readOnly, setPatient, onPick, onClear }: { onTemplates: () => void; p: Patient; nextPid: string; readOnly: boolean; setPatient: (p: Partial<Patient>) => void; onPick: (p: Patient) => void; onClear: () => void }) {
   const [q, setQ] = useState('');
   const all = useLiveQuery(() => db.patients.orderBy('updatedAt').reverse().toArray(), []) || [];
-  const matches = q.trim() ? all.filter((x) => norm(`${x.name} ${x.phone} ${x.pid}`).includes(norm(q))).slice(0, 6) : [];
+  const matches = q.trim() ? findPatients(all, q).slice(0, 6) : [];
+  /* "has this patient come before?": looks at what is typed in the name / phone boxes, no patient ID needed */
+  const last = useLiveQuery(async () => { const m = new Map<string, { at: number; dx: string }>(); (await db.prescriptions.orderBy('updatedAt').reverse().limit(800).toArray()).forEach((r) => { if (r.status === 'final' && !m.has(r.patientId)) m.set(r.patientId, { at: r.authorizedAt || r.updatedAt, dx: r.clinical.diagnosis }); }); return m; }, []);
+  const typed = `${p.name} ${p.phone}`;
+  const seen = !readOnly && !p.pid && (p.name.trim().length >= 3 || p.phone.replace(/\D/g, '').length >= 6) ? findPatients(all, p.phone.replace(/\D/g, '').length >= 6 ? p.phone : p.name).slice(0, 3) : [];
+  const when = (id: string) => { const l = last?.get(id); return l ? `last seen ${new Date(l.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}${l.dx ? ' · ' + l.dx : ''}` : 'no finished visit yet'; };
   return (
     <Card className="p-4">
       <fieldset disabled={readOnly} className="space-y-3">
@@ -470,6 +476,15 @@ function PatientCard({ onTemplates, p, nextPid, readOnly, setPatient, onPick, on
           <Field label="Phone"><input className="field" type="tel" inputMode="tel" value={p.phone} onChange={(e) => setPatient({ phone: e.target.value })} placeholder="10-digit mobile" /></Field>
           <Field label="Weight (kg)"><input className="field" type="number" min="0" inputMode="decimal" value={p.weight} onChange={(e) => setPatient({ weight: e.target.value })} /></Field>
         </div>
+        {seen.length > 0 && typed.trim() && (
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-2.5">
+            <div className="mb-1.5 text-xs font-extrabold uppercase tracking-wide text-blue-800">Came before?</div>
+            <div className="space-y-1.5">{seen.map((m) => (
+              <button key={m.id} type="button" className="flex w-full items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-left shadow-sm hover:ring-2 hover:ring-brand/40" onClick={() => onPick(m)}>
+                <span className="min-w-0"><span className="block truncate text-sm font-extrabold">{m.name}</span><span className="block truncate text-[11px] font-medium text-slate-500">{[m.age && `${m.age}${m.ageUnit}`, m.sex, m.phone, when(m.id)].filter(Boolean).join(' · ')}</span></span>
+                <span className="shrink-0 text-xs font-extrabold text-brand">Use this patient</span>
+              </button>))}</div>
+          </div>)}
         <Field label="Known allergies">
           <input className="field" value={p.allergies} onChange={(e) => setPatient({ allergies: e.target.value })} placeholder="e.g. Penicillin, NSAIDs" />
           <div className="mt-1.5"><Chip tone="teal" active={/^no known/i.test(p.allergies)} onClick={() => setPatient({ allergies: /^no known/i.test(p.allergies) ? '' : 'No known drug allergies' })}>No known allergies</Chip></div>

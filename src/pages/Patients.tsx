@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { findPatients } from '../lib/find';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Plus, Search, Users } from 'lucide-react';
@@ -13,7 +14,7 @@ export default function Patients() {
   const counts = useLiveQuery(async () => { const m = new Map<string, number>(); (await db.prescriptions.toArray()).forEach((r) => m.set(r.patientId, (m.get(r.patientId) || 0) + 1)); return m; }, []);
   const [q, setQ] = useState('');
   const [add, setAdd] = useState(false);
-  const f = (list || []).filter((p) => norm(`${p.name} ${p.phone} ${p.pid}`).includes(norm(q)));
+  const f = q.trim() ? findPatients(list || [], q) : (list || []);
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-4 sm:p-6">
       <div className="flex items-center gap-3"><h1 className="mr-auto text-2xl font-extrabold">Patients</h1><Btn onClick={() => setAdd(true)}><Plus size={17} /> Add patient</Btn></div>
