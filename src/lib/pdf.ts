@@ -15,7 +15,7 @@ import { printTests } from '../data/tests';
 
 const NAVY: [number, number, number] = [16, 36, 58];
 const BLUE: [number, number, number] = [37, 99, 235];
-const TEAL: [number, number, number] = [13, 148, 136];
+const TEAL: [number, number, number] = [58, 134, 200]; // the accent: a soft sky blue
 const GREY: [number, number, number] = [90, 100, 115];
 const RED: [number, number, number] = [198, 40, 40];
 const SURFACE: [number, number, number] = [243, 246, 250];
@@ -37,7 +37,7 @@ export function itemTitle(it: RxItem, mode: 'generic' | 'brand', caps: boolean):
   return { main: `${pre ? pre + ' ' : ''}${gen}${st}`, sub: it.brand ? `(Brand: ${it.brand})` : '' };
 }
 
-async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, fit: number): Promise<{ blob: Blob; pages: number }> {
+async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, fit: number): Promise<{ blob: Blob; pages: number; ratio: number }> {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
   doc.setProperties({ title: `Prescription - ${rx.patient.name || 'Patient'}`, author: drName(snap.doctor.fullName) || 'MedScript', creator: 'MedScript' });
@@ -173,13 +173,16 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   const showSeal = !opts.draft && opts.showStamp && sealUrl && sealSize;
   const sealW = showSeal ? snap.seal.widthMm : 0;
   const sealH = showSeal && sealSize ? sealW * (sealSize.h / sealSize.w) : 0;
-  const BLOCK_H = Math.max(42, sealH + 12, qrList.length ? 30 : 0);
+  const BLOCK_H = Math.max(34, sealH + 10, qrList.length ? 30 : 0);
   const limitNormal = () => PH - FOOT;
+  // how much room the content used on each finished page, so a too-long prescription can be rescaled in one go
+  let pageStart = 0, usedPrev = 0;
+  const turnPage = () => { usedPrev += limitNormal() - pageStart; doc.addPage(); drawContHeader(); pageStart = y; };
   function ensure(h: number) {
-    if (y + h > limitNormal()) { doc.addPage(); drawContHeader(); }
+    if (y + h > limitNormal()) turnPage();
   }
 
-  drawHeader();
+  drawHeader(); pageStart = y; const firstStart = y;
 
   /* ---------- patient strip (one ID only) ---------- */
   {
@@ -342,7 +345,7 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   if (fuDate) {
     ensure(14);
     const wd = fuDate.toLocaleDateString('en-GB', { weekday: 'long' });
-    doc.setFillColor(228, 243, 240); doc.roundedRect(M, y, CW, 7.6, 1.4, 1.4, 'F');
+    doc.setFillColor(231, 241, 250); doc.roundedRect(M, y, CW, 7.6, 1.4, 1.4, 'F');
     doc.setFillColor(...TEAL); doc.roundedRect(M, y, 1.3, 7.6, 0.6, 0.6, 'F');
     font('bold', 10.6 * sc, TEAL);
     doc.text(`Next visit: ${fmtDate(fuDate)} (${wd})   ·   in ${rx.followUpDays} days`, M + 4, y + 5.1);
@@ -355,7 +358,10 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   if (an) para(an, M, CW, 'normal', 8 * sc, GREY, 0.4);
 
   /* ---------- authorisation block: QR (left) | stamp | signature (right) - never overlapping ---------- */
-  if (y > PH - FOOT - BLOCK_H) { doc.addPage(); drawContHeader(); }
+  const capacity = PH - FOOT - BLOCK_H - (usedPrev ? 0 : 0);
+  const needed = usedPrev + (y - pageStart);
+  const ratio = needed > 0 ? (capacity - firstStart) / needed : 1;
+  if (y > PH - FOOT - BLOCK_H) turnPage();
   const sigBottom = PH - FOOT;
   const lineY = sigBottom - 11;
   const colW = 60, gap = 9;
@@ -431,19 +437,25 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     if (addr) { let fs = 7.8; font('bold', fs, NAVY); while (fs > 5.8 && doc.getTextWidth(clean(addr)) > CW) { fs -= 0.2; font('bold', fs, NAVY); } doc.text(clean(addr), PW / 2, PH - 4.2, { align: 'center', maxWidth: CW }); }
     if (L.footerNote.trim()) { font('italic', 7, GREY); doc.text(clean(L.footerNote), PW / 2, PH - 8, { align: 'center', maxWidth: 80 }); }
   }
-  return { blob: doc.output('blob'), pages: total };
+  return { blob: doc.output('blob'), pages: total, ratio };
 }
 
 /** Readable first: normal size; if it spills, try a little smaller (never below 0.8, and at most three extra renders: they are slow with Hindi text).
  *  Rather than shrink the print into tiny type, a long prescription is allowed to run onto a second page. */
 export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts): Promise<{ blob: Blob; pages: number }> {
-  const first = await renderPdf(rx, snap, opts, 1);
-  if (first.pages === 1) return first;
-  const mid = await renderPdf(rx, snap, opts, 0.88);
-  if (mid.pages === 1) return mid;
-  const low = await renderPdf(rx, snap, opts, 0.8);
-  if (low.pages === 1) return low;
-  return renderPdf(rx, snap, opts, 0.94); // still too long: keep it readable and let it run to a second page
+  let r = await renderPdf(rx, snap, opts, 1);
+  // everything on ONE page matters most: the first render tells how much too long it is, so we scale to fit in one or two more renders
+  let f = 1;
+  for (let i = 0; i < 3 && r.pages > 1 && f > 0.62; i++) {
+    f = Math.max(0.62, Math.round(Math.min(1, f * r.ratio) * 0.985 * 100) / 100 - (i ? 0.02 * i : 0));
+    r = await renderPdf(rx, snap, opts, f);
+  }
+  if (r.pages > 1) return renderPdf(rx, snap, opts, 0.9); // truly too long: stay readable and run to a second page
+  if (f < 1 && r.ratio > 1.06) { // it fits with room to spare: grow the type back as far as it will go
+    const g = Math.min(1, Math.round(f * r.ratio * 0.99 * 100) / 100);
+    if (g > f + 0.02) { const t = await renderPdf(rx, snap, opts, g); if (t.pages === 1) return t; }
+  }
+  return r;
 }
 
 export async function sealFor(snap: DoctorSnapshot) {
