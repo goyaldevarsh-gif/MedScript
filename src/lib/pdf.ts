@@ -326,6 +326,8 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
     const hiAll = lang === 'hi' && advice.every((a) => DEV.test(a) || adviceHi(a));
     advice.forEach((a) => {
       const text = hiAll && !DEV.test(a) ? adviceHi(a) : a;
+      // move to the next page first, so a bullet is never left alone at the foot of a page
+      ensure(DEV.test(text) ? hiBlock(text, CW - 5, 9 * sc, NAVY, false).h : heightOf(text, CW - 5, 9 * sc, 'normal'));
       doc.setFillColor(...TEAL); doc.circle(M + 1.6, y + 2, 0.55, 'F');
       if (DEV.test(text)) hiPara(text, M + 5, CW - 5, 9 * sc, NAVY, false, 0.5);
       else { para(text, M + 5, CW - 5, 'normal', 9 * sc, NAVY, 0.5); }
