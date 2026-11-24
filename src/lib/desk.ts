@@ -144,7 +144,9 @@ export async function deskWipe(id: string) { try { if (!ok(id)) return; const { 
 const ok = (id: string) => /^[a-z0-9]{20,40}$/.test(id);
 
 /** adds the patient to today's list and returns the token number (1, 2, 3... restarting each day) */
-export async function deskSubmit(id: string, e: DeskIn): Promise<number> {
+export async function deskSubmit(id: string, e: DeskIn): Promise<number> { return (await deskSubmitFull(id, e)).n; }
+/** same as deskSubmit, and also returns the id of the new queue entry (the ClinicQ link needs it) */
+export async function deskSubmitFull(id: string, e: DeskIn): Promise<{ n: number; docId: string }> {
   if (!ok(id)) throw new Error('This desk link is not valid.');
   const { fs, F } = await load(); const d = deskDay();
   const cref = F.doc(fs, 'desks', id, 'counters', d); const qref = F.doc(F.collection(fs, 'desks', id, 'queue'));
@@ -154,7 +156,8 @@ export async function deskSubmit(id: string, e: DeskIn): Promise<number> {
     return n;
   });
   // offline, Firestore keeps retrying quietly: give the receptionist a clear answer instead of a spinner that never ends
-  return Promise.race([run, new Promise<number>((_, rej) => setTimeout(() => rej({ code: 'timeout' }), 15000))]);
+  const n = await Promise.race([run, new Promise<number>((_, rej) => setTimeout(() => rej({ code: 'timeout' }), 15000))]);
+  return { n, docId: qref.id };
 }
 /** live list of today's entries, in token order */
 export async function deskWatch(id: string, cb: (x: DeskItem[]) => void, onErr?: (e: unknown) => void): Promise<() => void> {

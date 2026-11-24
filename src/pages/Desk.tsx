@@ -7,6 +7,9 @@ import { CheckCircle2, Clock, Hourglass, ListChecks, Repeat, Search, Trash2, Use
 import { deskDirWatch, deskMsg, deskRemove, deskSubmit, deskWatch, suggest, validKey, type DeskIn, type DeskItem, type DeskProf, type DirRow } from '../lib/desk';
 import { useUpdate } from '../lib/pwa';
 import { cx } from '../lib/util';
+import DeskBookings from '../components/DeskBookings';
+import { useClinicQ } from '../lib/useClinicQ';
+import { deskDay } from '../lib/desk';
 
 const REASONS = ['Knee pain', 'Back pain', 'Neck pain', 'Shoulder pain', 'Hip pain', 'Fall / injury', 'Fracture follow-up', 'Post-op follow-up', 'Report show'];
 const blank = (): DeskIn => ({ name: '', age: '', ageUnit: 'Y', sex: '', phone: '', weight: '', allergies: '', reason: '', bp: '', sugar: '', followUp: false, toOv: false });
@@ -24,10 +27,12 @@ export default function Desk() {
   const [list, setList] = useState<DeskItem[]>([]); const [lerr, setLerr] = useState('');
   const [now, setNow] = useState(Date.now());
   const [prof, setProf] = useState<DeskProf | null>(null); const [dir, setDir] = useState<DirRow[] | null>(null); const [derr, setDerr] = useState('');
-  const [open, setOpen] = useState(false); const [tab, setTab] = useState<'w' | 'a'>('w');
+  const [open, setOpen] = useState(false); const [tab, setTab] = useState<'w' | 'a' | 'b'>('w');
   const [q, setQ] = useState(''); const [picked, setPicked] = useState<DirRow | null>(null);
   const sug = useMemo(() => (dir && q.trim().length >= 2 ? suggest(dir, q) : []), [dir, q]);
   const set = (x: Partial<DeskIn>) => setF((c) => ({ ...c, ...x }));
+  const cq = useClinicQ(id, list, dir);
+  const cqPending = cq.date === deskDay() ? cq.appts.filter((a) => a.status === 'waiting' && !a.arrivedAt).length : 0;
 
   // the desk keeps nothing that an update can lose: pick up a new version by itself, but never in the middle of a check-in
   const upd = useUpdate();
@@ -89,6 +94,7 @@ export default function Desk() {
         <div className="mt-6 space-y-1 text-sm font-bold">
           <button type="button" onClick={() => setTab('w')} className={cx('flex w-full items-center justify-between rounded-lg px-3 py-2.5', tab === 'w' ? 'bg-white/15' : 'text-white/70 hover:bg-white/10')}>Waiting <span>{waiting.length}</span></button>
           <button type="button" onClick={() => setTab('a')} className={cx('flex w-full items-center justify-between rounded-lg px-3 py-2.5', tab === 'a' ? 'bg-white/15' : 'text-white/70 hover:bg-white/10')}>All today <span>{list.length}</span></button>
+          <button type="button" onClick={() => setTab('b')} className={cx('flex w-full items-center justify-between rounded-lg px-3 py-2.5', tab === 'b' ? 'bg-white/15' : 'text-white/70 hover:bg-white/10')}>Bookings <span>{cqPending}</span></button>
         </div>
         <div className="mt-auto rounded-xl bg-white/10 p-3 text-sm"><div className="flex items-center gap-2 font-extrabold"><Clock size={16} /> {clock}</div><div className="mt-1 flex items-center gap-2 text-xs font-semibold text-white/70"><span className={cx('h-2 w-2 rounded-full', lerr ? 'bg-amber-400' : 'bg-emerald-400')} /> {lerr ? 'Offline' : 'Live'}</div></div>
       <div className="mt-auto pt-6 text-center text-[10px] font-semibold leading-snug text-white/40">© {new Date().getFullYear()} OrthoVault<br />Dr. Devarsh Goyal<br />All rights reserved</div>
@@ -117,8 +123,9 @@ export default function Desk() {
           {/* ---------- queue ---------- */}
           <section className="card overflow-hidden xl:col-span-8">
             <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 p-3">
-              {([['w', `Waiting (${waiting.length})`], ['a', `All today (${list.length})`]] as const).map(([k, l]) => <button key={k} type="button" onClick={() => setTab(k)} className={cx('rounded-xl px-4 py-2 text-sm font-extrabold', tab === k ? 'bg-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')}>{l}</button>)}
+              {([['w', `Waiting (${waiting.length})`], ['a', `All today (${list.length})`], ['b', `Bookings (${cqPending})`]] as const).map(([k, l]) => <button key={k} type="button" onClick={() => setTab(k)} className={cx('rounded-xl px-4 py-2 text-sm font-extrabold', tab === k ? 'bg-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')}>{l}</button>)}
             </div>
+            {tab === 'b' ? <DeskBookings cq={cq} /> : <>
             {lerr && <div className="m-3 rounded-xl bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900">{lerr}</div>}
             {!lerr && !rows.length && <div className="p-12 text-center"><div className="text-4xl">☕</div><div className="mt-2 text-lg font-extrabold text-slate-700">All clear</div><div className="text-sm text-slate-500">New check-ins show up here</div></div>}
             {rows.length > 0 && <div className="hidden grid-cols-[3.5rem_1fr_6rem_6.5rem_5.5rem_6rem_2.5rem] gap-2 bg-slate-50 px-4 py-2 text-xs font-extrabold uppercase text-slate-500 md:grid"><span>Token</span><span>Patient</span><span>Age / Sex</span><span>Visit</span><span>Time</span><span>Status</span><span /></div>}
@@ -135,6 +142,7 @@ export default function Desk() {
                   <button aria-label="Remove" title="Remove" className="hidden justify-self-end rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 md:block" onClick={() => deskRemove(id, it.id).catch((e) => setLerr(deskMsg(e)))}><Trash2 size={17} /></button>
                 </div>); })}
             </div>
+            </>}
           </section>
 
           {/* ---------- find patient ---------- */}
