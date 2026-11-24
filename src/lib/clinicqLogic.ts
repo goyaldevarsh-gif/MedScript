@@ -49,3 +49,23 @@ export const waLink = (a: CqAppt, clinicName: string, doctorName: string) => {
   const text = `Hello ${a.name}, a reminder of your ${a.type} appointment${doctorName ? ' with ' + doctorName : ''}${clinicName ? ' at ' + clinicName : ''} on ${when}. Token ${fmtQ(a.token)}. Please let us know if you cannot come.`;
   return `https://wa.me/91${(a.phone || '').replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent(text)}`;
 };
+
+/** What the patient sees in ClinicQ → Records for one finished prescription. Plain text only; nothing from OrthoVault, no internal notes. */
+export interface CqRecord { id: string; clinicId: string; phone: string; name: string; doctorName: string; date: string; title: string; body: string; createdAt: number }
+export function recordFromRx(rx: import('./types').Prescription, clinicId: string): CqRecord | null {
+  const phone = (rx.patient.phone || '').replace(/\D/g, '').slice(-10);
+  if (rx.status !== 'final' || phone.length !== 10) return null;
+  const when = new Date(rx.authorizedAt || rx.createdAt); const p = (n: number) => String(n).padStart(2, '0');
+  const date = `${when.getFullYear()}-${p(when.getMonth() + 1)}-${p(when.getDate())}`;
+  const c = rx.clinical; const lines: string[] = [];
+  if (c.diagnosis?.trim()) lines.push(`Diagnosis: ${c.diagnosis.trim()}`);
+  const meds = rx.items.map((it, i) => {
+    const n = ((it.brand ? it.brand.toUpperCase() : it.generic) || '').trim();
+    return `${i + 1}. ${[n, (it.strength || '').trim()].filter(Boolean).join(' ')}${it.notes ? ` (${it.notes})` : ''}`;
+  });
+  if (meds.length) lines.push('', 'Medicines:', ...meds);
+  const adv = (c.advice || []).map((a) => String(a).trim()).filter(Boolean);
+  if (adv.length) lines.push('', 'Advice:', ...adv.map((a) => `• ${a}`));
+  if (rx.followUpDays > 0) { const f = new Date(when.getTime() + rx.followUpDays * 86400000); lines.push('', `Follow-up: ${p(f.getDate())}-${p(f.getMonth() + 1)}-${f.getFullYear()}`); }
+  return { id: rx.id, clinicId, phone, name: rx.patient.name.trim(), doctorName: rx.doctorSnapshot?.doctor.fullName || '', date, title: `Prescription ${rx.rxNo}`, body: lines.join('\n'), createdAt: Date.now() };
+}

@@ -10,6 +10,7 @@ import { Btn, Card, Empty, Modal, useToast } from '../components/ui';
 import { uid } from '../lib/util';
 import PatientForm from '../components/PatientForm';
 import RxRow from '../components/RxRow';
+import SendToPatient from '../components/SendToPatient';
 
 export default function PatientDetail() {
   const { id } = useParams();
@@ -65,6 +66,7 @@ export default function PatientDetail() {
           {rxs.map((r) => (
             <div key={r.id} className="flex items-center gap-2">
               <div className="min-w-0 flex-1"><RxRow rx={r} showPatient={false} /></div>
+              <SendToPatient rx={r} />
               <Btn variant="ghost" size="sm" title="Duplicate as draft" onClick={async () => { const c = await duplicateRx(r.id); toast('Duplicated as draft'); nav(`/rx/${c.id}`); }}><Copy size={16} /></Btn>
             </div>
           ))}

@@ -86,3 +86,9 @@ export async function cqPublishLive(clinicId: string, rows: Record<string, { t: 
   const { fs, F } = await load();
   await Promise.all(Object.entries(rows).map(([k, arrived]) => F.setDoc(F.doc(fs, 'clinics', clinicId, 'live', k), { arrived })));
 }
+
+/** doctor sends one finished prescription to the patient's ClinicQ Records (the patient sees it only if the clinic has switched sharing on, and only after logging in with this phone) */
+export async function cqSendRecord(rec: import('./clinicqLogic').CqRecord) {
+  const { fs, F } = await load();
+  await F.setDoc(F.doc(fs, 'clinics', rec.clinicId, 'records', rec.id), rec);
+}

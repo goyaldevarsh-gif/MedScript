@@ -49,3 +49,18 @@ describe('status follows the doctor\'s waiting list', () => {
 describe('WhatsApp reminder', () => {
   it('builds a wa.me link with the last 10 digits', () => { expect(waLink(base, 'My Clinic', 'Dr G')).toMatch(/^https:\/\/wa\.me\/919829012345\?text=/); });
 });
+
+import { recordFromRx } from '../src/lib/clinicqLogic';
+describe('record for the patient', () => {
+  const rx = { id: 'r1', rxNo: 'RX-7', status: 'final', createdAt: Date.parse('2026-12-01T10:00:00'), followUpDays: 7, patient: { name: 'Amit', phone: '98290 12345', allergies: 'penicillin' },
+    clinical: { diagnosis: 'Knee OA', advice: ['Rest', ' '], examination: 'private exam note' }, items: [{ brand: 'xyz', generic: 'g', strength: '500mg', notes: 'after food' }], doctorSnapshot: { doctor: { fullName: 'Dr G' } } } as never;
+  it('has diagnosis, medicines, advice, follow-up and the 10-digit phone', () => {
+    const r = recordFromRx(rx, 'c')!; expect(r.phone).toBe('9829012345'); expect(r.id).toBe('r1'); expect(r.title).toBe('Prescription RX-7');
+    expect(r.body).toContain('Diagnosis: Knee OA'); expect(r.body).toContain('1. XYZ 500mg (after food)'); expect(r.body).toContain('• Rest'); expect(r.body).toContain('Follow-up: 08-12-2026');
+  });
+  it('never leaks examination or allergy lines', () => { const b = recordFromRx(rx, 'c')!.body; expect(b).not.toContain('private'); expect(b).not.toContain('penicillin'); });
+  it('drafts and phone-less patients are not sendable', () => {
+    expect(recordFromRx({ ...(rx as object), status: 'draft' } as never, 'c')).toBeNull();
+    expect(recordFromRx({ ...(rx as object), patient: { name: 'A', phone: '' } } as never, 'c')).toBeNull();
+  });
+});
