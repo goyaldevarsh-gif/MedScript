@@ -432,13 +432,16 @@ async function renderPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts, 
   return { blob: doc.output('blob'), pages: total };
 }
 
-/** Renders at normal size; if it spills onto a second page, retries slightly smaller so most prescriptions fit one page. */
+/** Readable first: normal size; if it spills, try a little smaller (never below 0.8, and at most three extra renders: they are slow with Hindi text).
+ *  Rather than shrink the print into tiny type, a long prescription is allowed to run onto a second page. */
 export async function buildPdf(rx: Prescription, snap: DoctorSnapshot, opts: PdfOpts): Promise<{ blob: Blob; pages: number }> {
   const first = await renderPdf(rx, snap, opts, 1);
   if (first.pages === 1) return first;
-  // keep the prescription on ONE page: shrink everything a little at a time until it fits
-  for (const f of [0.97, 0.94, 0.91, 0.88, 0.85, 0.82, 0.79, 0.76, 0.73, 0.7, 0.67, 0.64, 0.61, 0.58, 0.55]) { const t = await renderPdf(rx, snap, opts, f); if (t.pages === 1) return t; }
-  return first;
+  const mid = await renderPdf(rx, snap, opts, 0.88);
+  if (mid.pages === 1) return mid;
+  const low = await renderPdf(rx, snap, opts, 0.8);
+  if (low.pages === 1) return low;
+  return renderPdf(rx, snap, opts, 0.94); // still too long: keep it readable and let it run to a second page
 }
 
 export async function sealFor(snap: DoctorSnapshot) {
