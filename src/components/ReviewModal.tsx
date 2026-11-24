@@ -8,6 +8,7 @@ import { computeQty, doseLabel, durationLabel, freqLabel, itemInstructions, item
 import { makeSnapshot } from '../lib/snapshot';
 import { finalizeRx } from '../lib/db';
 import { flushOv } from '../lib/ovsync';
+import { cqAutoSend } from '../lib/clinicq';
 import { cx } from '../lib/util';
 import { itemTitle } from '../lib/pdf';
 
@@ -43,6 +44,7 @@ export default function ReviewModal({ rx, settings, onClose, onDone, onChangeTog
       const done = await finalizeRx({ ...rx, toggles: { logo: rx.toggles.logo && hasLogo || (rx.toggles.logo && settings.layout.headerBrand), signature: rx.toggles.signature && hasSig, stamp: sealOn } }, snap, notes.map((w) => w.text));
       toast(`Authorised · ${done.rxNo}`);
       flushOv(settings.ovEmail, done);
+      void cqAutoSend(done);
       onDone(done);
     } catch (e: any) { toast(e.message || 'Could not finalize', { tone: 'err' }); setBusy(false); }
   }

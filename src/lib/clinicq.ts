@@ -92,3 +92,15 @@ export async function cqSendRecord(rec: import('./clinicqLogic').CqRecord) {
   const { fs, F } = await load();
   await F.setDoc(F.doc(fs, 'clinics', rec.clinicId, 'records', rec.id), rec);
 }
+
+/** Optional, per device: every newly authorised prescription goes to the patient's Records with no extra tap. Silent and best-effort (does nothing unless ClinicQ is connected on this device). */
+const AUTO = 'ms-cq-auto';
+export const cqAuto = () => { try { return localStorage.getItem(AUTO) === '1'; } catch { return false; } };
+export const setCqAuto = (on: boolean) => { try { on ? localStorage.setItem(AUTO, '1') : localStorage.removeItem(AUTO); } catch { /* ignore */ } };
+export async function cqAutoSend(rx: import('./types').Prescription) {
+  if (!cqAuto()) return;
+  try {
+    const { recordFromRx } = await import('./clinicqLogic'); const w = await cqWho(); if (!w) return;
+    const rec = recordFromRx(rx, w.clinicId); if (rec) await cqSendRecord(rec);
+  } catch { /* the manual button is still there */ }
+}
